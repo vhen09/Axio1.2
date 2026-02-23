@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - REANA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #2D3F54 0%, #1A2332 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .page-header h1 {
+            color: var(--gold);
+            margin: 0 0 10px 0;
+        }
+        .page-header p {
+            color: #B8C5D6;
+            margin: 0;
+        }
+        .settings-grid {
+            display: grid;
+            gap: 30px;
+        }
+        .settings-section {
+            background: linear-gradient(135deg, #1A2332 0%, #0A1929 100%);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 12px;
+            padding: 25px;
+        }
+        .settings-section h2 {
+            color: var(--gold);
+            margin: 0 0 20px 0;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 6px;
+            color: #E8EAF6;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        .btn-save {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--navy-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        .btn-danger {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+        .shortcuts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .shortcuts-table th, .shortcuts-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            vertical-align: middle;
+        }
+        .shortcuts-table th {
+            color: var(--gold);
+            font-weight: bold;
+        }
+        .shortcuts-table td {
+            color: #E8EAF6;
+        }
+        .shortcut-key {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--gold);
+            font-size: 0.95rem;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--gold);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+        .preference-label {
+            color: #E8EAF6;
+            line-height: 1.5;
+        }
+        .preference-label small {
+            display: block;
+            color: #B8C5D6;
+            margin-top: 5px;
+        }
+        .success-message {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>REANA</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="tutor.html" class="nav-item">🤖 AI Proof Assistant</a>
+            <a href="submissions.html" class="nav-item">📝 My Proofs</a>
+            <a href="scores.html" class="nav-item">🏆 Scores</a>
+            <a href="settings.html" class="nav-item active">⚙️ Settings</a>
+        </nav>
+    </div>
+    
+    <div class="main-area">
+        <div class="main-content">
+            <div class="page-header">
+                <h1>⚙️ Settings & Preferences</h1>
+                <p>Customize your REANA experience</p>
+            </div>
+            
+            <div id="success-message" class="success-message">
+                ✓ Settings saved successfully!
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Profile Section -->
+                <div class="settings-section">
+                    <h2>👤 Profile Settings</h2>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">New Password (leave blank to keep current)</label>
+                            <input type="password" id="password" name="password" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn-save">💾 Save Profile</button>
+                    </form>
+                </div>
+                
+                <!-- Preferences Section -->
+                <div class="settings-section">
+                    <h2>🎨 Preferences</h2>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Auto-save proofs
+                            <small>Automatically save your work to localStorage</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-save" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Show keyboard shortcuts
+                            <small>Display keyboard shortcut hints in AI Tutor</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-shortcuts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Enable notifications
+                            <small>Get notified about proof verification results</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifications">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Dark theme
+                            <small>Use dark navy/gold theme (current)</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dark-theme" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Keyboard Shortcuts Reference -->
+                <div class="settings-section">
+                    <h2>⌨️ Keyboard Shortcuts</h2>
+                    <p style="color: #B8C5D6; margin-bottom: 15px;">
+                        Use these shortcuts in the AI Proof Assistant to quickly insert mathematical symbols
+                    </p>
+                    <table class="shortcuts-table">
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Symbol</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="shortcut-key">Alt+A</span></td><td>α</td><td>Alpha</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+B</span></td><td>β</td><td>Beta</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+E</span></td><td>ε</td><td>Epsilon</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+D</span></td><td>δ</td><td>Delta</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+8</span></td><td>∀</td><td>For all</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+3</span></td><td>∃</td><td>Exists</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+I</span></td><td>∈</td><td>Element of</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+L</span></td><td>→</td><td>Implies</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+6</span></td><td>∧</td><td>And</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+7</span></td><td>∨</td><td>Or</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+N</span></td><td>¬</td><td>Not</td></tr>
+                            <tr><td><span class="shortcut-key">Alt+0</span></td><td>∞</td><td>Infinity</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Data Management -->
+                <div class="settings-section">
+                    <h2>💾 Data Management</h2>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Clear saved data
+                            <small>Remove all auto-saved proofs from localStorage</small>
+                        </div>
+                        <button class="btn-danger" onclick="clearLocalStorage()">🗑️ Clear Data</button>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Export progress
+                            <small>Download your submissions and scores as JSON</small>
+                        </div>
+                        <button class="btn-save" onclick="exportData()">📥 Export Data</button>
+                    </div>
+                </div>
+                
+                <!-- Help & Documentation -->
+                <div class="settings-section">
+                    <h2>📖 Help & Documentation</h2>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            User Guide
+                            <small>Comprehensive guide to using REANA</small>
+                        </div>
+                        <button class="btn-save" onclick="window.open('../../USER_GUIDE.md', '_blank')">📚 View Guide</button>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            System Documentation
+                            <small>Technical details and API reference</small>
+                        </div>
+                        <button class="btn-save" onclick="window.open('../../README.md', '_blank')">📄 View Docs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/sidebar.js"></script>
+    <script>
+        // Load saved settings
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load profile from localStorage
+            const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
+            if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
+            if (savedProfile.email) document.getElementById('email').value = savedProfile.email;
+            
+            // Load preferences
+            const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
+            document.getElementById('auto-save').checked = prefs.autoSave !== false;
+            document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
+            document.getElementById('notifications').checked = prefs.notifications === true;
+            document.getElementById('dark-theme').checked = prefs.darkTheme !== false;
+        });
+        
+        // Save profile
+        document.getElementById('profile-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const profile = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value
+            };
+            localStorage.setItem('reana_profile', JSON.stringify(profile));
+            showSuccess();
+        });
+        
+        // Save preferences on toggle
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                const prefs = {
+                    autoSave: document.getElementById('auto-save').checked,
+                    showShortcuts: document.getElementById('show-shortcuts').checked,
+                    notifications: document.getElementById('notifications').checked,
+                    darkTheme: document.getElementById('dark-theme').checked
+                };
+                localStorage.setItem('reana_preferences', JSON.stringify(prefs));
+                showSuccess();
+            });
+        });
+        
+        function showSuccess() {
+            const msg = document.getElementById('success-message');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+        
+        function clearLocalStorage() {
+            if (confirm('Are you sure you want to clear all saved data? This cannot be undone.')) {
+                localStorage.removeItem('reana_saved_theorem');
+                localStorage.removeItem('reana_saved_steps');
+                alert('✓ Saved data cleared successfully!');
+            }
+        }
+        
+        async function exportData() {
+            try {
+                // Fetch data from APIs
+                const [submissionsRes, scoresRes] = await Promise.all([
+                    fetch('http://localhost:8080/backend/api/submissions.php'),
+                    fetch('http://localhost:8080/backend/api/scores.php')
+                ]);
+                
+                const submissions = await submissionsRes.json();
+                const scores = await scoresRes.json();
+                
+                const exportData = {
+                    exported_at: new Date().toISOString(),
+                    submissions: submissions.submissions || [],
+                    scores: scores.scores || [],
+                    profile: JSON.parse(localStorage.getItem('reana_profile') || '{}')
+                };
+                
+                // Download as JSON
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reana_export_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('✓ Data exported successfully!');
+            } catch (error) {
+                alert('✗ Export failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

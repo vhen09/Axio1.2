@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Proof Tutor</title>
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/sidebar.css">
+<link rel="stylesheet" href="../css/tutor.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+<style>
+/* ================= SYMBOL PANEL ON RIGHT ================= */
+#symbol-panel {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    width: 280px;
+    height: calc(100% - 60px);
+    background: #111;
+    color: white;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.4);
+    border-left: 2px solid #222;
+    display: none;
+    z-index: 1000;
+}
+
+#symbol-panel.active {
+    display: block;
+}
+
+#symbol-panel h3, #symbol-panel h4 {
+    margin-top: 20px;
+    color: #ffffff;
+}
+
+.symbol-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.symbol-row span {
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #222;
+    transition: 0.2s;
+}
+
+.symbol-row span:hover {
+    background: #444;
+    transform: scale(1.1);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header"><h2>REANA</h2></div>
+    <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+        <a href="tutor.html" class="nav-item active">🤖 AI Proof Assistant</a>
+        <a href="submissions.html" class="nav-item">📝 My Proofs</a>
+        <a href="scores.html" class="nav-item">🏆 Scores</a>
+        <a href="settings.html" class="nav-item">⚙️ Settings</a>
+    </nav>
+</div>
+
+<div class="main-area">
+<div class="main-content">
+
+<h1>🤖 AI Proof Tutor - Real Analysis Assistant</h1>
+<p class="subtitle">Step-by-step formal proof guidance</p>
+
+<!-- THEOREM INPUT -->
+<div class="section-card">
+<h2>📐 Theorem Statement</h2>
+
+<textarea id="theorem-input"
+placeholder="Enter your theorem. Example:
+For all ε > 0, there exists δ > 0 such that..."
+rows="4"></textarea>
+
+<div class="symbol-toolbar">
+<button id="open-symbols" class="btn-secondary">
+⌨️ Insert Symbol
+</button>
+</div>
+
+<div class="latex-preview-box">
+<div class="latex-preview-title">LaTeX Preview</div>
+<div id="theorem-preview" class="text-muted">
+Type theorem using $...$ for math.
+</div>
+</div>
+
+<div>
+    
+</div>
+
+<!-- PROOF SECTION -->
+<div class="section-card">
+<h2>✍️ Your Proof</h2>
+
+<div id="proof-steps">
+<div class="proof-step-container">
+<div class="step-header">
+<span>Step 1</span>
+<button onclick="verifyCurrentStep(0)">✓ Verify</button>
+</div>
+<textarea class="proof-step" rows="3"></textarea>
+<div class="step-feedback"></div>
+</div>
+</div>
+
+<button id="add-step">+ Add Step</button>
+
+<div class="latex-preview-box">
+<div class="latex-preview-title">Proof Preview</div>
+<div id="proof-preview" class="text-muted">
+Proof preview appears here.
+</div>
+</div>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="action-buttons">
+<button id="btn-strategy">💡 Strategy</button>
+<button id="btn-next">→ Next Step</button>
+<button id="btn-check">✓ Check Proof</button>
+<button id="btn-hint">❓ Hint</button>
+</div>
+
+<!-- AI RESPONSE -->
+<div class="section-card">
+<h2>🤖 AI Response</h2>
+<div id="assistant-response">
+Welcome! Enter a theorem to begin.
+</div>
+<div id="loading" style="display:none;">⏳ AI thinking...</div>
+</div>
+
+</div>
+</div>
+
+<!-- ================= SYMBOL PANEL (RIGHT SIDE) ================= -->
+<div id="symbol-panel">
+<h3>Insert Mathematical Symbol</h3>
+
+<h4>Greek</h4>
+<div class="symbol-row">α β γ δ ε θ λ μ π σ Δ Σ</div>
+
+<h4>Logic</h4>
+<div class="symbol-row">∀ ∃ ∈ ∉ ⊂ ⊆ ∪ ∩ → ⇒ ⇔ ¬</div>
+
+<h4>Math</h4>
+<div class="symbol-row">∞ ≤ ≥ ≠ ≈ ± ∓ × ÷ √ ∑ ∏</div>
+
+<h4>Calculus</h4>
+<div class="symbol-row">∫ ∂ ∇ lim Δx d/dx</div>
+
+<h4>Sets</h4>
+<div class="symbol-row">ℕ ℤ ℚ ℝ ℂ ∅</div>
+
+<button onclick="closeSymbolPanel()">Close</button>
+</div>
+
+
+
+<!-- ================= JS ================= -->
+
+<script type="module">
+import tutorClient from '../js/tutor-client.js';
+
+let currentStep = 1;
+let lastFocusedTextarea = null;
+
+/* ================= Focus Tracking ================= */
+
+document.addEventListener('focusin', e => {
+    if (e.target.tagName === 'TEXTAREA') {
+        lastFocusedTextarea = e.target;
+    }
+});
+
+/* ================= Debounce ================= */
+
+function debounce(fn, delay=300) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+    };
+}
+
+
+/* ================= SYMBOL PANEL ================= */
+const panel = document.getElementById('symbol-panel');
+
+document.getElementById('open-symbols').addEventListener('click', () => {
+    panel.classList.add('active');
+});
+
+window.closeSymbolPanel = function(){
+    panel.classList.remove('active');
+}
+
+document.querySelectorAll('.symbol-row').forEach(row=>{
+    row.innerHTML = row.textContent.trim().split(/\s+/).map(s=>`<span>${s}</span>`).join('');
+    row.querySelectorAll('span').forEach(span=>{
+        span.addEventListener('click', ()=>{
+            insertSymbol(span.textContent);
+        });
+    });
+});
+
+function insertSymbol(symbol){
+    if(!lastFocusedTextarea) return;
+    const start=lastFocusedTextarea.selectionStart;
+    const end=lastFocusedTextarea.selectionEnd;
+    lastFocusedTextarea.value = lastFocusedTextarea.value.slice(0,start)+symbol+lastFocusedTextarea.value.slice(end);
+    lastFocusedTextarea.selectionStart = lastFocusedTextarea.selectionEnd = start + symbol.length;
+    lastFocusedTextarea.focus();
+}
+
+/* ================= LaTeX Rendering ================= */
+
+function renderMath(node) {
+    if (typeof renderMathInElement !== 'function') return;
+    renderMathInElement(node, {
+        delimiters: [
+            {left:'$$', right:'$$', display:true},
+            {left:'$', right:'$', display:false}
+        ]
+    });
+}
+
+document.getElementById('theorem-input')
+.addEventListener('input', debounce(updateTheoremPreview));
+
+function updateTheoremPreview() {
+    const val = document.getElementById('theorem-input').value.trim();
+    const preview = document.getElementById('theorem-preview');
+    preview.textContent = val || "Type theorem using $...$";
+    renderMath(preview);
+}
+
+/* ================= Add Step ================= */
+
+document.getElementById('add-step').addEventListener('click', () => {
+    currentStep++;
+    const container = document.createElement('div');
+    container.className = 'proof-step-container';
+    container.innerHTML = `
+        <div class="step-header">
+            <span>Step ${currentStep}</span>
+            <button onclick="verifyCurrentStep(${currentStep-1})">✓ Verify</button>
+        </div>
+        <textarea class="proof-step" rows="3"></textarea>
+        <div class="step-feedback"></div>
+    `;
+    document.getElementById('proof-steps').appendChild(container);
+});
+
+/* ================= AI Actions ================= */
+
+function showLoading(show=true){
+    document.getElementById('loading').style.display = show?'block':'none';
+}
+
+async function callAI(action, data) {
+    showLoading(true);
+    const result = await tutorClient[action](...data);
+    showLoading(false);
+
+    if (result.success) {
+        document.getElementById('assistant-response').innerHTML =
+            result.response || result.assistance || result.explanation || '';
+        renderMath(document.getElementById('assistant-response'));
+    } else {
+        alert(result.error);
+    }
+}
+
+document.getElementById('btn-strategy')
+.onclick = () => callAI("suggestStrategy", [
+    document.getElementById('theorem-input').value,
+    document.getElementById('theorem-type').value
+]);
+
+document.getElementById('btn-next')
+.onclick = () => callAI("getStepByStep", [
+    document.getElementById('theorem-input').value,
+    currentStep
+]);
+
+document.getElementById('btn-check')
+.onclick = () => callAI("checkProof", [
+    document.getElementById('theorem-input').value,
+    collectProof()
+]);
+
+document.getElementById('btn-hint')
+.onclick = () => callAI("getHint", [
+    document.getElementById('theorem-input').value,
+    collectProof(),
+    prompt("What are you stuck on?")
+]);
+
+function collectProof() {
+    return Array.from(document.querySelectorAll('.proof-step'))
+        .map(s => s.value)
+        .join("\n\n");
+}
+
+
+
+</script>
+
+<script src="../js/sidebar.js"></script>
+</body>
+</html>

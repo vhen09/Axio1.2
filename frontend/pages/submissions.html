@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Proofs - REANA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #2D3F54 0%, #1A2332 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .page-header h1 {
+            color: var(--gold);
+            margin: 0 0 10px 0;
+        }
+        .page-header p {
+            color: #B8C5D6;
+            margin: 0;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .mini-stat {
+            background: linear-gradient(135deg, #2D3F54 0%, #1A2332 100%);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .mini-stat .number {
+            font-size: 2em;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        .mini-stat .label {
+            color: #B8C5D6;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .submissions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .submission-card {
+            background: linear-gradient(135deg, #1A2332 0%, #0A1929 100%);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            overflow-wrap: break-word;
+        }
+        .submission-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+        }
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .submission-title {
+            color: var(--gold);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .submission-date {
+            color: #B8C5D6;
+            font-size: 0.9em;
+        }
+        .submission-content {
+            background: rgba(255, 215, 0, 0.05);
+            border-left: 3px solid var(--gold);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .submission-content pre {
+            color: #E8EAF6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .submission-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #B8C5D6;
+            font-size: 0.95rem;
+        }
+        .meta-item .icon {
+            font-size: 1.2em;
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        .score-excellent { background: #28a745; color: white; }
+        .score-good { background: #ffc107; color: #000; }
+        .score-fair { background: #ff9800; color: white; }
+        .score-poor { background: #dc3545; color: white; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #2D3F54 0%, #1A2332 100%);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 12px;
+        }
+        .empty-state .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .empty-state h2 {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .empty-state p {
+            color: #B8C5D6;
+            margin-bottom: 25px;
+        }
+        .btn-primary {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--navy-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 6px;
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--gold);
+            color: var(--navy-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>REANA</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="tutor.html" class="nav-item">🤖 AI Proof Assistant</a>
+            <a href="submissions.html" class="nav-item active">📝 My Proofs</a>
+            <a href="scores.html" class="nav-item">🏆 Scores</a>
+            <a href="settings.html" class="nav-item">⚙️ Settings</a>
+        </nav>
+    </div>
+    
+    <div class="main-area">
+        <div class="main-content">
+            <div class="page-header">
+                <h1>📝 My Proof Submissions</h1>
+                <p>Track all your submitted proofs and their verification results</p>
+            </div>
+            
+            <div class="stats-row">
+                <div class="mini-stat">
+                    <div class="number" id="total-count">0</div>
+                    <div class="label">Total Proofs</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="number" id="verified-count">0</div>
+                    <div class="label">Verified</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="number" id="pending-count">0</div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="number" id="avg-score">0</div>
+                    <div class="label">Avg Score</div>
+                </div>
+            </div>
+            
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterSubmissions('all')">All</button>
+                <button class="filter-btn" onclick="filterSubmissions('verified')">Verified</button>
+                <button class="filter-btn" onclick="filterSubmissions('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterSubmissions('excellent')">Excellent (90+)</button>
+            </div>
+            
+            <div id="submissions-container" class="submissions-list">
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <h2>No Submissions Yet</h2>
+                    <p>Start proving theorems with the AI Proof Assistant</p>
+                    <a href="tutor.html" class="btn-primary">Start Now →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api-client.js"></script>
+    <script src="../js/sidebar.js"></script>
+    <script>
+        let allSubmissions = [];
+        
+        async function loadSubmissions() {
+            try {
+                const response = await fetch('http://localhost:8080/backend/api/submissions.php');
+                const data = await response.json();
+                
+                if (data.success && data.submissions) {
+                    allSubmissions = data.submissions;
+                    updateStats();
+                    displaySubmissions(allSubmissions);
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('total-count').textContent = allSubmissions.length;
+            
+            const verified = allSubmissions.filter(s => s.score && parseInt(s.score) > 70).length;
+            document.getElementById('verified-count').textContent = verified;
+            
+            const pending = allSubmissions.length - verified;
+            document.getElementById('pending-count').textContent = pending;
+            
+            if (allSubmissions.length > 0) {
+                const scores = allSubmissions.filter(s => s.score).map(s => parseInt(s.score));
+                const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                document.getElementById('avg-score').textContent = avg;
+            }
+        }
+        
+        function displaySubmissions(submissions) {
+            const container = document.getElementById('submissions-container');
+            
+            if (submissions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h2>No Submissions Yet</h2>
+                        <p>Start proving theorems with the AI Proof Assistant</p>
+                        <a href="tutor.html" class="btn-primary">Start Now →</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = submissions.map(sub => {
+                const score = sub.score ? parseInt(sub.score) : 0;
+                const scoreClass = score >= 90 ? 'score-excellent' : score >= 75 ? 'score-good' : score >= 60 ? 'score-fair' : 'score-poor';
+                const date = new Date(sub.created_at || sub.submitted_at || Date.now()).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <div class="submission-card">
+                        <div class="submission-header">
+                            <div class="submission-title">Proof #${sub.id || 'N/A'}</div>
+                            <div class="submission-date">${date}</div>
+                        </div>
+                        
+                        <div class="submission-content">
+                            <pre>${sub.proof_text || sub.input_text || 'No content available'}</pre>
+                        </div>
+                        
+                        <div class="submission-meta">
+                            <div class="meta-item">
+                                <span class="icon">📊</span>
+                                <span>Score: <span class="score-badge ${scoreClass}">${score}/100</span></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="icon">✓</span>
+                                <span>${score > 70 ? 'Verified' : 'Pending Review'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="icon">📚</span>
+                                <span>Theorem ID: ${sub.theorem_id || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function filterSubmissions(type) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filtered = [];
+            switch(type) {
+                case 'verified':
+                    filtered = allSubmissions.filter(s => s.score && parseInt(s.score) > 70);
+                    break;
+                case 'pending':
+                    filtered = allSubmissions.filter(s => !s.score || parseInt(s.score) <= 70);
+                    break;
+                case 'excellent':
+                    filtered = allSubmissions.filter(s => s.score && parseInt(s.score) >= 90);
+                    break;
+                default:
+                    filtered = allSubmissions;
+            }
+            
+            displaySubmissions(filtered);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadSubmissions);
+    </script>
+</body>
+</html>

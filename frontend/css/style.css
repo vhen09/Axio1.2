@@ -1,0 +1,350 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=STIX+Two+Text:wght@400;600;700&display=swap');
+
+:root {
+    --bg-main: #080f1d;
+    --bg-surface: #0f1b34;
+    --bg-soft: #142448;
+    --surface-elevated: #1a2d55;
+
+    --primary: #7dd3fc;
+    --primary-dark: #38bdf8;
+    --accent: #c4b5fd;
+
+    --text-main: #e6eefc;
+    --text-muted: #b9c8e5;
+
+    --success: #34d399;
+    --warning: #f59e0b;
+    --danger: #f87171;
+
+    --gold: #7dd3fc;
+    --gold-dark: #38bdf8;
+    --navy-dark: #020817;
+
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow-md: 0 12px 24px rgba(2, 6, 23, 0.35);
+    --shadow-lg: 0 20px 44px rgba(2, 6, 23, 0.45);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background: radial-gradient(circle at 14% 20%, rgba(56, 189, 248, 0.18), transparent 38%),
+                radial-gradient(circle at 85% 8%, rgba(196, 181, 253, 0.14), transparent 42%),
+                linear-gradient(160deg, #050b18 0%, #0b1530 50%, #0a1124 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    letter-spacing: 0.01em;
+}
+
+code, .math-font {
+    font-family: "STIX Two Text", Cambria, "Times New Roman", serif;
+}
+
+a {
+    color: inherit;
+}
+
+.main-area {
+    margin-left: 260px;
+}
+
+.main-content {
+    padding: 38px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+#main-content {
+    margin-left: 260px;
+    padding: 38px;
+}
+
+.section-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 14px;
+}
+
+.muted {
+    color: var(--text-muted);
+}
+
+.hero-section,
+.card,
+.feature-card,
+.quick-stats,
+.section-card {
+    background: linear-gradient(160deg, rgba(20, 36, 72, 0.82), rgba(15, 27, 52, 0.9));
+    border: 1px solid rgba(125, 211, 252, 0.24);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(9px);
+}
+
+.card {
+    padding: 24px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card:hover,
+.feature-card:hover,
+.section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(125, 211, 252, 0.45);
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.features-grid,
+.stats-grid,
+.performance-grid,
+.achievements {
+    gap: 20px !important;
+}
+
+.hero-section {
+    padding: 34px;
+    margin-bottom: 24px;
+}
+
+.hero-title,
+.hero-section h1 {
+    font-size: clamp(1.8rem, 2.6vw, 2.5rem);
+    margin: 0 0 10px;
+    color: var(--text-main);
+}
+
+.hero-subtitle,
+.subtitle,
+.page-header p {
+    color: var(--text-muted);
+    max-width: 860px;
+}
+
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-save,
+.btn-danger,
+.quick-action-btn,
+.btn-feature,
+.btn-test,
+.filter-btn,
+.filter-btn.active {
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease !important;
+}
+
+.btn-primary,
+.btn-save,
+.quick-action-btn,
+.btn-feature,
+.btn-test,
+.btn-primary:link,
+.btn-primary:visited {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: #04101f !important;
+    border: 1px solid rgba(125, 211, 252, 0.25) !important;
+    box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3) !important;
+}
+
+.btn-secondary,
+.filter-btn {
+    background: rgba(125, 211, 252, 0.1) !important;
+    color: var(--text-main) !important;
+    border: 1px solid rgba(125, 211, 252, 0.35) !important;
+}
+
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-save:hover,
+.btn-danger:hover,
+.quick-action-btn:hover,
+.btn-feature:hover,
+.btn-test:hover,
+.filter-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.progress-container,
+.progress-bar-container {
+    background: rgba(125, 211, 252, 0.14) !important;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--accent), var(--primary)) !important;
+    color: #04101f !important;
+}
+
+.score-circle,
+.score-badge {
+    box-shadow: 0 10px 22px rgba(2, 6, 23, 0.35);
+}
+
+textarea,
+input,
+select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--text-main) !important;
+    border: 1px solid rgba(125, 211, 252, 0.28) !important;
+    padding: 12px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+    outline: none;
+    border-color: rgba(125, 211, 252, 0.75) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.24), 0 12px 28px rgba(2, 6, 23, 0.35);
+}
+
+.hero-section,
+.welcome-banner,
+.page-header,
+.progress-section,
+.tips-section,
+.settings-section,
+.stat-card,
+.feature-card,
+.mini-stat,
+.submission-card,
+.score-card,
+.performance-card,
+.achievement-badge,
+.empty-state,
+.submission-content,
+.score-breakdown {
+    background: linear-gradient(155deg, rgba(20, 36, 72, 0.92), rgba(10, 19, 41, 0.95)) !important;
+    border: 1px solid rgba(125, 211, 252, 0.24) !important;
+    color: var(--text-main) !important;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.stat-label,
+.meta-item,
+.submission-date,
+.score-date,
+.tip-item p,
+.feature-list li,
+.breakdown-item,
+.empty-state p {
+    color: var(--text-muted) !important;
+}
+
+.stat-number,
+.number,
+.score-title,
+.submission-title,
+.page-header h1,
+.page-header h2,
+.section-title,
+.feature-card h3,
+.settings-section h2,
+.welcome-banner h1,
+.progress-header h2,
+.tips-section h2 {
+    color: var(--text-main) !important;
+}
+
+.feature-icon,
+.stat-icon {
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.35));
+}
+
+.ai-assistant-panel .section-card,
+.ai-assistant-panel {
+    position: relative;
+}
+
+.add-step-wrapper {
+    position: sticky;
+    top: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-left: -7px;
+    z-index: 50;
+}
+
+.add-step-fab {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #04101f;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    border-radius: 12px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 18px rgba(56, 189, 248, 0.32);
+}
+
+.add-step-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px rgba(56, 189, 248, 0.38);
+}
+
+.add-step-fab:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 1024px) {
+    .main-area,
+    #main-content {
+        margin-left: 0;
+    }
+
+    .main-content,
+    #main-content {
+        padding: 20px;
+    }
+}
