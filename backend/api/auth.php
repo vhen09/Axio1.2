@@ -1,13 +1,17 @@
 <?php
 // This file handles user authentication, including login and registration processes.
 
-require_once '../config/database.php';
-require_once '../models/User.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/User.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -28,25 +32,55 @@ class Auth {
     }
 
     public function register($username, $password) {
+        $username = trim((string)$username);
+        $password = (string)$password;
+
+        if (strlen($username) < 3) {
+            return json_encode(['success' => false, 'message' => 'Username must be at least 3 characters']);
+        }
+
+        if (strlen($password) < 6) {
+            return json_encode(['success' => false, 'message' => 'Password must be at least 6 characters']);
+        }
+
         if ($this->demoMode) {
-            return json_encode(['success' => true, 'message' => 'Demo mode: User registered successfully (not saved)', 'demo_mode' => true, 'user_id' => 1]);
+            return json_encode(['success' => true, 'message' => 'Demo mode: User registered successfully (not saved)', 'demo_mode' => true, 'user_id' => 1, 'username' => $username]);
+        }
+
+        if ($this->user->findByUsername($username)) {
+            return json_encode(['success' => false, 'message' => 'Username already exists. Please choose another one.']);
         }
         
         if ($this->user->create($username, $password)) {
-            return json_encode(['success' => true, 'message' => 'User registered successfully.']);
+            $newUser = $this->user->findByUsername($username);
+            return json_encode([
+                'success' => true, 
+                'message' => 'User registered successfully.',
+                'user_id' => $newUser['id'],
+                'username' => $newUser['username']
+            ]);
         } else {
-            return json_encode(['success' => false, 'message' => 'Registration failed.']);
+            $modelError = method_exists($this->user, 'getLastError') ? $this->user->getLastError() : null;
+            return json_encode(['success' => false, 'message' => $modelError ?: 'Registration failed.']);
         }
     }
 
     public function login($username, $password) {
+        $username = trim((string)$username);
+        $password = (string)$password;
+
+        if ($username === '' || $password === '') {
+            return json_encode(['success' => false, 'message' => 'Username and password are required.']);
+        }
+
         if ($this->demoMode) {
-            return json_encode(['success' => true, 'message' => 'Demo mode: Login successful', 'demo_mode' => true, 'user_id' => 1, 'username' => $username]);
+            $_SESSION['user_id'] = 1;
+            $_SESSION['username'] = $username !== '' ? $username : 'demo_user';
+            return json_encode(['success' => true, 'message' => 'Demo mode: Login successful', 'demo_mode' => true, 'user_id' => 1, 'username' => $_SESSION['username']]);
         }
         
         $user = $this->user->findByUsername($username);
         if ($user && password_verify($password, $user['password'])) {
-            session_start();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             return json_encode(['success' => true, 'message' => 'Login successful.', 'user_id' => $user['id'], 'username' => $user['username']]);
@@ -54,15 +88,46 @@ class Auth {
             return json_encode(['success' => false, 'message' => 'Invalid username or password.']);
         }
     }
+
+    public function logout() {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params['path'], $params['domain'],
+                $params['secure'], $params['httponly']
+            );
+        }
+        session_destroy();
+        return json_encode(['success' => true, 'message' => 'Logout successful.']);
+    }
 }
 
 // Example usage
 $auth = new Auth();
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = $_GET['action'] ?? '';
+    
+    if ($action === 'check_session' || $action === '') {
+        echo json_encode([
+            'success' => true,
+            'authenticated' => isset($_SESSION['user_id']),
+            'user_id' => $_SESSION['user_id'] ?? null,
+            'username' => $_SESSION['username'] ?? null
+        ]);
+        exit();
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
+    if (!is_array($data)) {
+        $data = [];
+    }
     $action = $data['action'] ?? $_POST['action'] ?? '';
     
-    if ($action === 'register') {
+    if ($action === 'register' || $action === 'signup' || $action === 'sign_up') {
         $username = $data['username'] ?? $_POST['username'] ?? '';
         $password = $data['password'] ?? $_POST['password'] ?? '';
         echo $auth->register($username, $password);
@@ -70,6 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $data['username'] ?? $_POST['username'] ?? '';
         $password = $data['password'] ?? $_POST['password'] ?? '';
         echo $auth->login($username, $password);
+    } elseif ($action === 'logout') {
+        echo $auth->logout();
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
     }

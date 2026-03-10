@@ -29,6 +29,9 @@ try {
     $logger = new Logger();
 
     $action = $_GET['action'] ?? $_POST['action'] ?? '';
+    if ($action === '' && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        $action = 'get_theorems';
+    }
 
     switch ($action) {
         case 'get_categories':
@@ -72,7 +75,7 @@ try {
     }
 
 } catch (Exception $e) {
-    $logger->error('Theorem API Error: ' . $e->getMessage());
+    Logger::error('Theorem API Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
