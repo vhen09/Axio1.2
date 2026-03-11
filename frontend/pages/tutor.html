@@ -2326,7 +2326,7 @@ if (removeStepBtn) {
                 <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; border-left: 3px solid #8fb5a0; line-height: 1.5; font-size: 13px;">
                     <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Status:</strong><span style="color: #333;">${escapeHtml(summaryText)}</span></div>
                     <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Justification:</strong><span style="color: #333;">${escapeHtml(whyText)}</span></div>
-                    <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Next Step Guide:</strong><span style="color: #333;">${escapeHtml(nextText)}</span></div>
+                    <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Hint:</strong><span style="color: #333;">${escapeHtml(nextText)}</span></div>
                 </div>
             `;
 
@@ -2362,7 +2362,7 @@ if (removeStepBtn) {
                             <div style="font-size: 40px; margin-bottom: 12px; color: #2e7d32;">✓</div>
                             <div style="font-size: 20px; font-weight: 700; color: #2e7d32; margin-bottom: 8px;">Proof Complete</div>
                             <div style="font-size: 13px; color: #1b5e20; line-height: 1.6; margin-bottom: 18px; max-width: 280px;">All steps have been verified successfully. Your proof is ready for submission.</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 0;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 16px;">
                                 <div style="padding: 14px 12px; background: #ecfff3; border-radius: 6px; border-left: 4px solid #2e7d32;">
                                     <div style="font-size: 16px; font-weight: 700; color: #2e7d32;">${verified}</div>
                                     <div style="font-size: 11px; color: #1b5e20; margin-top: 4px; font-weight: 500;">Steps Verified</div>
@@ -2372,8 +2372,20 @@ if (removeStepBtn) {
                                     <div style="font-size: 11px; color: #1a1a1a; margin-top: 4px; font-weight: 500;">Total Steps</div>
                                 </div>
                             </div>
+                            <button id="complete-proof-btn-ready" style="padding: 12px 24px; background: #2e7d32; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; width: 100%;">✓ Complete Proof</button>
                         </div>
                     `;
+                    
+                    // Attach event listener to the complete proof button
+                    const completeBtnReady = document.getElementById('complete-proof-btn-ready');
+                    if(completeBtnReady){
+                        completeBtnReady.addEventListener('click', async ()=>{
+                            const btnCompleteFromPanel = document.getElementById('btn-complete-proof');
+                            if(btnCompleteFromPanel){
+                                btnCompleteFromPanel.click();
+                            }
+                        });
+                    }
                 }
             } else {
                 if(banner){
