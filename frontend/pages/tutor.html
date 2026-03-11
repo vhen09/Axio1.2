@@ -78,9 +78,96 @@
         .verification-popup.error .vp-header strong{color:#d9534f}
         .verification-popup .vp-message{margin-bottom:8px;color:#1a1a1a}
         .verification-popup .vp-hint{margin-top:8px;padding-top:8px;border-top:1px solid #e6efe6;color:#1a1a1a}
-        .verification-popup .vp-hint strong{color:#5a9a7f;font-weight:700}
-        .vp-close{background:transparent;border:0;font-size:20px;cursor:pointer;color:#5a9a7f;font-weight:bold;transition:color 0.2s ease}
-        .vp-close:hover{color:#3f755f;text-shadow:0 0 8px rgba(80,130,105,0.15)}
+        .completion-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            background: linear-gradient(135deg, #ecfdf4 0%, #dbeafe 100%);
+            border-bottom: 3px solid #16a34a;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .completion-notification.hidden {
+            display: none;
+        }
+        .completion-notification .message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .completion-notification .icon {
+            font-size: 24px;
+            color: #16a34a;
+            min-width: 30px;
+            text-align: center;
+        }
+        .completion-notification .content h4 {
+            margin: 0 0 4px 0;
+            color: #166534;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .completion-notification .content p {
+            margin: 0;
+            color: #15803d;
+            font-size: 13px;
+        }
+        .completion-notification .actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .completion-notification .actions button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #86efac;
+            transition: all 0.2s;
+        }
+        .completion-notification .actions button.primary {
+            background: #16a34a;
+            color: white;
+        }
+        .completion-notification .actions button.primary:hover {
+            background: #15803d;
+        }
+        .completion-notification .actions button.secondary {
+            background: transparent;
+            color: #166534;
+        }
+        .completion-notification .actions button.secondary:hover {
+            background: rgba(22, 163, 74, 0.1);
+        }
+        .completion-notification .close {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #16a34a;
+            font-size: 18px;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .completion-notification .close:hover {
+            color: #15803d;
+        }
         
         /* Ensure popup content has proper contrast */
         .verification-popup strong, .verification-popup em, .verification-popup code {
@@ -193,6 +280,21 @@
         <span class="particle"></span>
         <span class="particle"></span>
         <span class="particle"></span>
+    </div>
+
+    <!-- Completion Notification -->
+    <div id="completion-notification" class="completion-notification hidden">
+        <div class="message">
+            <div class="icon">✓</div>
+            <div class="content">
+                <h4>Proof Completed & Saved</h4>
+                <p>Your proof has been successfully verified and saved to your submissions.</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="secondary" onclick="this.closest('#completion-notification').classList.add('hidden')">Dismiss</button>
+            <button class="primary" onclick="window.location.href='submissions.html'">View All Proofs</button>
+        </div>
     </div>
 
     <div class="sidebar">
@@ -1296,6 +1398,19 @@ if (removeStepBtn) {
             setTimeout(()=>{ if(document.body.contains(warn)) warn.remove(); }, 4200);
         }
 
+        function showCompletionNotification(){
+            const notif = document.getElementById('completion-notification');
+            if(notif){
+                notif.classList.remove('hidden');
+                // Auto-hide after 8 seconds
+                setTimeout(()=>{ 
+                    if(notif && !notif.classList.contains('hidden')){
+                        notif.classList.add('hidden');
+                    } 
+                }, 8000);
+            }
+        }
+
         function persistCompletedProofLocally({ theorem, steps, score = 100, submissionId = null }){
             try {
                 const raw = localStorage.getItem('reana_completed_submissions') || '[]';
@@ -1468,6 +1583,10 @@ if (removeStepBtn) {
                     proofCompleted = true;
                     if(addStepBtn) addStepBtn.disabled = true;
                     if(btnCompleteProof) btnCompleteProof.disabled = true;
+                    
+                    // Show completion notification
+                    showCompletionNotification();
+                    
                     showCompleteProofPopup(theorem, steps);
                 } catch (error) {
                     showCompletionWarning(error?.message || 'Unable to validate complete proof right now.');
