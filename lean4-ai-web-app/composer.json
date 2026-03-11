@@ -1,0 +1,29 @@
+{
+  "name": "axio/lean4-ai-web-app",
+  "description": "Real Analysis Theorem Proving System with AI Tutoring",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.0"
+  },
+  "require-dev": {
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Backend\\": "backend/",
+      "Services\\": "backend/services/",
+      "Models\\": "backend/models/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {}
+  }
+}

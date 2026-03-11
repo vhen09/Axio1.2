@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXIO - Unified Proof Workspace</title>
+  <link rel="stylesheet" href="../css/axio-app.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+</head>
+<body data-page="workspace">
+  <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">AXIO</div>
+      <a class="nav-link active" href="dashboard.html">◈ Unified Proof Workspace</a>
+      <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link" href="scores.html">⌗ Scores</a>
+      <a class="nav-link" href="settings.html">⚙ Settings</a>
+      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>AI Proof Tutor</h1>
+          <p>Unified Proof Workspace</p>
+        </div>
+        <div class="actions">
+          <button id="btn-view-proofs" class="btn">View My Proofs</button>
+          <button id="btn-toggle-preview-mode" class="btn">LaTeX Mode</button>
+          <button id="btn-save-pdf" class="btn">Save as PDF</button>
+          <button id="btn-complete-proof" class="btn success">Complete Proof</button>
+          <button id="btn-new-proof" class="btn primary">New Proof</button>
+          <div class="avatar-wrap">
+            <button id="avatar-btn" class="avatar">AX</button>
+            <div id="avatar-menu" class="dropdown">
+              <button id="avatar-profile">Profile</button>
+              <button id="avatar-logout">Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="workspace">
+        <div>
+          <div class="card">
+            <h2>Input Theorem or Statement</h2>
+            <textarea id="theorem-input" class="field" rows="5" placeholder="Enter the Theorem or Statement you want to prove…"></textarea>
+            <div class="font-controls">
+              <button id="btn-a-plus" class="btn">A+</button>
+              <button id="btn-a-minus" class="btn">A−</button>
+            </div>
+            <div id="theorem-preview" class="preview">Live preview will appear here...</div>
+          </div>
+
+          <div class="card">
+            <h2>Step-Based Proof Editor</h2>
+            <div id="steps-wrap"></div>
+            <div class="step-controls">
+              <button id="btn-add-step" class="btn success">+</button>
+              <button id="btn-remove-step" class="btn">−</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="verify-panel">
+          <div class="card">
+            <h2>Verification Panel</h2>
+            <div class="verify-stats-grid">
+              <div class="verify-stat-card">
+                <div id="verify-count" class="verify-stat-number">0</div>
+                <div class="verify-stat-label">Verified</div>
+              </div>
+              <div class="verify-stat-card">
+                <div id="verify-total" class="verify-stat-number dark">1</div>
+                <div class="verify-stat-label">Total Steps</div>
+              </div>
+            </div>
+
+            <div id="verify-header" class="verify-header-box verify-header-neutral">
+              <span id="verify-header-icon" class="verify-header-icon">•</span>
+              <span id="verify-header-label" class="verify-header-label">Awaiting verification</span>
+            </div>
+            <div id="verify-current-step" class="verify-current-step">No step verified yet.</div>
+
+            <div id="verify-feedback-card" class="verify-rubric-card">
+              <div class="verify-section">
+                <div class="verify-section-title">Status</div>
+                <div id="verify-status-value" class="verify-section-body">No verification submitted.</div>
+              </div>
+
+              <div class="verify-divider"></div>
+
+              <div class="verify-section">
+                <div class="verify-section-title">Input Summary</div>
+                <div id="verify-input-summary" class="verify-section-body">The system will summarize the current step after verification.</div>
+              </div>
+
+              <div class="verify-divider"></div>
+
+              <div class="verify-section">
+                <div class="verify-section-title">Justification</div>
+                <div id="verify-justification" class="verify-section-body">Provide a step and select Verify to receive structured analysis.</div>
+              </div>
+
+              <div id="verify-missing-wrap" class="verify-section verify-hidden">
+                <div class="verify-divider"></div>
+                <div class="verify-section-title">What’s Wrong / Missing</div>
+                <div id="verify-missing" class="verify-section-body"></div>
+              </div>
+
+              <div id="verify-improvement-wrap" class="verify-section verify-hidden">
+                <div class="verify-divider"></div>
+                <div class="verify-section-title">Improvement</div>
+                <div id="verify-improvement" class="verify-section-body"></div>
+              </div>
+
+              <div id="verify-hint-wrap" class="verify-section verify-hidden">
+                <div class="verify-divider"></div>
+                <div class="verify-section-title verify-section-title-hint">Hint</div>
+                <div id="verify-hint" class="verify-section-body"></div>
+              </div>
+
+              <div class="verify-divider"></div>
+
+              <div class="verify-section">
+                <div class="verify-section-title">Next Step Guide</div>
+                <div id="verify-next-guide" class="verify-section-body">Verify a step to receive the next instructional move.</div>
+              </div>
+
+              <div class="verify-next-step-action">
+                <button id="btn-next-step-guide" class="btn" disabled>Next Step</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="verify-popup" class="verify-popup hidden">
+    <div class="verify-popup-head">
+      <strong>Step Verification History</strong>
+      <button id="btn-close-verify-popup" class="eq-close">Hide</button>
+    </div>
+    <div id="verify-popup-list" class="verify-popup-list"></div>
+  </div>
+
+  <div id="keyboard-modal" class="modal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong>Math Keyboard</strong>
+        <button id="close-keyboard" class="btn">Close</button>
+      </div>
+      <div id="symbols-wrap" class="symbol-grid"></div>
+    </div>
+  </div>
+
+  <script src="../js/axio-app.js"></script>
+</body>
+</html>

@@ -45,13 +45,6 @@
             display: block;
             box-sizing: border-box;
         }
-
-        /* Ensure no zoom on page load */
-        html, body {
-            zoom: 100% !important;
-            -webkit-text-size-adjust: 100% !important;
-            text-size-adjust: 100% !important;
-        }
         /* Per-step LaTeX preview */
         .step-latex-preview{margin-top:8px;padding:8px;background:var(--bg-surface);border-radius:6px;border:2px solid var(--primary);color:var(--text-main);min-height:28px;max-height:200px;word-break:break-word;overflow-wrap:break-word;white-space:normal;overflow-y:auto;width:100%;max-width:100%;min-width:0;display:block;box-sizing:border-box}
         /* Global LaTeX preview boxes (theorem + proof) */
@@ -1475,30 +1468,6 @@ if (removeStepBtn) {
                     proofCompleted = true;
                     if(addStepBtn) addStepBtn.disabled = true;
                     if(btnCompleteProof) btnCompleteProof.disabled = true;
-                    
-                    // Disable all guidance buttons when proof is complete
-                    const btnGetStrategy = document.getElementById('btn-get-strategy');
-                    const btnGetHint = document.getElementById('btn-get-hint');
-                    const btnSuggestRelated = document.getElementById('btn-suggest-related');
-                    if(btnGetStrategy) { btnGetStrategy.disabled = true; btnGetStrategy.style.opacity = '0.5'; }
-                    if(btnGetHint) { btnGetHint.disabled = true; btnGetHint.style.opacity = '0.5'; }
-                    if(btnSuggestRelated) { btnSuggestRelated.disabled = true; btnSuggestRelated.style.opacity = '0.5'; }
-                    
-                    // Clear any active guidance or hints
-                    const assistantResponse = document.getElementById('assistant-response');
-                    if(assistantResponse) {
-                        assistantResponse.innerHTML = '<div style="padding: 15px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;"><strong style="color: #2e7d32;">✓ Proof is Complete!</strong><p style="margin: 8px 0 0 0; color: #1b5e20; font-size: 14px;">Your proof has been successfully verified. Excellent work!</p></div>';
-                    }
-
-                    // Update verification panel title if it exists
-                    const verifyCard = document.getElementById('verify-card');
-                    if (verifyCard) {
-                        const verifyTitle = verifyCard.querySelector('h2');
-                        if (verifyTitle) {
-                            verifyTitle.textContent = '✓ Verification Complete';
-                        }
-                    }
-                    
                     showCompleteProofPopup(theorem, steps);
                 } catch (error) {
                     showCompletionWarning(error?.message || 'Unable to validate complete proof right now.');
@@ -2203,12 +2172,12 @@ if (removeStepBtn) {
             let list = box.querySelector('.verify-step-list');
             if (!list) {
                 box.innerHTML = `
-                    <div class="verify-summary-grid">
-                        <div class="verify-summary-card"><div class="num" id="verified-steps-count">0</div><div class="lbl">Verified</div></div>
-                        <div class="verify-summary-card"><div class="num" id="total-steps-count">0</div><div class="lbl">Total Steps</div></div>
+                    <div class="verify-summary-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div class="verify-summary-card" style="padding: 12px; background: #f5f5f5; border-radius: 6px; text-align: center;"><div class="num" id="verified-steps-count" style="font-size: 20px; font-weight: bold; color: #8fb5a0;">0</div><div class="lbl" style="font-size: 12px; color: #666; margin-top: 4px;">Verified</div></div>
+                        <div class="verify-summary-card" style="padding: 12px; background: #f5f5f5; border-radius: 6px; text-align: center;"><div class="num" id="total-steps-count" style="font-size: 20px; font-weight: bold; color: #8fb5a0;">0</div><div class="lbl" style="font-size: 12px; color: #666; margin-top: 4px;">Total Steps</div></div>
                     </div>
-                    <div class="verify-banner" id="verify-banner">Verify all steps to complete proof.</div>
-                    <div class="verify-step-list"></div>
+                    <div class="verify-banner" id="verify-banner" style="padding: 10px 12px; background: #e3f2fd; border-left: 4px solid #8fb5a0; border-radius: 4px; font-size: 13px; color: #1a1a1a; margin-bottom: 12px; display: none;">Verify all steps to complete proof.</div>
+                    <div class="verify-step-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 `;
                 list = box.querySelector('.verify-step-list');
             }
@@ -2231,14 +2200,15 @@ if (removeStepBtn) {
             item.classList.toggle('ok', !!valid);
             item.classList.toggle('warn', !valid);
             item.innerHTML = `
-                <div class="verify-step-head">
-                    <span>Step ${stepIndex + 1}</span>
-                    <span>${valid ? 'Correct' : 'Needs Improvement'}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-weight: 700; color: #8fb5a0;">Step ${stepIndex + 1}</span>
+                    <span style="font-size: 12px; padding: 4px 8px; background: ${valid ? '#ecfff3' : '#fff5f5'}; color: ${valid ? '#0a5f34' : '#d9534f'}; border-radius: 4px; font-weight: 600;">${valid ? '✓ Correct' : '⚠ Needs Improvement'}</span>
                 </div>
-                <div class="verify-block"><strong>Error Summary:</strong> ${escapeHtml(summaryText)}</div>
-                <div class="verify-block"><strong>Why:</strong> ${escapeHtml(whyText)}</div>
-                <div class="verify-block"><strong>Hint:</strong> ${escapeHtml(nextText)}</div>
-                <div class="verify-block"><strong>Rule/Theorem:</strong> ${escapeHtml(ruleText)}</div>
+                <div style="padding: 10px; background: #f9f9f9; border-radius: 4px; border-left: 3px solid #8fb5a0; line-height: 1.5; font-size: 13px;">
+                    <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Status:</strong><span style="color: #333;">${escapeHtml(summaryText)}</span></div>
+                    <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Justification:</strong><span style="color: #333;">${escapeHtml(whyText)}</span></div>
+                    <div style="margin-bottom: 10px;"><strong style="color: #8fb5a0; display: block; margin-bottom: 4px;">Next Step Guide:</strong><span style="color: #333;">${escapeHtml(nextText)}</span></div>
+                </div>
             `;
 
             const ordered = Array.from(list.querySelectorAll('.verify-step-item'))
@@ -2254,17 +2224,45 @@ if (removeStepBtn) {
             const verifiedEl = document.getElementById('verified-steps-count');
             const totalEl = document.getElementById('total-steps-count');
             const banner = document.getElementById('verify-banner');
+            const box = document.getElementById('assistant-response');
+            
             if(verifiedEl) verifiedEl.textContent = String(verified);
             if(totalEl) totalEl.textContent = String(total);
-            if(banner){
-                if(total > 0 && verified === total){
-                    banner.textContent = 'All steps verified — ready to complete proof.';
-                    banner.classList.add('ready');
-                } else {
-                    banner.textContent = 'Verify all steps to complete proof.';
-                    banner.classList.remove('ready');
+            
+            // Show completion message when all steps are verified
+            if(total > 0 && verified === total){
+                if(banner){
+                    banner.style.display = 'block';
+                    banner.textContent = '✓ All steps verified — ready to complete proof.';
+                }
+                
+                // Replace verification panel with completion message
+                if(box){
+                    box.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center;">
+                            <div style="font-size: 40px; margin-bottom: 12px; color: #2e7d32;">✓</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #2e7d32; margin-bottom: 8px;">Proof Complete</div>
+                            <div style="font-size: 13px; color: #1b5e20; line-height: 1.6; margin-bottom: 18px; max-width: 280px;">All steps have been verified successfully. Your proof is ready for submission.</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 0;">
+                                <div style="padding: 14px 12px; background: #ecfff3; border-radius: 6px; border-left: 4px solid #2e7d32;">
+                                    <div style="font-size: 16px; font-weight: 700; color: #2e7d32;">${verified}</div>
+                                    <div style="font-size: 11px; color: #1b5e20; margin-top: 4px; font-weight: 500;">Steps Verified</div>
+                                </div>
+                                <div style="padding: 14px 12px; background: #e3f2fd; border-radius: 6px; border-left: 4px solid #8fb5a0;">
+                                    <div style="font-size: 16px; font-weight: 700; color: #8fb5a0;">${total}</div>
+                                    <div style="font-size: 11px; color: #1a1a1a; margin-top: 4px; font-weight: 500;">Total Steps</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                if(banner){
+                    banner.style.display = 'block';
+                    banner.textContent = `Verify all steps to complete proof. (${verified}/${total} verified)`;
                 }
             }
+            
             updateProgressionLocks();
             const fsVal = document.getElementById('font-size-value');
             if(fsVal){
@@ -2373,10 +2371,6 @@ if (removeStepBtn) {
         const btnGetStrategy = document.getElementById('btn-get-strategy');
         if(btnGetStrategy){
             btnGetStrategy.addEventListener('click', async () => {
-                if (proofCompleted) {
-                    alert('Proof is complete! No further guidance is available.');
-                    return;
-                }
                 const theorem = getCurrentTheorem();
                 if(theorem.length < 5){
                     alert('Please enter a valid theorem first (at least 5 characters).');
@@ -2403,10 +2397,6 @@ if (removeStepBtn) {
         const btnGetHint = document.getElementById('btn-get-hint');
         if(btnGetHint){
             btnGetHint.addEventListener('click', async () => {
-                if (proofCompleted) {
-                    alert('Proof is complete! No further guidance is available.');
-                    return;
-                }
                 const theorem = getCurrentTheorem();
                 if(theorem.length < 5){
                     alert('Please enter a valid theorem first (at least 5 characters).');
