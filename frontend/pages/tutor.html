@@ -45,6 +45,13 @@
             display: block;
             box-sizing: border-box;
         }
+
+        /* Ensure no zoom on page load */
+        html, body {
+            zoom: 100% !important;
+            -webkit-text-size-adjust: 100% !important;
+            text-size-adjust: 100% !important;
+        }
         /* Per-step LaTeX preview */
         .step-latex-preview{margin-top:8px;padding:8px;background:var(--bg-surface);border-radius:6px;border:2px solid var(--primary);color:var(--text-main);min-height:28px;max-height:200px;word-break:break-word;overflow-wrap:break-word;white-space:normal;overflow-y:auto;width:100%;max-width:100%;min-width:0;display:block;box-sizing:border-box}
         /* Global LaTeX preview boxes (theorem + proof) */
@@ -152,16 +159,6 @@
 
         .embedded-mode .help-banner {
             margin-top: 6px;
-        }
-
-        body {
-            zoom: 100% !important;
-            transform: scale(1) !important;
-        }
-
-        .main-content {
-            zoom: 100% !important;
-            transform: scale(1) !important;
         }
 </style>
     <link rel="stylesheet" href="../css/axio-academic-theme.css">
