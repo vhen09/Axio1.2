@@ -1,42 +1,67 @@
 <?php
 
 class User {
-    private $id;
-    private $username;
-    private $password;
-    private $email;
+    private $db;
+    private $lastError = null;
+    private $passwordColumn = 'password_hash';
 
-    public function __construct($username, $password, $email) {
-        $this->username = $username;
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-        $this->email = $email;
+    public function __construct(PDO $db) {
+        $this->db = $db;
     }
 
-    public function getId() {
-        return $this->id;
+    public function create($username, $password) {
+        $username = trim((string)$username);
+        $password = (string)$password;
+        $this->lastError = null;
+
+        if ($username === '' || $password === '') {
+            $this->lastError = 'Username and password are required.';
+            return false;
+        }
+
+        if ($this->findByUsername($username)) {
+            $this->lastError = 'Username already exists.';
+            return false;
+        }
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $email = $this->buildEmailFromUsername($username);
+        $stmt = $this->db->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
+
+        try {
+            return $stmt->execute([$username, $email, $hash]);
+        } catch (Exception $error) {
+            $this->lastError = $error->getMessage();
+            return false;
+        }
     }
 
-    public function getUsername() {
-        return $this->username;
+    public function findByUsername($username) {
+        $username = trim((string)$username);
+        if ($username === '') {
+            return null;
+        }
+
+        try {
+            $stmt = $this->db->prepare('SELECT id, username, password_hash AS password FROM users WHERE username = ? LIMIT 1');
+            $stmt->execute([$username]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (Exception $error) {
+            $this->lastError = $error->getMessage();
+            return null;
+        }
     }
 
-    public function getEmail() {
-        return $this->email;
+    private function buildEmailFromUsername($username) {
+        $clean = preg_replace('/[^a-zA-Z0-9._-]+/', '', strtolower($username));
+        if ($clean === '') {
+            $clean = 'user' . time();
+        }
+        return $clean . '@axio.local';
     }
 
-    public function setId($id) {
-        $this->id = $id;
-    }
-
-    public function validatePassword($password) {
-        return password_verify($password, $this->password);
-    }
-
-    public function toArray() {
-        return [
-            'id' => $this->id,
-            'username' => $this->username,
-            'email' => $this->email,
-        ];
+    public function getLastError() {
+        return $this->lastError;
     }
 }

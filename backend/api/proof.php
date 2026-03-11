@@ -30,6 +30,28 @@ try {
     $logger = new Logger();
 
     $action = $_GET['action'] ?? $_POST['action'] ?? '';
+    if ($action === '' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        $action = 'get_proof_attempts';
+    }
+
+    if (empty($action)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Action is required',
+            'available_actions' => [
+                'convert_to_lean',
+                'verify_lean_proof',
+                'complete_proof_flow',
+                'save_proof_attempt',
+                'get_proof_attempts',
+                'refine_proof',
+                'generate_skeleton',
+                'explain_lean_code'
+            ]
+        ]);
+        exit();
+    }
 
     switch ($action) {
         case 'convert_to_lean':
@@ -65,9 +87,22 @@ try {
             break;
             
         default:
-            throw new Exception('Invalid action');
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid action',
+                'action' => $action
+            ]);
+            exit();
     }
 
+} catch (InvalidArgumentException $e) {
+    Logger::error('Proof API Validation Error: ' . $e->getMessage());
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 } catch (Exception $e) {
     Logger::error('Proof API Error: ' . $e->getMessage());
     http_response_code(500);
@@ -87,12 +122,12 @@ function convertToLean($db, $converter) {
     $natural_language_proof = $data['natural_language_proof'] ?? null;
     
     if (!$natural_language_proof) {
-        throw new Exception('Natural language proof is required');
+        throw new InvalidArgumentException('Natural language proof is required');
     }
     
     // Get theorem context if theorem_id provided
     $theoremContext = [];
-    if ($theorem_id) {
+    if ($theorem_id && $db instanceof PDO) {
         $query = "SELECT * FROM theorems WHERE id = ?";
         $stmt = $db->prepare($query);
         $stmt->execute([$theorem_id]);
@@ -125,7 +160,7 @@ function verifyLeanProof($leanService) {
     $lean_code = $data['lean_code'] ?? null;
     
     if (!$lean_code) {
-        throw new Exception('Lean code is required');
+        throw new InvalidArgumentException('Lean code is required');
     }
     
     $result = $leanService->verifyProof($lean_code);
@@ -144,7 +179,7 @@ function completeProofFlow($db, $converter, $leanService) {
     $user_id = $_SESSION['user_id'] ?? null;
     
     if (!$natural_language_proof) {
-        throw new Exception('Natural language proof is required');
+        throw new InvalidArgumentException('Natural language proof is required');
     }
     
     $response = [
@@ -154,7 +189,7 @@ function completeProofFlow($db, $converter, $leanService) {
     
     // Step 1: Get theorem context
     $theoremContext = [];
-    if ($theorem_id) {
+    if ($theorem_id && $db instanceof PDO) {
         $query = "SELECT * FROM theorems WHERE id = ?";
         $stmt = $db->prepare($query);
         $stmt->execute([$theorem_id]);
@@ -207,8 +242,27 @@ function completeProofFlow($db, $converter, $leanService) {
             'Verification failed: ' . ($verificationResult['error'] ?? 'Unknown error')
     ];
     
+    // Step 3.5: Generate AI completion message if verification successful
+    $aiCompletionMessage = null;
+    if ($verificationResult['success']) {
+        $theoremName = $theoremContext['name'] ?? 'Theorem';
+        $theoremStatement = $theoremContext['statement'] ?? ($data['theorem_statement'] ?? 'No statement');
+        
+        $completionResult = $converter->generateCompletionMessage($theoremName, $theoremStatement, $lean_code);
+        
+        if ($completionResult['success']) {
+            $aiCompletionMessage = $completionResult['raw_response'];
+            $response['ai_completion_message'] = $aiCompletionMessage;
+            $response['steps'][] = [
+                'step' => 'ai_message',
+                'message' => 'AI Feedback Generated',
+                'content' => $aiCompletionMessage
+            ];
+        }
+    }
+    
     // Step 4: Save proof attempt
-    if ($user_id && $theorem_id) {
+    if ($user_id && $theorem_id && $db instanceof PDO) {
         $status = $verificationResult['success'] ? 'success' : 'failed';
         
         $insertQuery = "INSERT INTO proof_attempts 
@@ -254,7 +308,17 @@ function saveProofAttempt($db) {
     $score = $data['score'] ?? 0;
     
     if (!$user_id || !$theorem_id) {
-        throw new Exception('User ID and Theorem ID are required');
+        throw new InvalidArgumentException('User ID and Theorem ID are required');
+    }
+
+    if (!($db instanceof PDO)) {
+        echo json_encode([
+            'success' => true,
+            'proof_attempt_id' => 0,
+            'message' => 'Proof attempt accepted in demo mode',
+            'demo_mode' => true
+        ]);
+        return;
     }
     
     $query = "INSERT INTO proof_attempts 
@@ -288,7 +352,17 @@ function getProofAttempts($db) {
     $theorem_id = $_GET['theorem_id'] ?? null;
     
     if (!$user_id) {
-        throw new Exception('User ID is required');
+        throw new InvalidArgumentException('User ID is required');
+    }
+
+    if (!($db instanceof PDO)) {
+        echo json_encode([
+            'success' => true,
+            'attempts' => [],
+            'count' => 0,
+            'demo_mode' => true
+        ]);
+        return;
     }
     
     $query = "SELECT pa.*, t.name as theorem_name, t.statement as theorem_statement
@@ -328,7 +402,7 @@ function refineProof($converter) {
     $error_messages = $data['error_messages'] ?? [];
     
     if (!$lean_code) {
-        throw new Exception('Lean code is required');
+        throw new InvalidArgumentException('Lean code is required');
     }
     
     $result = $converter->refineProof($lean_code, $feedback, $error_messages);
@@ -346,7 +420,7 @@ function generateSkeleton($converter) {
     $proof_strategy = $data['proof_strategy'] ?? 'direct';
     
     if (!$theorem_statement) {
-        throw new Exception('Theorem statement is required');
+        throw new InvalidArgumentException('Theorem statement is required');
     }
     
     $result = $converter->generateProofSkeleton($theorem_statement, $proof_strategy);
@@ -364,7 +438,7 @@ function explainLeanCode($converter) {
     $language = $data['language'] ?? 'English';
     
     if (!$lean_code) {
-        throw new Exception('Lean code is required');
+        throw new InvalidArgumentException('Lean code is required');
     }
     
     $result = $converter->explainLeanCode($lean_code, $language);

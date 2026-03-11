@@ -17,6 +17,14 @@ This project is a web-based application that utilizes Lean4 as the core logic en
 - **Dynamic Scoring**: Scores are generated based on Lean verification results.
 - **User-Friendly Interface**: A clean and intuitive web interface with a clickable sidebar navigation.
 
+## Unified Frontend Merge
+- Runtime/canonical app is now `lean4-ai-web-app`.
+- Frontend design sources from `lovableaxio` are consolidated under `frontend/lovableaxio-src/`.
+- Compatibility routes are available for merged naming:
+   - `frontend/pages/proofs.html` → `frontend/pages/submissions.html`
+   - `frontend/pages/workspace.html` → `frontend/pages/dashboard.html`
+- Backend and AI response logic were intentionally not modified.
+
 ## Project Structure
 ```
 lean4-ai-web-app

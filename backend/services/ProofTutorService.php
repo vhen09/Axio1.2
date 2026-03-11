@@ -116,10 +116,10 @@ Provide substantial mathematical detail (minimum 120 words per step).\n\n" . $th
             }
         }
         
-        $userMessage = $context . "\nStep {$stepNumber}: {$step}\n\nIs this step logically correct? Does it follow from the previous steps? Provide detailed feedback.";
+        $userMessage = $context . "\nStep {$stepNumber}: {$step}\n\nVerify this step and provide feedback.";
 
         return $this->callDeepSeekAPI($systemPrompt, $userMessage, [
-            'max_tokens' => 700,
+            'max_tokens' => 500,
             'fallback_type' => 'verify',
             'cache_ttl' => $this->cacheTtl
         ]);
@@ -236,15 +236,30 @@ Be thorough and pedagogical. Minimum 250 words with substantial mathematical con
     ## Correction Guide for Student (numbered, concrete, actionable)
     ## Suggested Corrected Outline (3-6 steps)
 
-    If theorem statement is mismatched, prioritize correction of theorem statement first before proof details.\n\n" . $this->buildTheoremConstraintRules();
+    If theorem statement is mismatched, prioritize correction of theorem statement first before proof details.
+    
+    IMPORTANT: If the proof is CORRECT and COMPLETE, you MUST explicitly state at the beginning of your response: 'The proof is complete!' This is critical for student motivation and clarity.\n\n" . $this->buildTheoremConstraintRules();
         
-        $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n\nProof:\n{$proof}\n\nPlease provide a comprehensive review of this proof. Is it correct and complete?";
+        $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n\nProof:\n{$proof}\n\nPlease provide a comprehensive review of this proof. Is it correct and complete? Remember to explicitly state if the proof is complete!";
 
-        return $this->callDeepSeekAPI($systemPrompt, $userMessage, [
+        $result = $this->callDeepSeekAPI($systemPrompt, $userMessage, [
             'max_tokens' => 800,
             'fallback_type' => 'verify',
             'cache_ttl' => $this->cacheTtl
         ]);
+        
+        // Ensure the response explicitly states completion if proof is correct
+        if ($result['success'] && isset($result['response'])) {
+            $response = $result['response'];
+            
+            // If proof is correct and doesn't have completion message, add it
+            if (preg_match('/(✓ CORRECT|proof.*correct|perfectly.*valid)/i', $response) && 
+                !preg_match('/(complete|proven|verified)/i', $response)) {
+                $result['response'] = "The proof is complete! " . $response;
+            }
+        }
+        
+        return $result;
     }
 
     /**

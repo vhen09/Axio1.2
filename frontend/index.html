@@ -3,88 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axio Math Tutor - AI-Powered Proof Verification</title>
-    <link rel="stylesheet" href="css/sidebar.css?v=2.0">
-    <link rel="stylesheet" href="css/style.css?v=2.0">
+    <title>Axio - Mathematical Proof Assistant</title>
+    <script>
+        console.log('Index.html: Checking authentication...');
+        
+        // Check if user is authenticated
+        fetch('backend/api/auth.php?action=check_session', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(r => r.json())
+        .then(data => {
+            console.log('Index auth check response:', data);
+            
+            if (data.authenticated) {
+                // User is logged in, check what stage they're at
+                const skillCheckDone = sessionStorage.getItem('latex_skill_done');
+                const tutorialDone = sessionStorage.getItem('tutorial_completed');
+                
+                console.log('Skill check done:', skillCheckDone);
+                console.log('Tutorial done:', tutorialDone);
+                
+                if (!skillCheckDone) {
+                    console.log('Redirecting to latex skill check');
+                    window.location.replace('pages/latex-skill-check.html');
+                } else if (!tutorialDone) {
+                    console.log('Redirecting to tutorial');
+                    window.location.replace('pages/tutorial.html');
+                } else {
+                    console.log('Redirecting to dashboard');
+                    window.location.replace('pages/dashboard.html');
+                }
+            } else {
+                // Not logged in, go to landing page
+                console.log('Not authenticated, redirecting to landing');
+                window.location.replace('pages/landing.html');
+            }
+        })
+        .catch(err => {
+            console.error('Index auth check failed:', err);
+            // Error checking auth, go to landing page
+            window.location.replace('pages/landing.html');
+        });
+    </script>
 </head>
 <body>
-    <div id="app">
-        <aside id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-icon">∀</span>
-                    <span class="logo-text">Axio</span>
-                </div>
-                <p class="tagline">Math Proof Tutor</p>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html" class="active">🏠 Home</a></li>
-                    <li><a href="pages/demo.html">🎬 Demo</a></li>
-                    <li><a href="pages/dashboard.html">📊 Dashboard</a></li>
-                    <li><a href="pages/submissions.html">📝 Submissions</a></li>
-                    <li><a href="pages/tutor.html">🤖 AI Tutor</a></li>
-                    <li><a href="pages/scores.html">🏆 Scores</a></li>
-                    <li><a href="pages/settings.html">⚙️ Settings</a></li>
-                </ul>
-            </nav>
-        </aside>
-        <main id="main-content">
-            <div class="hero-section">
-                <div class="hero-content">
-                    <h1 class="hero-title">Welcome to Axio Math Tutor</h1>
-                    <p class="hero-subtitle">Your platform for verifying mathematical proofs and receiving AI-assisted guidance</p>
-                    <div class="cta-buttons">
-                        <a href="pages/tutor.html" class="btn btn-primary">Start Learning</a>
-                        <a href="pages/demo.html" class="btn btn-secondary">Watch Demo</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🤖</div>
-                    <h3>AI-Powered Tutoring</h3>
-                    <p>Get intelligent hints and guidance from our advanced AI tutor powered by DeepSeek</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">✓</div>
-                    <h3>Proof Verification</h3>
-                    <p>Verify your mathematical proofs using the Lean 4 theorem prover</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🧠</div>
-                    <h3>Guided Practice</h3>
-                    <p>Practice proof writing with guided AI suggestions and verification feedback</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3>Track Progress</h3>
-                    <p>Monitor your learning journey with detailed scores and analytics</p>
-                </div>
-            </div>
-
-            <div class="quick-stats">
-                <h2>Getting Started</h2>
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <span class="stat-number">Daily</span>
-                        <span class="stat-label">Practice Sessions</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">∞</span>
-                        <span class="stat-label">Learning Possibilities</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">24/7</span>
-                        <span class="stat-label">AI Assistance</span>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <script src="js/app.js"></script>
-    <script src="js/api-client.js"></script>
-    <script src="js/sidebar.js"></script>
+    <p>Loading Axio...</p>
 </body>
 </html>

@@ -3,6 +3,9 @@ REM ============================================================================
 REM REANA System - Windows Setup and Run Script
 REM ============================================================================
 
+REM Add XAMPP to PATH
+set PATH=C:\xampp\mysql\bin;C:\xampp\php;%PATH%
+
 echo.
 echo ========================================
 echo   REANA System Setup and Run

@@ -4,7 +4,7 @@
  */
 
 const tutorClient = {
-    baseUrl: 'http://localhost:8080/backend/api/tutor.php',
+    baseUrl: '../../backend/api/tutor.php',
 
     async makeRequest(action, data) {
         // Validate input

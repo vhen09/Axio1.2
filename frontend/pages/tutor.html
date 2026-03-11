@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/tutor.css">
+    <link rel="stylesheet" href="../css/lovable-ui.css">
+    <script>
+        if (!window.location.search.includes('embedded=1') && window.top === window.self) {
+            window.location.replace('dashboard.html');
+        }
+        if (window.location.search.includes('embedded=1')) {
+            document.documentElement.classList.add('embedded-mode');
+        }
+    </script>
     <script>
         window.MathJax = {
             tex: {
@@ -85,6 +94,13 @@
             color:#5a9a7f
         }
 
+        .verify-step-list{display:flex;flex-direction:column;gap:10px}
+        .verify-step-item{border:1px solid rgba(143,181,160,0.45);border-radius:8px;padding:10px;background:#fff}
+        .verify-step-item .verify-step-head{display:flex;justify-content:space-between;font-weight:700;margin-bottom:6px}
+        .verify-step-item.ok{border-color:#8fb5a0}
+        .verify-step-item.warn{border-color:#d9534f}
+        .verify-step-item .verify-next{margin-top:8px;padding-top:8px;border-top:1px solid #e8ecef}
+
         /* Inline feedback badges */
         .step-feedback{margin-top:8px}
         .step-feedback .fb{padding:8px 10px;border-radius:6px;font-size:13px}
@@ -120,19 +136,84 @@
             max-height: 200px;
             overflow-y: auto;
         }
-    </style>
+
+        .embedded-mode .sidebar,
+        .embedded-mode .sidebar-toggle {
+            display: none !important;
+        }
+
+        .embedded-mode .main-area {
+            margin-left: 0 !important;
+        }
+
+        .embedded-mode .main-content {
+            padding: 14px !important;
+        }
+
+        .embedded-mode .help-banner {
+            margin-top: 6px;
+        }
+
+        body {
+            zoom: 100% !important;
+            transform: scale(1) !important;
+        }
+
+        .main-content {
+            zoom: 100% !important;
+            transform: scale(1) !important;
+        }
+</style>
+    <link rel="stylesheet" href="../css/axio-academic-theme.css">
 </head>
 <body>
+    <!-- 3D Math Background -->
+    <div class="math-background">
+        <span class="math-symbol">∫</span>
+        <span class="math-symbol">∂</span>
+        <span class="math-symbol">∑</span>
+        <span class="math-symbol">∞</span>
+        <span class="math-symbol">λ</span>
+        <span class="math-symbol">∀</span>
+        <span class="math-symbol">∃</span>
+        <span class="math-symbol">∈</span>
+        <span class="math-symbol">→</span>
+        <span class="math-symbol">⇒</span>
+        <span class="math-symbol">⇔</span>
+        <span class="math-symbol">√</span>
+        <span class="math-symbol">∆</span>
+        <span class="math-symbol">∇</span>
+        <span class="math-symbol">∮</span>
+    </div>
+    
+    <!-- Particles -->
+    <div class="particles">
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+    </div>
+
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2>REANA</h2>
+            <h2>AXIO</h2>
         </div>
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
-            <a href="tutor.html" class="nav-item active">🤖 AI Proof Assistant</a>
-            <a href="submissions.html" class="nav-item">📝 My Proofs</a>
-            <a href="scores.html" class="nav-item">🏆 Scores</a>
-            <a href="settings.html" class="nav-item">⚙️ Settings</a>
+            <a href="dashboard.html" class="nav-item active"> Proof Workspace</a>
+            <a href="submissions.html" class="nav-item"> My Proofs</a>
+            <a href="scores.html" class="nav-item"> Scores</a>
+            <a href="settings.html" class="nav-item"> Settings</a>
         </nav>
     </div>
 
@@ -140,26 +221,15 @@
     <div id="symbol-panel" aria-hidden="true">
         <div class="symbol-panel-inner">
             <div class="symbol-panel-header">
-                <h3>Insert Mathematical Symbol</h3>
+                <h3>Equation Builder</h3>
                 <button class="response-modal-close" onclick="closeSymbolPanel()">×</button>
             </div>
 
-            <h4>Greek</h4>
-            <div class="symbol-row">α β γ δ ε θ λ μ π σ Δ Σ</div>
+            <div class="equation-tabs" id="equation-category-tabs"></div>
+            <div class="equation-grid" id="equation-symbol-grid"></div>
 
-            <h4>Logic</h4>
-            <div class="symbol-row">∀ ∃ ∈ ∉ ⊂ ⊆ ∪ ∩ → ⇒ ⇔ ¬</div>
-
-            <h4>Math</h4>
-            <div class="symbol-row">∞ ≤ ≥ ≠ ≈ ± ∓ × ÷ √ ∑ ∏</div>
-
-            <h4>Calculus</h4>
-            <div class="symbol-row">∫ ∂ ∇ lim Δx d/dx</div>
-
-            <h4>Sets</h4>
-            <div class="symbol-row">ℕ ℤ ℚ ℝ ℂ ∅</div>
-
-            <div style="margin-top:12px; text-align:right;">
+            <div class="equation-footer">
+                <span id="equation-category-label">Click to insert • Fractions</span>
                 <button class="btn-secondary" onclick="closeSymbolPanel()">Close</button>
             </div>
         </div>
@@ -173,25 +243,25 @@
             <!-- Quick Help Banner -->
             <div class="help-banner">
                 <div class="help-header">
-                    <strong>💡 Quick Start Guide</strong>
+                    <strong> Quick Start Guide</strong>
                     <button class="help-toggle" onclick="toggleHelp()">▼</button>
                 </div>
                 <div class="help-content" id="help-content">
                     <div class="help-grid">
                         <div class="help-item">
-                            <strong>⌨️ Keyboard Shortcuts:</strong>
+                            <strong> Keyboard Shortcuts:</strong>
                             <p>Press <code>Alt+key</code> for symbols (e.g., Alt+e = ε, Alt+d = δ)</p>
                         </div>
                         <div class="help-item">
-                            <strong>💾 Auto-Save:</strong>
+                            <strong> Auto-Save:</strong>
                             <p>Your work is automatically saved. Refresh anytime!</p>
                         </div>
                         <div class="help-item">
-                            <strong>🎯 How to Use:</strong>
+                            <strong> How to Use:</strong>
                             <p>1. Enter theorem → 2. Click "Suggest Strategy" → 3. Write proof → 4. Verify steps</p>
                         </div>
                         <div class="help-item">
-                            <strong>⏱️ AI Response Time:</strong>
+                            <strong> AI Response Time:</strong>
                             <p>Detailed proofs may take 20-60 seconds. Please be patient!</p>
                         </div>
                     </div>
@@ -201,17 +271,17 @@
             <div class="tutor-container">
                 <!-- Left Panel: Theorem Input & Proof Editor -->
                 <div class="proof-workspace">
-                    <div class="section-card">
-                        <h2>📐 Theorem Statement</h2>
+                    <div id="theorem-card" class="section-card">
+                        <h2> Theorem Statement</h2>
                         <textarea id="theorem-input" class="proof-textarea"
                                   placeholder="Enter the theorem you want to prove...
 Example:
 For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)| < ε"
                                   rows="4"></textarea>
                         <div class="latex-preview-box" id="theorem-preview-box">
-                            <div class="latex-preview-title">LaTeX Preview (Theorem)</div>
+                            <div class="latex-preview-title">Natural Language Preview (Theorem)</div>
                             <div id="theorem-latex-preview" class="latex-preview-content text-muted">
-                                Type theorem statement. You can use math with delimiters like <code>$...$</code> or <code>$$...$$</code>.
+                                Type theorem statement in LaTeX or plain text. Natural language preview appears here.
                             </div>
                         </div>
 
@@ -220,12 +290,13 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                         <!-- Theorem type dropdown removed per request -->
                     </div>
 
-                    <div class="section-card">
-                        <h2>✍️ Your Proof</h2>
+                    <div id="proof-card" class="section-card">
+                        <h2>Your Proof</h2>
                         <div id="proof-steps">
                             <div class="proof-step-container">
                                 <div class="step-header">
                                     <span class="step-number">Step 1</span>
+                                    <button id="btn-open-keyboard-inline" class="btn-secondary" type="button" style="display:none;">⌨️ Open Keyboard</button>
                                     <button class="btn-verify-step" onclick="verifyCurrentStep(0)">✓ Verify</button>
                                 </div>
                                                 <textarea class="proof-step proof-textarea" placeholder="Write your proof step here..." rows="3"></textarea>
@@ -234,7 +305,7 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                             </div>
                         </div>
                         <div class="latex-preview-box" id="proof-preview-box">
-                            <div class="latex-preview-title">LaTeX Preview (Natural Language Proof)</div>
+                            <div class="latex-preview-title">Natural Language Preview (Proof)</div>
                             <div id="proof-latex-preview" class="latex-preview-content text-muted">Your proof steps preview will appear here.</div>
                         </div>
                         
@@ -245,22 +316,10 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                     </div>
                     
                     <!-- Moved: AI Assistant and Related Theorems (now on left below action buttons) -->
-                    <div class="section-card">
-                        <h2>🤖 AI Assistant (Latest Response)</h2>
+                    <div id="verify-card" class="section-card">
+                        <h2> AI Assistant (Latest Response)</h2>
                         <div id="assistant-response" class="assistant-chat">
-                            <div class="welcome-message">
-                                <p><strong>Welcome to the AI Proof Tutor!</strong></p>
-                                <p>I'm here to help you construct formal proofs in Real Analysis. Here's how I can assist:</p>
-                                <ul>
-                                    <li>📝 Suggest proof strategies and approaches</li>
-                                    <li>🔍 Guide you step-by-step through proofs</li>
-                                    <li>✓ Verify each step for logical correctness</li>
-                                    <li>💡 Provide hints when you're stuck</li>
-                                    <li>📚 Explain concepts and definitions</li>
-                                    <li>🎯 Check your complete proof</li>
-                                </ul>
-                                <p>Enter your theorem above and click any button to get started!</p>
-                            </div>
+                            <p class="text-muted">AI suggestions, feedback, and hints will appear here after you interact with the assistant.</p>
                         </div>
                         <div class="loading-indicator" id="loading" style="display: none;">
                             <div class="spinner"></div>
@@ -269,8 +328,8 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                         </div>
                     </div>
 
-                    <div class="section-card">
-                        <h2>📚 Related Concepts</h2>
+                    <div id="related-card" class="section-card">
+                        <h2> Related Concepts</h2>
                         <div id="related-theorems">
                             <p class="text-muted">Related concepts will appear here after you work on a proof.</p>
                         </div>
@@ -280,9 +339,9 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
 
                 <!-- Right Panel: AI Assistance -->
                 <div class="ai-assistant-panel">
-                    <div class="section-card">
+                    <div id="tools-card" class="section-card">
                         <h2>⌨️ Keyboard & Symbols</h2>
-                        <div style="display:flex; gap:6px; margin-bottom:12px;">
+                        <div id="font-controls" style="display:flex; gap:6px; margin-bottom:12px;">
                             <button id="btn-font-inc" class="btn-secondary" title="Increase font">A+</button>
                             <button id="btn-font-dec" class="btn-secondary" title="Decrease font">A-</button>
                         </div>
@@ -294,7 +353,7 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                         </div>
                     </div>
                     <div class="add-step-wrapper">
-    <button id="btn-add-step" class="add-step-fab">+</button>
+    <button id="btn-add-step" class="add-step-fab">Next Step</button>
     <button id="btn-remove-step" class="add-step-fab">−</button>
 </div>
                 </div>
@@ -317,6 +376,130 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
     <script src="../js/sidebar.js"></script>
     <script type="module">
     import tutorClient from '../js/tutor-client.js';
+
+    let proofCompleted = false;
+    const AXIO_COLORS = {
+        primary: '#1E3A8A',
+        secondary: '#059669',
+        accent: '#FBBF24',
+        text: '#111827'
+    };
+
+    function applyEmbeddedCleanMode() {
+        if (!document.documentElement.classList.contains('embedded-mode')) return;
+
+        document.documentElement.classList.add('embedded-clean');
+        document.documentElement.classList.add('theme-light');
+
+        const title = document.querySelector('.main-content h1');
+        if (title) title.textContent = 'AI Proof Tutor';
+
+        const subtitle = document.querySelector('.subtitle');
+        if (subtitle) subtitle.textContent = 'Unified Proof Workspace';
+
+        const helpBanner = document.querySelector('.help-banner');
+        if (helpBanner) helpBanner.style.display = 'none';
+
+        const theoremTitle = document.querySelector('#theorem-card h2');
+        if (theoremTitle) theoremTitle.textContent = 'Input Theorem or Statement';
+
+        const proofTitle = document.querySelector('#proof-card h2');
+        if (proofTitle) proofTitle.textContent = 'Input your Proof:';
+
+        const verifyCard = document.getElementById('verify-card');
+        const verifyTitle = verifyCard ? verifyCard.querySelector('h2') : null;
+        if (verifyTitle) verifyTitle.textContent = 'Verification Panel';
+
+        const assistantBox = document.getElementById('assistant-response');
+        if (assistantBox) {
+            assistantBox.innerHTML = `
+                <div class="verify-placeholder">
+                    <p>Press <strong>Verify</strong> to start checking your proof step.</p>
+                </div>
+            `;
+        }
+
+        const loadingIndicator = document.getElementById('loading');
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+        const aiPanel = document.querySelector('.ai-assistant-panel');
+        if (aiPanel && verifyCard) {
+            aiPanel.insertBefore(verifyCard, aiPanel.firstChild);
+        }
+
+        const theoremCard = document.getElementById('theorem-card');
+        const theoremInput = document.getElementById('theorem-input');
+        const fontControls = document.getElementById('font-controls');
+        if (theoremCard && theoremInput) {
+            let toolbar = theoremCard.querySelector('.theorem-toolbar');
+            if (!toolbar) {
+                toolbar = document.createElement('div');
+                toolbar.className = 'theorem-toolbar';
+                toolbar.innerHTML = `
+                    <div class="mode-toggle" id="theorem-mode-toggle">
+                        <button type="button" class="mode-btn active" data-mode="latex">LaTeX</button>
+                        <button type="button" class="mode-btn" data-mode="natural">Natural Language</button>
+                    </div>
+                `;
+                theoremCard.insertBefore(toolbar, theoremInput);
+
+                const modeBtns = toolbar.querySelectorAll('.mode-btn');
+                modeBtns.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        modeBtns.forEach((other) => other.classList.remove('active'));
+                        btn.classList.add('active');
+                        const mode = btn.getAttribute('data-mode');
+                        theoremInput.placeholder = mode === 'latex'
+                            ? 'Enter LaTeX theorem, e.g. \\forall \\epsilon > 0, \\exists \\delta > 0 ...'
+                            : 'Enter theorem in natural language. The system will convert it into structured math form.';
+                    });
+                });
+            }
+
+            if (fontControls && toolbar && !toolbar.contains(fontControls)) {
+                toolbar.appendChild(fontControls);
+                fontControls.classList.add('font-controls-inline');
+                const val = document.createElement('span');
+                val.id = 'font-size-value';
+                val.className = 'font-size-value';
+                val.textContent = '16';
+                fontControls.insertBefore(val, document.getElementById('btn-font-inc'));
+            }
+        }
+
+        const proofCard = document.getElementById('proof-card');
+        const addStepWrap = document.querySelector('.add-step-wrapper');
+        const proofSteps = document.getElementById('proof-steps');
+        if (proofCard && addStepWrap && proofSteps) {
+            addStepWrap.classList.add('proof-actions-inline');
+            proofCard.insertBefore(addStepWrap, proofSteps);
+        }
+
+        const relatedCard = document.getElementById('related-card');
+        if (relatedCard) relatedCard.style.display = 'none';
+
+        const strategyBtn = document.getElementById('btn-get-strategy');
+        const hintBtn = document.getElementById('btn-get-hint');
+        if (strategyBtn) strategyBtn.style.display = 'none';
+        if (hintBtn) hintBtn.style.display = 'none';
+
+        const toolsTitle = document.querySelector('#tools-card h2');
+        if (toolsTitle) toolsTitle.textContent = 'Tools';
+
+        const keyboardInlineBtn = document.getElementById('btn-open-keyboard-inline');
+        if (keyboardInlineBtn) {
+            keyboardInlineBtn.style.display = 'none';
+        }
+
+        const verifyButtons = document.querySelectorAll('.btn-verify-step');
+        verifyButtons.forEach((btn) => {
+            btn.textContent = 'Verify';
+        });
+
+        updateVerificationPanelSummary();
+    }
+
+    applyEmbeddedCleanMode();
 
     // Toggle help banner
     window.toggleHelp = function(){
@@ -350,37 +533,244 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
 
         if(openBtn) openBtn.addEventListener('click', ()=>{ openSymbolPanel(); });
 
-        // render spans and attach handlers with insertion mapping
-        // Use '▮' as an editable placeholder marker — all markers are kept and the first is selected after insertion
-        const insertMap = {
-            'lim': 'lim_{n=▮}^{▮}',
-            'd/dx': '\\frac{d}{dx} ',
-            'Δx': '\\Delta x',
-            'Δ': '\\Delta ',
-            '∫': '\\int_{▮}^{▮} ▮ \\, dx',
-            '∑': '\\sum_{n=▮}^{▮}',
-            '∏': '\\prod_{n=▮}^{▮}',
-            'lim_{n->∞}': 'lim_{n=▮}^{▮}'
-        };
+        const equationCategories = [
+            {
+                name: 'Fractions',
+                symbols: [
+                    { label: 'a/b', value: '\\frac{a}{b}' },
+                    { label: 'dx/dy', value: '\\frac{dx}{dy}' },
+                    { label: '∂/∂x', value: '\\frac{\\partial}{\\partial x}' },
+                    { label: '1/n', value: '\\frac{1}{n}' },
+                    { label: 'a+b/c', value: '\\frac{a+b}{c}' },
+                    { label: 'n!/k!', value: '\\frac{n!}{k!(n-k)!}' }
+                ]
+            },
+            {
+                name: 'Superscripts & Subscripts',
+                symbols: [
+                    { label: 'x²', value: 'x^{2}' },
+                    { label: 'xⁿ', value: 'x^{n}' },
+                    { label: 'x₁', value: 'x_{1}' },
+                    { label: 'xₙ', value: 'x_{n}' },
+                    { label: 'aᵢⱼ', value: 'a_{i,j}' },
+                    { label: 'x^{n+1}', value: 'x^{n+1}' },
+                    { label: 'eˣ', value: 'e^{x}' },
+                    { label: '2ⁿ', value: '2^{n}' }
+                ]
+            },
+            {
+                name: 'Radicals',
+                symbols: [
+                    { label: '√x', value: '\\sqrt{x}' },
+                    { label: '∛x', value: '\\sqrt[3]{x}' },
+                    { label: 'ⁿ√x', value: '\\sqrt[n]{x}' },
+                    { label: '√(a²+b²)', value: '\\sqrt{a^2 + b^2}' }
+                ]
+            },
+            {
+                name: 'Integrals & Summations',
+                symbols: [
+                    { label: '∫', value: '\\int' },
+                    { label: '∫ₐᵇ', value: '\\int_{a}^{b}' },
+                    { label: '∬', value: '\\iint' },
+                    { label: '∮', value: '\\oint' },
+                    { label: '∑', value: '\\sum_{i=1}^{n}' },
+                    { label: '∑∞', value: '\\sum_{n=0}^{\\infty}' },
+                    { label: '∏', value: '\\prod_{i=1}^{n}' },
+                    { label: '⋃', value: '\\bigcup_{i=1}^{n}' },
+                    { label: '⋂', value: '\\bigcap_{i=1}^{n}' }
+                ]
+            },
+            {
+                name: 'Limits',
+                symbols: [
+                    { label: 'lim', value: '\\lim_{x \\to a}' },
+                    { label: 'lim→∞', value: '\\lim_{n \\to \\infty}' },
+                    { label: 'lim→0⁺', value: '\\lim_{x \\to 0^{+}}' },
+                    { label: 'limsup', value: '\\limsup_{n \\to \\infty}' },
+                    { label: 'liminf', value: '\\liminf_{n \\to \\infty}' },
+                    { label: 'sup', value: '\\sup_{x \\in S}' },
+                    { label: 'inf', value: '\\inf_{x \\in S}' }
+                ]
+            },
+            {
+                name: 'Greek Letters',
+                symbols: [
+                    { label: 'α', value: '\\alpha' },
+                    { label: 'β', value: '\\beta' },
+                    { label: 'γ', value: '\\gamma' },
+                    { label: 'Γ', value: '\\Gamma' },
+                    { label: 'δ', value: '\\delta' },
+                    { label: 'Δ', value: '\\Delta' },
+                    { label: 'ε', value: '\\epsilon' },
+                    { label: 'ζ', value: '\\zeta' },
+                    { label: 'η', value: '\\eta' },
+                    { label: 'θ', value: '\\theta' },
+                    { label: 'λ', value: '\\lambda' },
+                    { label: 'Λ', value: '\\Lambda' },
+                    { label: 'μ', value: '\\mu' },
+                    { label: 'ν', value: '\\nu' },
+                    { label: 'π', value: '\\pi' },
+                    { label: 'Π', value: '\\Pi' },
+                    { label: 'ρ', value: '\\rho' },
+                    { label: 'σ', value: '\\sigma' },
+                    { label: 'Σ', value: '\\Sigma' },
+                    { label: 'τ', value: '\\tau' },
+                    { label: 'φ', value: '\\phi' },
+                    { label: 'Φ', value: '\\Phi' },
+                    { label: 'ψ', value: '\\psi' },
+                    { label: 'ω', value: '\\omega' },
+                    { label: 'Ω', value: '\\Omega' }
+                ]
+            },
+            {
+                name: 'Set Theory',
+                symbols: [
+                    { label: '∈', value: '\\in' },
+                    { label: '∉', value: '\\notin' },
+                    { label: '⊂', value: '\\subset' },
+                    { label: '⊆', value: '\\subseteq' },
+                    { label: '⊃', value: '\\supset' },
+                    { label: '⊇', value: '\\supseteq' },
+                    { label: '∪', value: '\\cup' },
+                    { label: '∩', value: '\\cap' },
+                    { label: '∅', value: '\\emptyset' },
+                    { label: '\\', value: '\\setminus' },
+                    { label: 'ℝ', value: '\\mathbb{R}' },
+                    { label: 'ℤ', value: '\\mathbb{Z}' },
+                    { label: 'ℕ', value: '\\mathbb{N}' },
+                    { label: 'ℚ', value: '\\mathbb{Q}' },
+                    { label: 'ℂ', value: '\\mathbb{C}' }
+                ]
+            },
+            {
+                name: 'Logical Symbols',
+                symbols: [
+                    { label: '∀', value: '\\forall' },
+                    { label: '∃', value: '\\exists' },
+                    { label: '∄', value: '\\nexists' },
+                    { label: '→', value: '\\rightarrow' },
+                    { label: '⇒', value: '\\Rightarrow' },
+                    { label: '⇔', value: '\\Leftrightarrow' },
+                    { label: '¬', value: '\\neg' },
+                    { label: '∧', value: '\\land' },
+                    { label: '∨', value: '\\lor' },
+                    { label: '⊢', value: '\\vdash' },
+                    { label: '⊨', value: '\\models' },
+                    { label: '∴', value: '\\therefore' },
+                    { label: '∵', value: '\\because' }
+                ]
+            },
+            {
+                name: 'Relations & Operators',
+                symbols: [
+                    { label: '≠', value: '\\neq' },
+                    { label: '≤', value: '\\leq' },
+                    { label: '≥', value: '\\geq' },
+                    { label: '≈', value: '\\approx' },
+                    { label: '≡', value: '\\equiv' },
+                    { label: '∼', value: '\\sim' },
+                    { label: '≺', value: '\\prec' },
+                    { label: '≻', value: '\\succ' },
+                    { label: '±', value: '\\pm' },
+                    { label: '∓', value: '\\mp' },
+                    { label: '×', value: '\\times' },
+                    { label: '÷', value: '\\div' },
+                    { label: '·', value: '\\cdot' },
+                    { label: '∞', value: '\\infty' },
+                    { label: '∂', value: '\\partial' },
+                    { label: '∇', value: '\\nabla' }
+                ]
+            },
+            {
+                name: 'Brackets',
+                symbols: [
+                    { label: '(…)', value: '\\left( \\right)' },
+                    { label: '[…]', value: '\\left[ \\right]' },
+                    { label: '{…}', value: '\\left\\{ \\right\\}' },
+                    { label: '⟨…⟩', value: '\\langle \\rangle' },
+                    { label: '|…|', value: '\\left| \\right|' },
+                    { label: '‖…‖', value: '\\left\\| \\right\\|' },
+                    { label: '⌊…⌋', value: '\\lfloor \\rfloor' },
+                    { label: '⌈…⌉', value: '\\lceil \\rceil' }
+                ]
+            },
+            {
+                name: 'Real Analysis',
+                symbols: [
+                    { label: 'ε-δ', value: '\\forall \\epsilon > 0, \\exists \\delta > 0' },
+                    { label: '→ as n→∞', value: '\\to \\text{ as } n \\to \\infty' },
+                    { label: '|x-a|<δ', value: '|x - a| < \\delta' },
+                    { label: '|f(x)-L|<ε', value: '|f(x) - L| < \\epsilon' },
+                    { label: 'sup S', value: '\\sup S' },
+                    { label: 'inf S', value: '\\inf S' },
+                    { label: 'f: A→B', value: 'f: A \\to B' },
+                    { label: 'f∘g', value: 'f \\circ g' },
+                    { label: 'f⁻¹', value: 'f^{-1}' },
+                    { label: '{xₙ}', value: '\\{x_n\\}_{n=1}^{\\infty}' },
+                    { label: 'Cauchy', value: '\\forall \\epsilon > 0, \\exists N \\in \\mathbb{N}, \\forall m,n \\geq N: |x_m - x_n| < \\epsilon' }
+                ]
+            },
+            {
+                name: 'Matrices',
+                symbols: [
+                    { label: '2×2', value: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
+                    { label: '3×3', value: '\\begin{pmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{pmatrix}' },
+                    { label: '[2×2]', value: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}' },
+                    { label: 'det', value: '\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}' },
+                    { label: 'cases', value: '\\begin{cases} a & \\text{if } x > 0 \\\\ b & \\text{otherwise} \\end{cases}' }
+                ]
+            }
+        ];
+        let activeEquationCategory = 0;
 
         function escapeAttr(s){
             return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
         }
 
-        document.querySelectorAll('#symbol-panel .symbol-row').forEach(row=>{
-            const symbols = row.textContent.trim().split(/\s+/);
-            row.innerHTML = symbols.map(s=>{
-                const insertText = insertMap[s] || s;
-                return `<span class="symbol-chip" data-insert="${escapeAttr(insertText)}">${s}</span>`;
+        const categoryTabs = document.getElementById('equation-category-tabs');
+        const symbolGrid = document.getElementById('equation-symbol-grid');
+        const categoryLabel = document.getElementById('equation-category-label');
+
+        function renderEquationCategoryTabs(){
+            if(!categoryTabs) return;
+            categoryTabs.innerHTML = equationCategories.map((category, index)=>{
+                const active = index === activeEquationCategory ? 'active' : '';
+                return `<button type="button" class="equation-tab ${active}" data-index="${index}">${escapeAttr(category.name)}</button>`;
             }).join('');
 
-            row.querySelectorAll('.symbol-chip').forEach(ch=>{
-                ch.addEventListener('click', ()=>{
-                    const toInsert = ch.dataset.insert || ch.textContent;
+            categoryTabs.querySelectorAll('.equation-tab').forEach(tab=>{
+                tab.addEventListener('click', ()=>{
+                    activeEquationCategory = Number(tab.getAttribute('data-index') || 0);
+                    renderEquationCategoryTabs();
+                    renderEquationSymbolGrid();
+                });
+            });
+        }
+
+        function renderEquationSymbolGrid(){
+            if(!symbolGrid) return;
+            const current = equationCategories[activeEquationCategory] || equationCategories[0];
+            symbolGrid.innerHTML = (current.symbols || []).map((symbol)=>{
+                const label = escapeAttr(symbol.label || symbol.value || '');
+                const value = escapeAttr(symbol.value || symbol.label || '');
+                return `<button type="button" class="equation-symbol" data-insert="${value}" title="${value}">${label}</button>`;
+            }).join('');
+
+            if(categoryLabel){
+                categoryLabel.textContent = `Click to insert • ${current.name}`;
+            }
+
+            symbolGrid.querySelectorAll('.equation-symbol').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const toInsert = btn.dataset.insert || btn.textContent;
                     insertSymbol(toInsert);
                 });
             });
-        });
+        }
+
+        renderEquationCategoryTabs();
+        renderEquationSymbolGrid();
 
         window.insertSymbol = function(symbol){
             if(!lastFocusedTextarea) {
@@ -586,13 +976,23 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
             s = s.replace(/>=/g, "\\ge");
             s = s.replace(/!=/g, "\\ne");
 
-            // collapse repeated spaces
-            s = s.replace(/\s+/g, ' ');
+            // collapse repeated spaces (preserve line breaks for readability)
+            s = s.replace(/[ \t]{2,}/g, ' ');
 
-            // Ensure we return an inline math expression when it looks math-like
-            const mathLike = /[_\^\\sqrt\\frac\\to\\infty\\lim\d\/\(\)\+\-]/i;
-            if(mathLike.test(s)){
-                // Trim spaces and return with MathJax inline delimiters
+            // Wrap as math only when it clearly looks like a math expression.
+            // This prevents plain AI text like "Theorem and step are required"
+            // from being rendered in MathJax (which removes visible word spacing).
+            const hasLatexCommand = /\\(?:frac|sqrt|lim|to|infty|sum|prod|int|le|ge|ne|alpha|beta|gamma|delta|epsilon|theta|lambda|mu|pi|sigma|Delta|Sigma)\b/i.test(s);
+            const hasMathSymbols = /[∀∃∈∉⊂⊆∪∩→⇒⇔¬∞≤≥≠≈±∓×÷√∑∏∫∂∇]/.test(s);
+            const hasSubSup = /[_\^]/.test(s);
+            const hasNumericExpr = /\d+\s*(?:\+|\-|\*|\/|=|<|>|<=|>=|!=)\s*\d+/.test(s);
+            const hasVarExpr = /\blim\b/i.test(s) || /[A-Za-z]\s*=\s*[A-Za-z0-9]/.test(s);
+
+            const wordCount = (s.match(/[A-Za-z]{2,}/g) || []).length;
+            const looksLikeSentence = wordCount >= 4 && !hasMathSymbols && !hasSubSup && !hasNumericExpr && !hasLatexCommand;
+            const shouldWrapMath = hasLatexCommand || hasMathSymbols || hasSubSup || hasNumericExpr || hasVarExpr;
+
+            if(shouldWrapMath && !looksLikeSentence){
                 return '\\(' + s.trim() + '\\)';
             }
             return s;
@@ -601,19 +1001,93 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
         function updateTheoremPreview(){
             const preview = document.getElementById('theorem-latex-preview');
             const val = document.getElementById('theorem-input')?.value || '';
-            const hint = 'Type theorem statement. You can use math with delimiters like \\( ... \\) or \\[ ... \\].';
-            if(!val){ preview.textContent = hint; renderMath(preview); return; }
+            const hint = 'Type theorem statement in LaTeX or plain text. Natural language preview appears here.';
+            if(!val){ preview.textContent = hint; return; }
             const processed = preprocessToLatex(val);
-            // If processed contains HTML (converted environments), set as HTML
-            if(processed.includes('<')){
-                preview.innerHTML = processed;
-            } else if(processed.startsWith('\\(') && processed.endsWith('\\)')){
-                const inner = processed.slice(2,-2);
-                preview.textContent = '\\[' + inner + '\\]';
-            } else {
-                preview.textContent = processed;
+            preview.textContent = latexToNaturalLanguage(processed);
+        }
+
+        function latexToNaturalLanguage(input){
+            if(!input) return '';
+            let s = String(input);
+
+            // Convert lightweight HTML generated by preprocessing into plain text
+            s = s
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/?(?:ol|ul)>/gi, '')
+                .replace(/<li>/gi, '- ')
+                .replace(/<\/li>/gi, '\n')
+                .replace(/<blockquote>/gi, '"')
+                .replace(/<\/blockquote>/gi, '"')
+                .replace(/<[^>]+>/g, '');
+
+            // Strip math delimiters
+            s = s
+                .replace(/\\\[([\s\S]*?)\\\]/g, '$1')
+                .replace(/\\\(([\s\S]*?)\\\)/g, '$1')
+                .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
+                .replace(/\$([^$]+)\$/g, '$1');
+
+            // Fractions and roots
+            while(/\\frac\{[^{}]*\}\{[^{}]*\}/.test(s)){
+                s = s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1) over ($2)');
             }
-            renderMath(preview);
+            while(/\\sqrt\{[^{}]*\}/.test(s)){
+                s = s.replace(/\\sqrt\{([^{}]*)\}/g, 'square root of ($1)');
+            }
+
+            // Common constructs
+            s = s.replace(/\\lim_\{([^}]*)\}/g, 'limit as $1 of');
+            s = s.replace(/\\sum_\{([^}]*)\}\^\{([^}]*)\}/g, 'sum from $1 to $2 of');
+            s = s.replace(/\\prod_\{([^}]*)\}\^\{([^}]*)\}/g, 'product from $1 to $2 of');
+            s = s.replace(/\\int_\{([^}]*)\}\^\{([^}]*)\}/g, 'integral from $1 to $2 of');
+
+            // Greek and logic symbols/commands
+            const map = [
+                [/\\forall/g, 'for all'],
+                [/\\exists/g, 'there exists'],
+                [/\\infty/g, 'infinity'],
+                [/\\to/g, 'approaches'],
+                [/\\Rightarrow|⇒/g, 'implies'],
+                [/\\Leftrightarrow|⇔/g, 'if and only if'],
+                [/\\le|≤/g, 'less than or equal to'],
+                [/\\ge|≥/g, 'greater than or equal to'],
+                [/\\ne|≠/g, 'not equal to'],
+                [/\\in|∈/g, 'is in'],
+                [/\\notin|∉/g, 'is not in'],
+                [/\\subseteq|⊆/g, 'is a subset of'],
+                [/\\cup|∪/g, 'union'],
+                [/\\cap|∩/g, 'intersection'],
+                [/\\epsilon|ε/g, 'epsilon'],
+                [/\\delta|δ/g, 'delta'],
+                [/\\alpha|α/g, 'alpha'],
+                [/\\beta|β/g, 'beta'],
+                [/\\gamma|γ/g, 'gamma'],
+                [/\\lambda|λ/g, 'lambda'],
+                [/\\mu|μ/g, 'mu'],
+                [/\\pi|π/g, 'pi'],
+                [/\\sigma|σ/g, 'sigma']
+            ];
+            map.forEach(([pattern, replacement]) => {
+                s = s.replace(pattern, replacement);
+            });
+
+            // Subscripts/superscripts into words
+            s = s.replace(/([A-Za-z0-9])_\{([^}]*)\}/g, '$1 sub $2');
+            s = s.replace(/([A-Za-z0-9])_([A-Za-z0-9]+)/g, '$1 sub $2');
+            s = s.replace(/([A-Za-z0-9])\^\{([^}]*)\}/g, '$1 to the power of $2');
+            s = s.replace(/([A-Za-z0-9])\^([A-Za-z0-9]+)/g, '$1 to the power of $2');
+
+            // Cleanup remaining LaTeX syntax noise
+            s = s
+                .replace(/[{}]/g, '')
+                .replace(/\\,/g, ' ')
+                .replace(/\\/g, '')
+                .replace(/\s+/g, ' ')
+                .replace(/\s*\n\s*/g, '\n')
+                .trim();
+
+            return s || 'Natural language preview appears here.';
         }
 
         function updateProofPreview(){
@@ -624,24 +1098,14 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                 return v ? preprocessToLatex(v) : '';
             }).filter(Boolean);
             if(pieces.length){
-                const hasHTML = pieces.some(p=> p.includes('<'));
-                if(hasHTML){
-                    // Render mixed HTML and math: keep math delimiters inside the HTML so MathJax can typeset
-                    const htmlParts = pieces.map(p=>{
-                        if(p.startsWith('\\(') && p.endsWith('\\)')) return '<span>' + '\\(' + p.slice(2,-2) + '\\)' + '</span>';
-                        return p;
-                    });
-                    preview.innerHTML = htmlParts.join('<br>');
-                } else {
-                    // strip inline delimiters from each piece so we can join into a display math block
-                    const inner = pieces.map(p=>{ if(p.startsWith('\\(') && p.endsWith('\\)')) return p.slice(2,-2); return p; }).join(' \\ ');
-                    const wrapped = '\\[' + inner + '\\]';
-                    preview.textContent = wrapped;
-                }
+                const natural = pieces
+                    .map(p => latexToNaturalLanguage(p))
+                    .filter(Boolean)
+                    .join('\n');
+                preview.textContent = natural;
             } else {
                 preview.textContent = 'Your proof steps preview will appear here.';
             }
-            renderMath(preview);
         }
 
         const debouncedTheoremPreview = debounce(updateTheoremPreview, 250);
@@ -658,6 +1122,7 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
         // attach listeners to existing proof steps
         function attachProofStepListeners(stepTextarea, index){
             if(!stepTextarea) return;
+            attachLatexPasteSupport(stepTextarea);
             // per-step preview
             const container = stepTextarea.closest('.proof-step-container');
             const stepPreview = container?.querySelector('.step-latex-preview');
@@ -665,15 +1130,8 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
             const updateThisStepPreview = ()=>{
                 if(stepPreview){
                     const raw = stepTextarea.value.trim() || '';
-                    const processed = raw ? preprocessToLatex(raw) : 'Preview will appear here.';
-                    if(stepPreview){
-                        if(String(processed).includes('<')){
-                            stepPreview.innerHTML = processed;
-                        } else {
-                            stepPreview.textContent = processed;
-                        }
-                        renderMath(stepPreview);
-                    }
+                    const processed = raw ? preprocessToLatex(raw) : '';
+                    stepPreview.textContent = processed ? latexToNaturalLanguage(processed) : 'Preview will appear here.';
                 }
                 // also refresh global proof preview
                 debouncedProofPreview();
@@ -684,6 +1142,28 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
             // ensure verify button references correct index
             if(container){
                 const verifyBtn = container.querySelector('.btn-verify-step');
+                if(document.documentElement.classList.contains('embedded-clean') && verifyBtn && !container.querySelector('.step-controls')){
+                    const controls = document.createElement('div');
+                    controls.className = 'step-controls';
+                    controls.innerHTML = `
+                        <div class="mode-toggle small">
+                            <button type="button" class="mode-btn active">LaTeX</button>
+                            <button type="button" class="mode-btn">Natural</button>
+                        </div>
+                        <button type="button" class="equation-btn">Equations</button>
+                    `;
+                    verifyBtn.parentNode.insertBefore(controls, verifyBtn);
+                    const equationBtn = controls.querySelector('.equation-btn');
+                    if(equationBtn){
+                        equationBtn.addEventListener('click', ()=> openSymbolPanel());
+                    }
+                    controls.querySelectorAll('.mode-btn').forEach((btn)=>{
+                        btn.addEventListener('click', ()=>{
+                            controls.querySelectorAll('.mode-btn').forEach((o)=>o.classList.remove('active'));
+                            btn.classList.add('active');
+                        });
+                    });
+                }
                 if(verifyBtn){
                     verifyBtn.onclick = ()=> verifyCurrentStep(index);
                 }
@@ -693,6 +1173,7 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
 
             // initial render for this step
             setTimeout(updateThisStepPreview, 40);
+            updateVerificationPanelSummary();
         }
 
         // attach to current steps
@@ -705,14 +1186,26 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
         const addStepBtn = document.getElementById('btn-add-step');
         if(addStepBtn){
             addStepBtn.addEventListener('click', ()=>{
+                if (proofCompleted) {
+                    alert('Proof is already complete. Additional steps are disabled.');
+                    return;
+                }
+
                 const stepsContainer = document.getElementById('proof-steps');
                 const stepContainers = stepsContainer.querySelectorAll('.proof-step-container');
-                
-                // Check if there are existing steps and if the last one is verified as correct
+
                 if(stepContainers.length > 0){
                     const lastContainer = stepContainers[stepContainers.length - 1];
-                    if(lastContainer.dataset.verified !== 'true'){
-                        alert('Please verify the current step before adding a new one.');
+                    const lastStepText = (lastContainer.querySelector('.proof-step')?.value || '').trim();
+                    const isLastVerified = lastContainer.dataset.verified === 'true';
+
+                    if(!lastStepText){
+                        alert('Write the current step first before adding a new step.');
+                        return;
+                    }
+
+                    if(!isLastVerified){
+                        alert('Verify the current step first. You can add a new step only when it is correct.');
                         return;
                     }
                 }
@@ -737,7 +1230,37 @@ For all ε > 0, there exists δ > 0 such that if |x - a| < δ, then |f(x) - f(a)
                 // focus new step
                 ta.focus();
                 updateProofPreview();
+                updateVerificationPanelSummary();
             });
+        }
+
+        function updateProgressionLocks(){
+            const stepContainers = Array.from(document.querySelectorAll('.proof-step-container'));
+            const stepInputs = Array.from(document.querySelectorAll('.proof-step'));
+            const theoremText = (document.getElementById('theorem-input')?.value || '').trim();
+            const completeBtn = document.getElementById('btn-complete-proof');
+
+            const lastContainer = stepContainers[stepContainers.length - 1];
+            const lastInput = stepInputs[stepInputs.length - 1];
+            const theoremValid = theoremText.length >= 5;
+            const lastStepFilled = !!(lastInput && (lastInput.value || '').trim().length > 0);
+            const lastStepVerified = !!(lastContainer && lastContainer.dataset.verified === 'true');
+
+            if(addStepBtn){
+                addStepBtn.disabled = proofCompleted || !(theoremValid && lastStepFilled && lastStepVerified);
+                addStepBtn.classList.toggle('is-locked', addStepBtn.disabled);
+                addStepBtn.textContent = 'Next Step';
+            }
+
+            if(completeBtn){
+                const allVerified = stepContainers.length > 0 && stepContainers.every((container) => container.dataset.verified === 'true');
+                const allNonEmpty = stepInputs.length > 0 && stepInputs.every((step) => (step.value || '').trim().length > 0);
+                const enoughSteps = stepInputs.length >= 2;
+                const finalText = String(lastInput?.value || '');
+                const hasConclusion = /(therefore|hence|thus|qed|proved|proven|conclude|so\s+we\s+have|∎|■)/i.test(finalText);
+
+                completeBtn.disabled = proofCompleted || !(theoremValid && allVerified && allNonEmpty && enoughSteps && hasConclusion);
+            }
         }
 
         const removeStepBtn = document.getElementById('btn-remove-step');
@@ -764,34 +1287,230 @@ if (removeStepBtn) {
 
         // Refresh global proof preview
         updateProofPreview();
+        updateVerificationPanelSummary();
+        updateProgressionLocks();
     });
 }
+        function showCompletionWarning(message){
+            let warn = document.createElement('div');
+            warn.className = 'verification-popup error';
+            warn.style.position = 'fixed';
+            warn.style.right = '32px';
+            warn.style.bottom = '32px';
+            warn.style.zIndex = 2000;
+            warn.style.maxWidth = '360px';
+            warn.innerHTML = `<div class="vp-header"><strong>Cannot Complete Proof</strong><button class="vp-close" aria-label="Close">×</button></div><div class="vp-body"><div class="vp-message">${escapeHtml(message || 'Proof is incomplete.')}</div></div>`;
+            document.body.appendChild(warn);
+            warn.querySelector('.vp-close')?.addEventListener('click', ()=>warn.remove());
+            setTimeout(()=>{ if(document.body.contains(warn)) warn.classList.add('visible'); }, 10);
+            setTimeout(()=>{ if(document.body.contains(warn)) warn.remove(); }, 4200);
+        }
+
+        function persistCompletedProofLocally({ theorem, steps, score = 100, submissionId = null }){
+            try {
+                const raw = localStorage.getItem('reana_completed_submissions') || '[]';
+                const list = JSON.parse(raw);
+                const proofText = (steps || []).map(s => `Step ${s.index}: ${s.text}`).join('\n');
+                const now = new Date().toISOString();
+                const localRecord = {
+                    id: submissionId || `local-${Date.now()}`,
+                    record_type: 'complete_proof',
+                    theorem_text: theorem || '',
+                    proof_text: proofText,
+                    input_text: proofText,
+                    score: score,
+                    is_completed: true,
+                    is_verified: true,
+                    verification_status: 'success',
+                    created_at: now,
+                    source: 'local'
+                };
+
+                list.unshift(localRecord);
+                localStorage.setItem('reana_completed_submissions', JSON.stringify(list.slice(0, 100)));
+            } catch (error) {
+                console.warn('Failed to persist completed proof locally', error);
+            }
+        }
+
+        function deriveVerificationStatus(valid, message){
+            if (valid) return 'verified';
+            const text = String(message || '').toLowerCase();
+            if (/(incorrect|wrong|invalid|mismatch|failed|error|not\s+match)/i.test(text)) {
+                return 'incorrect';
+            }
+            return 'needs_work';
+        }
+
+        function persistVerificationResultLocally({ theorem, stepIndex, stepText, valid, message, hint }){
+            try {
+                const raw = localStorage.getItem('reana_verification_records') || '[]';
+                const list = JSON.parse(raw);
+                const status = deriveVerificationStatus(valid, message);
+                const now = new Date().toISOString();
+
+                const localRecord = {
+                    id: `local-vrf-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                    record_type: 'step_verification',
+                    theorem_text: theorem || '',
+                    proof_text: stepText || '',
+                    input_text: stepText || '',
+                    step_index: Number(stepIndex) + 1,
+                    ai_message: compactVerificationText(message || ''),
+                    ai_suggested: compactVerificationText(hint || '', 160),
+                    score: valid ? 90 : (status === 'needs_work' ? 60 : 35),
+                    is_completed: false,
+                    is_verified: !!valid,
+                    verification_status: status,
+                    created_at: now,
+                    source: 'local'
+                };
+
+                list.unshift(localRecord);
+                localStorage.setItem('reana_verification_records', JSON.stringify(list.slice(0, 250)));
+            } catch (error) {
+                console.warn('Failed to persist verification result locally', error);
+            }
+        }
+
+        function inferCompletionFromCheckResult(result){
+            const text = [
+                result?.response,
+                result?.feedback,
+                result?.assistance,
+                result?.message,
+                result?.error
+            ].filter(Boolean).join(' ');
+
+            const normalized = String(text || '').toLowerCase();
+            const explicitMatch = /statement check:\s*(?:✅\s*)?match/i.test(text);
+            const explicitCorrect = /proof verdict:\s*(?:✓\s*)?correct/i.test(text);
+            const explicitBad = /proof verdict:\s*(?:⚠|✗|needs work|incorrect)/i.test(text);
+            const genericBad = /(mismatch|needs work|incorrect|major issue|not complete|missing step|gap in logic)/i.test(text);
+            const boolValid = result?.isValid === true || result?.proven === true || result?.theoremProven === true;
+
+            if (explicitBad || genericBad) return false;
+            if (explicitMatch && explicitCorrect) return true;
+            if (boolValid && normalized.length > 0) return true;
+            return false;
+        }
+
         // Manual Complete Proof button logic
         const btnCompleteProof = document.getElementById('btn-complete-proof');
         if(btnCompleteProof){
-            btnCompleteProof.addEventListener('click', ()=>{
+            btnCompleteProof.addEventListener('click', async ()=>{
+                if (proofCompleted) {
+                    showCompletionWarning('Proof is already completed and saved.');
+                    return;
+                }
+
+                const theorem = (document.getElementById('theorem-input')?.value || '').trim();
                 const allStepInputs = Array.from(document.querySelectorAll('.proof-step'));
                 const allStepContainers = Array.from(document.querySelectorAll('.proof-step-container'));
                 const allVerified = allStepContainers.every(c => c.dataset.verified === 'true');
                 const allNonEmpty = allStepInputs.every(s => (s.value || '').trim().length > 0);
-                if(allVerified && allNonEmpty && allStepInputs.length > 0){
-                    const theorem = document.getElementById('theorem-input')?.value || '';
-                    const steps = allStepInputs.map((s,i)=>({index:i+1, text: s.value || '', verified: (s.closest('.proof-step-container')?.dataset.verified === 'true')}));
+                const allMeaningful = allStepInputs.every(s => (s.value || '').trim().length >= 10);
+
+                if(theorem.length < 5){
+                    showCompletionWarning('Please enter a valid theorem statement first.');
+                    return;
+                }
+
+                if(!(allVerified && allNonEmpty && allMeaningful && allStepInputs.length >= 2)){
+                    showCompletionWarning('Proof must have at least 2 non-empty verified steps before completion.');
+                    return;
+                }
+
+                const steps = allStepInputs.map((s,i)=>({index:i+1, text: s.value || '', verified: (s.closest('.proof-step-container')?.dataset.verified === 'true')}));
+                const finalStepText = String(steps[steps.length - 1]?.text || '');
+                if(!/(therefore|hence|thus|qed|proved|proven|conclude|so\s+we\s+have|∎|■)/i.test(finalStepText)){
+                    showCompletionWarning('Final step must explicitly state the conclusion of the proof.');
+                    return;
+                }
+
+                const fullProofText = steps.map(s => `Step ${s.index}: ${s.text}`).join('\n');
+
+                setLoadingState(true, 'Checking full proof completeness...');
+                if(btnCompleteProof){
+                    btnCompleteProof.disabled = true;
+                    btnCompleteProof.textContent = 'Checking Complete Proof...';
+                }
+
+                try {
+                    const checkResult = await tutorClient.checkProof(theorem, fullProofText);
+                    const isCompleteByAI = inferCompletionFromCheckResult(checkResult);
+
+                    if(!checkResult?.success || !isCompleteByAI){
+                        showCompletionWarning('AI check says the proof is not yet complete/correct. Please improve and verify again.');
+                        return;
+                    }
+
+                    const savePayload = {
+                        action: 'save_complete_proof',
+                        theorem,
+                        steps,
+                        is_completed: true,
+                        is_verified: true,
+                        verification_status: 'success',
+                        verification_summary: checkResult?.response || checkResult?.feedback || checkResult?.message || '',
+                        score: 100
+                    };
+
+                    const saveResponseRaw = await fetch('../../backend/api/submissions.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(savePayload)
+                    });
+                    const saveResponse = await saveResponseRaw.json();
+
+                    if(!saveResponseRaw.ok || !saveResponse?.success){
+                        showCompletionWarning(saveResponse?.error || 'Failed to save completed proof submission.');
+                        return;
+                    }
+
+                    persistCompletedProofLocally({
+                        theorem,
+                        steps,
+                        score: saveResponse?.score || 100,
+                        submissionId: saveResponse?.submission_id || null
+                    });
+
+                    proofCompleted = true;
+                    if(addStepBtn) addStepBtn.disabled = true;
+                    if(btnCompleteProof) btnCompleteProof.disabled = true;
+                    
+                    // Disable all guidance buttons when proof is complete
+                    const btnGetStrategy = document.getElementById('btn-get-strategy');
+                    const btnGetHint = document.getElementById('btn-get-hint');
+                    const btnSuggestRelated = document.getElementById('btn-suggest-related');
+                    if(btnGetStrategy) { btnGetStrategy.disabled = true; btnGetStrategy.style.opacity = '0.5'; }
+                    if(btnGetHint) { btnGetHint.disabled = true; btnGetHint.style.opacity = '0.5'; }
+                    if(btnSuggestRelated) { btnSuggestRelated.disabled = true; btnSuggestRelated.style.opacity = '0.5'; }
+                    
+                    // Clear any active guidance or hints
+                    const assistantResponse = document.getElementById('assistant-response');
+                    if(assistantResponse) {
+                        assistantResponse.innerHTML = '<div style="padding: 15px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;"><strong style="color: #2e7d32;">✓ Proof is Complete!</strong><p style="margin: 8px 0 0 0; color: #1b5e20; font-size: 14px;">Your proof has been successfully verified. Excellent work!</p></div>';
+                    }
+
+                    // Update verification panel title if it exists
+                    const verifyCard = document.getElementById('verify-card');
+                    if (verifyCard) {
+                        const verifyTitle = verifyCard.querySelector('h2');
+                        if (verifyTitle) {
+                            verifyTitle.textContent = '✓ Verification Complete';
+                        }
+                    }
+                    
                     showCompleteProofPopup(theorem, steps);
-                } else {
-                    // Show a warning popup if not all steps are correct
-                    let warn = document.createElement('div');
-                    warn.className = 'verification-popup error';
-                    warn.style.position = 'fixed';
-                    warn.style.right = '32px';
-                    warn.style.bottom = '32px';
-                    warn.style.zIndex = 2000;
-                    warn.style.maxWidth = '340px';
-                    warn.innerHTML = `<div class="vp-header"><strong>Cannot Complete Proof</strong><button class="vp-close" aria-label="Close">×</button></div><div class="vp-body"><div class="vp-message">All steps must be correct and non-empty to complete the proof.</div></div>`;
-                    document.body.appendChild(warn);
-                    warn.querySelector('.vp-close')?.addEventListener('click', ()=>warn.remove());
-                    setTimeout(()=>{ if(document.body.contains(warn)) warn.classList.add('visible'); }, 10);
-                    setTimeout(()=>{ if(document.body.contains(warn)) warn.remove(); }, 3500);
+                } catch (error) {
+                    showCompletionWarning(error?.message || 'Unable to validate complete proof right now.');
+                } finally {
+                    setLoadingState(false);
+                    if(btnCompleteProof && !proofCompleted){
+                        btnCompleteProof.disabled = false;
+                        btnCompleteProof.textContent = '✓ Complete Proof';
+                    }
                 }
             });
         }
@@ -812,92 +1531,126 @@ if (removeStepBtn) {
         // Apply initial font size to existing elements
         try{ changeFontSize(0); }catch(e){}
 
-        // Verify step handler: show a popup next to the specific step and populate inline feedback
+        // Verify step handler: render feedback in Verify panel aligned by step index
         window.verifyCurrentStep = async function(stepIndex){
             const steps = Array.from(document.querySelectorAll('.proof-step'));
             const stepEl = steps[stepIndex];
             if(!stepEl) return alert('Step not found');
-            const stepText = stepEl.value || '';
-            const theorem = document.getElementById('theorem-input')?.value || '';
+            const stepText = (stepEl.value || '').trim();
+            const theorem = (document.getElementById('theorem-input')?.value || '').trim();
+            const container = stepEl.closest('.proof-step-container');
+
+            if(!theorem){
+                alert('Please enter a theorem first before verifying a proof step.');
+                if(container) container.dataset.verified = 'false';
+                return;
+            }
+
+            if(!stepText){
+                alert('Please write the proof step before verifying.');
+                if(container) container.dataset.verified = 'false';
+                return;
+            }
+
+            if(container && container.dataset.verifying === 'true') return;
+
+            const verifyBtn = container?.querySelector('.btn-verify-step');
+            const originalBtnLabel = verifyBtn?.textContent || 'Verify';
+            if(container) container.dataset.verifying = 'true';
+            if(verifyBtn){
+                verifyBtn.disabled = true;
+                verifyBtn.classList.add('is-loading');
+                verifyBtn.textContent = '⏳ Verifying...';
+            }
 
             // Call backend verification
             let result;
             try {
-                result = await tutorClient.verifyStep(theorem, stepText, stepIndex, []);
-            } catch (err) {
-                console.error('verifyStep error', err);
-                result = { success: false, error: err.message };
-            }
-
-            // Build feedback content (support both demo and actual responses)
-            let valid = false;
-            let message = '';
-            let hint = '';
-
-            if(result && result.success){
-                // Prefer explicit boolean flag when provided
-                if(typeof result.isValid === 'boolean'){
-                    valid = result.isValid;
+                try {
+                    result = await tutorClient.verifyStep(theorem, stepText, stepIndex, []);
+                } catch (err) {
+                    console.error('verifyStep error', err);
+                    result = { success: false, error: err.message };
                 }
-                // message candidates
-                message = result.feedback || result.assistance || result.response || result.message || '';
-                if(result.suggestions) hint = Array.isArray(result.suggestions)? result.suggestions.join('\n') : result.suggestions;
 
-                // If isValid wasn't provided, infer from textual cues (allow 'match')
-                if(typeof valid !== 'boolean' || valid === false){
-                    const textToInspect = (message || '') + ' ' + (hint || '') + ' ' + (result.error || '');
-                    const validRegex = /\b(match|matches|matched|correct|✓|yes|true)\b/i;
-                    valid = validRegex.test(textToInspect);
-                }
-            } else {
-                // Fallback heuristic when result.success is false or no result
-                const fallbackText = (result && (result.feedback || result.error || result.response || '')) || '';
-                const validRegex = /\b(match|matches|matched|correct|✓|yes|true)\b/i;
-                valid = validRegex.test(fallbackText);
-                message = (result && (result.feedback || result.error)) || 'Verification service unavailable. This is a local hint.';
-            }
+                // Build feedback content (support both demo and actual responses)
+                let valid = false;
+                let message = '';
+                let hint = '';
 
-            const container = stepEl.closest('.proof-step-container');
-            // populate inline feedback block
-            const fb = container.querySelector('.step-feedback');
-            if(fb){
-                fb.innerHTML = `<div class="fb ${valid? 'fb-correct':'fb-wrong'}">${escapeHtml(message || (valid? 'correct' : 'incorrect'))}</div>`;
-            }
-            // mark the per-step preview when wrong to match system danger color
-            const stepPreview = container.querySelector('.step-latex-preview');
-            if(stepPreview){
-                if(!valid){
-                    stepPreview.classList.add('preview-wrong');
-                    stepPreview.classList.remove('preview-correct');
-                } else {
-                    stepPreview.classList.remove('preview-wrong');
-                    stepPreview.classList.add('preview-correct');
-                }
-            }
-            // mark this container as verified (true/false) for completeness checks
-            if(container) container.dataset.verified = valid ? 'true' : 'false';
-            // Only show complete-proof popup if AI says last step is final and theorem is proven
-            try {
-                // Check AI response for final/proven flags
-                let isFinal = false;
-                let isProven = false;
                 if(result && result.success){
-                    isFinal = !!result.final || !!result.isFinal;
-                    isProven = !!result.proven || !!result.theoremProven;
+                    // Prefer explicit boolean flag when provided
+                    if(typeof result.isValid === 'boolean'){
+                        valid = result.isValid;
+                    }
+                    // message candidates
+                    message = result.feedback || result.assistance || result.response || result.message || '';
+                    if(result.suggestions) hint = Array.isArray(result.suggestions)? result.suggestions.join('\n') : result.suggestions;
+
+                    // If backend does not provide explicit flag, infer conservatively.
+                    if(typeof result.isValid !== 'boolean'){
+                        const textToInspect = ((message || '') + ' ' + (hint || '') + ' ' + (result.error || '')).toLowerCase();
+                        const negativeRegex = /(incorrect|wrong|invalid|mismatch|failed|error|needs\s+work|not\s+correct|not\s+valid|does\s+not\s+follow|insufficient)/i;
+                        const strongPositiveRegex = /(proof\s+verdict\s*:\s*(?:✓\s*)?correct|logically\s+valid|step\s+is\s+correct|verification\s+passed|statement\s+check\s*:\s*(?:✅\s*)?match)/i;
+
+                        if(negativeRegex.test(textToInspect)) {
+                            valid = false;
+                        } else {
+                            valid = strongPositiveRegex.test(textToInspect);
+                        }
+                    }
+                } else {
+                    // On backend/service failure, default to invalid to avoid false positives.
+                    valid = false;
+                    message = (result && (result.feedback || result.error)) || 'Verification service unavailable. This is a local hint.';
                 }
-                const allStepInputs = Array.from(document.querySelectorAll('.proof-step'));
-                const allStepContainers = Array.from(document.querySelectorAll('.proof-step-container'));
-                const allVerified = allStepContainers.every(c => c.dataset.verified === 'true');
-                const allNonEmpty = allStepInputs.every(s => (s.value || '').trim().length > 0);
-                if(allVerified && allNonEmpty && allStepInputs.length > 0 && isFinal && isProven){
-                    setTimeout(()=>{
-                        const theorem = document.getElementById('theorem-input')?.value || '';
-                        const steps = allStepInputs.map((s,i)=>({index:i+1, text: s.value || '', verified: (s.closest('.proof-step-container')?.dataset.verified === 'true')}));
-                        showCompleteProofPopup(theorem, steps);
-                    }, 350);
+
+                const parsedHint = extractHintFromVerificationMessage(message);
+                if (!hint && parsedHint) {
+                    hint = parsedHint;
                 }
-            }catch(e){ console.debug('complete-proof check failed', e); }
-            showVerificationPopup({valid, message, hint}, stepIndex, container);
+
+                if (!valid && !hint) {
+                    hint = buildFallbackVerificationHint(message);
+                }
+
+                // popup-only feedback: clear any inline feedback under the step
+                const fb = container.querySelector('.step-feedback');
+                if(fb){
+                    if(valid){
+                        fb.innerHTML = '<div class="fb fb-correct">This step is logically valid and verified.</div>';
+                    } else {
+                        const issue = compactVerificationText(message || 'This step does not logically follow from the previous assumption.', 180);
+                        const actionHint = compactVerificationText(hint || buildFallbackVerificationHint(message), 180);
+                        fb.innerHTML = `<div class="fb fb-wrong"><strong>Error Summary:</strong> ${escapeHtml(issue)}<br><strong>Hint:</strong> ${escapeHtml(actionHint)}</div>`;
+                    }
+                }
+                // mark the per-step preview when wrong to match system danger color
+                const stepPreview = container.querySelector('.step-latex-preview');
+                if(stepPreview){
+                    if(!valid){
+                        stepPreview.classList.add('preview-wrong');
+                        stepPreview.classList.remove('preview-correct');
+                    } else {
+                        stepPreview.classList.remove('preview-wrong');
+                        stepPreview.classList.add('preview-correct');
+                    }
+                }
+                // mark this container as verified (true/false) for completeness checks
+                if(container) container.dataset.verified = valid ? 'true' : 'false';
+                renderStepVerificationInPanel(stepIndex, {valid, message, hint});
+                persistVerificationResultLocally({ theorem, stepIndex, stepText, valid, message, hint });
+                updateVerificationPanelSummary();
+                updateProgressionLocks();
+            } finally {
+                if(container) delete container.dataset.verifying;
+                if(verifyBtn){
+                    verifyBtn.disabled = false;
+                    verifyBtn.classList.remove('is-loading');
+                    verifyBtn.textContent = originalBtnLabel;
+                }
+                updateProgressionLocks();
+            }
         }
 
         // Show a complete-proof popup with all steps, highlighting correctness and rendering LaTeX
@@ -915,7 +1668,7 @@ if (removeStepBtn) {
             pop.style.transform = 'translateX(-50%)';
             pop.style.zIndex = 1300;
             pop.style.background = '#ffffff';
-            pop.style.borderColor = '#8fb5a0';
+            pop.style.borderColor = AXIO_COLORS.secondary;
 
             // sanitize helper
             function sanitizeHtml(html){
@@ -934,7 +1687,7 @@ if (removeStepBtn) {
                 // Otherwise keep processed as-is (it contains math delimiters like \(...\) or \[...\]) so MathJax can typeset.
                 const content = String(processed).includes('<') ? processed : processed;
                 const checkmark = s.verified ? '✓' : '✗';
-                return `<div class="cp-step ${cls}" style="padding:12px 14px;border-radius:6px;margin-bottom:10px;background:#ffffff;color:#1a1a1a;border:2px solid #8fb5a0;width:calc(100% - 28px);box-sizing:border-box;"><div class="cp-step-num" style="font-weight:700;margin-bottom:6px;color:#5a9a7f">Step ${s.index} ${checkmark}</div><div class="cp-step-body" style="margin-top:6px;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;color:#1a1a1a">${sanitizeHtml(content)}</div></div>`;
+                return `<div class="cp-step ${cls}" style="padding:12px 14px;border-radius:6px;margin-bottom:10px;background:#ffffff;color:${AXIO_COLORS.text};border:2px solid ${AXIO_COLORS.secondary};width:calc(100% - 28px);box-sizing:border-box;"><div class="cp-step-num" style="font-weight:700;margin-bottom:6px;color:${AXIO_COLORS.primary}">Step ${s.index} ${checkmark}</div><div class="cp-step-body" style="margin-top:6px;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;color:${AXIO_COLORS.text}">${sanitizeHtml(content)}</div></div>`;
             }).join('');
 
             pop.innerHTML = `
@@ -1112,9 +1865,20 @@ if (removeStepBtn) {
 
                 saveBtn.onclick = async () => {
                     try {
-                        // Get clean HTML for theorem and steps
-                        const theoremText = document.querySelector('#completeTheoremContent')?.innerHTML || '';
-                        const stepsText = document.querySelector('#completeStepsContent')?.innerHTML || '';
+                        const escapeForHtml = (text) => String(text || '')
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#39;');
+
+                        const theoremNatural = latexToNaturalLanguage(preprocessToLatex(theorem || ''));
+                        const stepsNaturalHtml = steps.length
+                            ? steps.map(s => {
+                                const naturalStep = latexToNaturalLanguage(preprocessToLatex(s.text || '')) || '—';
+                                return `<div style="margin-bottom:12px;"><strong>Step ${s.index}:</strong> ${escapeForHtml(naturalStep)}</div>`;
+                            }).join('')
+                            : '<div>No proof steps provided.</div>';
 
                         const pdfEl = document.createElement('div');
                         pdfEl.style.padding = '30px';
@@ -1127,16 +1891,12 @@ if (removeStepBtn) {
                         pdfEl.innerHTML = `
                             <h2 style="margin-bottom:20px;">Complete Proof</h2>
                             <h3>Theorem</h3>
-                            <div style="margin-bottom:30px;">${theoremText}</div>
-                            <h3>Proof</h3>
-                            <div>${stepsText}</div>
+                            <div style="margin-bottom:30px;">${escapeForHtml(theoremNatural || 'No theorem provided.')}</div>
+                            <h3>Proof Steps</h3>
+                            <div>${stepsNaturalHtml}</div>
                         `;
 
                         document.body.appendChild(pdfEl);
-
-                        if(window.MathJax && typeof MathJax.typesetPromise === 'function'){
-                            await MathJax.typesetPromise([pdfEl]);
-                        }
 
                         const opt = {
                             margin: 0.5,
@@ -1236,8 +1996,23 @@ if (removeStepBtn) {
                 else if (section === 'next') { next += (next ? ' ' : '') + line; }
             }
 
+            function toDirectPointText(raw, maxLen = 180){
+                const text = latexToNaturalLanguage(raw || '')
+                    .replace(/[\p{Extended_Pictographic}\uFE0F]/gu, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                if(!text) return '';
+                const firstSentence = text.split(/(?<=[.!?])\s+/)[0] || text;
+                const compact = firstSentence.trim();
+                if(compact.length <= maxLen) return compact;
+                return compact.slice(0, maxLen - 1).trimEnd() + '…';
+            }
+
+            const directMain = toDirectPointText(summary || message || (valid ? 'Correct.' : 'Needs improvement.'));
+            const directNext = toDirectPointText(next || improvement || wrong || hint || '', 140);
+            const headerText = valid ? 'Correct' : 'Needs Improvement';
+
             // If not structured, fallback to old rendering
-            const isStructured = status || summary || wrong || improvement || next;
             pop = document.createElement('div');
             pop.id = id;
             pop.className = valid ? 'verification-popup success' : 'verification-popup error';
@@ -1247,57 +2022,54 @@ if (removeStepBtn) {
             pop.style.lineHeight = '1.5';
             pop.style.letterSpacing = '0.01em';
             pop.style.maxWidth = '520px';
-            pop.style.width = '480px';
+            pop.style.width = 'min(480px, calc(100vw - 24px))';
             pop.style.wordBreak = 'break-word';
             pop.style.overflow = 'hidden';
 
-            if (isStructured) {
-                pop.innerHTML = `
-                    <div class="vp-header" style="font-family:inherit;font-size:17px;">
-                        <strong>${escapeHtml(status)}</strong>
-                        <button class="vp-close" aria-label="Close">×</button>
-                    </div>
-                    <div class="vp-body" style="font-family:inherit;font-size:15px;max-height:340px;overflow-y:auto;overflow-x:auto;">
-                        <div class="vp-section" style="margin-bottom:14px;word-break:break-word;white-space:pre-line;"><strong style="color:#2d5a7a;">Input Summary:</strong> <span>${sanitizeHtml(preprocessToLatex(summary))}</span></div>
-                        ${wrong ? `<div class="vp-section" style="margin-bottom:14px;word-break:break-word;white-space:pre-line;"><strong style="color:#d9534f;">What’s Wrong / Missing:</strong> <span style="color:#b02a1a;">${sanitizeHtml(preprocessToLatex(wrong))}</span></div>` : ''}
-                        ${improvement ? `<div class="vp-section" style="margin-bottom:14px;word-break:break-word;white-space:pre-line;"><strong style="color:#e67e22;">Improvement:</strong> <span style="color:#b36b00;">${sanitizeHtml(preprocessToLatex(improvement))}</span></div>` : ''}
-                        ${next ? `<div class="vp-section" style="margin-bottom:10px;word-break:break-word;white-space:pre-line;"><strong style="color:#357a38;">Next Step Guide:</strong> <span>${sanitizeHtml(preprocessToLatex(next))}</span></div>` : ''}
-                    </div>
-                `;
-            } else {
-                // fallback: show as a single message
-                const processedMessage = message ? preprocessToLatex(String(message)) : (valid ? '\\(correct\\)' : 'incorrect');
-                const msgHtml = String(processedMessage).includes('<') ? processedMessage : escapeHtml(processedMessage);
-                pop.innerHTML = `
-                    <div class="vp-header" style="font-family:inherit;font-size:17px;">
-                        ${valid ? '' : '<strong>incorrect</strong>'}
-                        <button class="vp-close" aria-label="Close">×</button>
-                    </div>
-                    <div class="vp-body" style="font-family:inherit;font-size:15px;max-height:340px;overflow-y:auto;overflow-x:auto;">
-                        <div class="vp-message">${sanitizeHtml(msgHtml)}</div>
-                    </div>
-                `;
-            }
+            const directMainHtml = sanitizeHtml(escapeHtml(directMain || (valid ? 'Correct.' : 'Needs improvement.')));
+            const directNextHtml = directNext ? sanitizeHtml(escapeHtml(directNext)) : '';
+            pop.innerHTML = `
+                <div class="vp-header" style="font-family:inherit;font-size:17px;">
+                    <strong>${headerText}</strong>
+                    <button class="vp-close" aria-label="Close">×</button>
+                </div>
+                <div class="vp-body" style="font-family:inherit;font-size:15px;max-height:240px;overflow-y:auto;overflow-x:auto;">
+                    <div class="vp-message">${directMainHtml}</div>
+                    ${directNextHtml ? `<div class="vp-hint"><strong>Suggested:</strong> ${directNextHtml}</div>` : ''}
+                </div>
+            `;
 
             document.body.appendChild(pop);
-            // Run MathJax on the popup so any math in message/hint renders
-            renderMath(pop);
 
             if(container){
                 const rect = container.getBoundingClientRect();
-                const left = rect.right + 12;
-                const top = rect.top;
-                pop.style.position = 'fixed';
-                if(left + 320 > window.innerWidth) {
-                    pop.style.left = `${Math.max(12, rect.left)}px`;
-                    pop.style.top = `${Math.max(12, rect.top - rect.height - 12)}px`;
-                } else {
-                    pop.style.left = `${left}px`;
-                    pop.style.top = `${top}px`;
+                const popupRect = pop.getBoundingClientRect();
+                const popupWidth = popupRect.width || Math.min(480, window.innerWidth - 24);
+                const popupHeight = popupRect.height || 260;
+                const viewportPadding = 12;
+
+                let left = rect.right + 12;
+                if (left + popupWidth > window.innerWidth - viewportPadding) {
+                    left = rect.left - popupWidth - 12;
                 }
+                if (left < viewportPadding) {
+                    left = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding);
+                }
+
+                let top = rect.top;
+                if (top + popupHeight > window.innerHeight - viewportPadding) {
+                    top = window.innerHeight - popupHeight - viewportPadding;
+                }
+                if (top < viewportPadding) {
+                    top = viewportPadding;
+                }
+
+                pop.style.position = 'fixed';
+                pop.style.left = `${Math.round(left)}px`;
+                pop.style.top = `${Math.round(top)}px`;
             } else {
-                pop.style.right = '20px';
-                pop.style.bottom = '20px';
+                pop.style.right = '12px';
+                pop.style.bottom = '12px';
             }
 
             pop.querySelector('.vp-close')?.addEventListener('click', ()=>pop.remove());
@@ -1307,6 +2079,389 @@ if (removeStepBtn) {
         function escapeHtml(str){
             return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
         }
+
+        function setLoadingState(isLoading, text = 'AI is analyzing your theorem...'){
+            const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loading-text');
+            if(loadingText) loadingText.textContent = text;
+            if(loading) loading.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function getCurrentTheorem(){
+            return (document.getElementById('theorem-input')?.value || '').trim();
+        }
+
+        function getCurrentProofText(){
+            return Array.from(document.querySelectorAll('.proof-step'))
+                .map(s => (s.value || '').trim())
+                .filter(Boolean)
+                .join('\n\n');
+        }
+
+        function insertPlainTextAtCursor(target, text){
+            const value = String(text || '').replace(/\r\n?/g, '\n');
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? target.value.length;
+            target.value = target.value.slice(0, start) + value + target.value.slice(end);
+            const next = start + value.length;
+            target.selectionStart = next;
+            target.selectionEnd = next;
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function attachLatexPasteSupport(textarea){
+            if(!textarea || textarea.dataset.latexPasteBound === 'true') return;
+            textarea.dataset.latexPasteBound = 'true';
+            textarea.addEventListener('paste', (event) => {
+                const data = event.clipboardData?.getData('text/plain');
+                if(typeof data !== 'string') return;
+                event.preventDefault();
+                insertPlainTextAtCursor(textarea, data);
+            });
+        }
+
+        function renderAssistantResponse(title, content){
+            const box = document.getElementById('assistant-response');
+            if(!box) return;
+
+            const safeTitle = escapeHtml(title || 'AI Assistant');
+            const raw = String(content || 'No response received.');
+            const natural = latexToNaturalLanguage(raw);
+            const rendered = escapeHtml(natural);
+
+            box.innerHTML = `
+                <div class="assistant-message">
+                    <div class="message-title">${safeTitle}</div>
+                    <div class="message-content">${rendered}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+        }
+
+        function compactVerificationText(raw, maxLen = 180){
+            const text = latexToNaturalLanguage(raw || '')
+                .replace(/[\p{Extended_Pictographic}\uFE0F]/gu, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if(!text) return '';
+            const firstSentence = text.split(/(?<=[.!?])\s+/)[0] || text;
+            const compact = firstSentence.trim();
+            if(compact.length <= maxLen) return compact;
+            return compact.slice(0, maxLen - 1).trimEnd() + '…';
+        }
+
+        function extractHintFromVerificationMessage(message){
+            const raw = String(message || '');
+            if(!raw) return '';
+
+            const lines = raw
+                .split(/\r?\n|<br\s*\/?>/i)
+                .map(line => line.trim())
+                .filter(Boolean);
+
+            for(const line of lines){
+                if(/^next\s*step\s*guide\s*:/i.test(line)) return line.replace(/^next\s*step\s*guide\s*:/i, '').trim();
+                if(/^next\s*:/i.test(line)) return line.replace(/^next\s*:/i, '').trim();
+                if(/^hint\s*:/i.test(line)) return line.replace(/^hint\s*:/i, '').trim();
+                if(/^improvement\s*:/i.test(line)) return line.replace(/^improvement\s*:/i, '').trim();
+                if(/^suggest(?:ion|ed)?\s*:/i.test(line)) return line.replace(/^suggest(?:ion|ed)?\s*:/i, '').trim();
+            }
+
+            return '';
+        }
+
+        function buildFallbackVerificationHint(message){
+            const text = String(message || '').toLowerCase();
+
+            if(/mismatch|not\s+match|hindi\s+tugma|different\s+statement|statement\s+check\s*:\s*❌/.test(text)){
+                return 'Match this step exactly to the theorem statement, then rewrite it using the same assumptions and target conclusion.';
+            }
+
+            if(/missing|gap|not\s+complete|incomplete|lack\s+justification/.test(text)){
+                return 'Add the missing justification that explains why this transition is valid before concluding.';
+            }
+
+            if(/incorrect|wrong|invalid|needs\s+work|needs\s+improvement/.test(text)){
+                return 'Rewrite the step using the correct definition or theorem, with a clear inequality or logical justification.';
+            }
+
+            return 'Revise the step so it directly follows the theorem and include a clear reason before moving to the next step.';
+        }
+
+        function inferAppliedRule(message = '', hint = '') {
+            const combined = `${message} ${hint}`.toLowerCase();
+            if (/epsilon|delta|ε|δ/.test(combined)) return 'Epsilon–delta definition';
+            if (/continuity|continuous/.test(combined)) return 'Definition of continuity at a point';
+            if (/cauchy/.test(combined)) return 'Cauchy criterion';
+            if (/bounded|completeness|complete/.test(combined)) return 'Completeness and boundedness argument';
+            if (/contradiction|absurd/.test(combined)) return 'Proof by contradiction';
+            if (/open\s+set|closed\s+set/.test(combined)) return 'Definition of open/closed set';
+            return 'Direct logical implication from previous verified step';
+        }
+
+        function renderStepVerificationInPanel(stepIndex, { valid, message, hint }) {
+            const box = document.getElementById('assistant-response');
+            if (!box) return;
+
+            let list = box.querySelector('.verify-step-list');
+            if (!list) {
+                box.innerHTML = `
+                    <div class="verify-summary-grid">
+                        <div class="verify-summary-card"><div class="num" id="verified-steps-count">0</div><div class="lbl">Verified</div></div>
+                        <div class="verify-summary-card"><div class="num" id="total-steps-count">0</div><div class="lbl">Total Steps</div></div>
+                    </div>
+                    <div class="verify-banner" id="verify-banner">Verify all steps to complete proof.</div>
+                    <div class="verify-step-list"></div>
+                `;
+                list = box.querySelector('.verify-step-list');
+            }
+
+            const summaryText = compactVerificationText(message || (valid ? 'This step is logically valid.' : 'This step does not logically follow from the previous assumption.')) || (valid ? 'This step is logically valid.' : 'This step does not logically follow from the previous assumption.');
+            const whyText = valid
+                ? 'The argument follows from the prior assumptions and preserves the theorem target.'
+                : compactVerificationText(message || 'The inference is missing a required justification or valid theorem application.', 220);
+            const nextText = compactVerificationText(hint || buildFallbackVerificationHint(message), 190);
+            const ruleText = inferAppliedRule(message, hint);
+
+            let item = list.querySelector(`[data-step-index="${stepIndex}"]`);
+            if (!item) {
+                item = document.createElement('div');
+                item.className = 'verify-step-item';
+                item.setAttribute('data-step-index', String(stepIndex));
+                list.appendChild(item);
+            }
+
+            item.classList.toggle('ok', !!valid);
+            item.classList.toggle('warn', !valid);
+            item.innerHTML = `
+                <div class="verify-step-head">
+                    <span>Step ${stepIndex + 1}</span>
+                    <span>${valid ? 'Correct' : 'Needs Improvement'}</span>
+                </div>
+                <div class="verify-block"><strong>Error Summary:</strong> ${escapeHtml(summaryText)}</div>
+                <div class="verify-block"><strong>Why:</strong> ${escapeHtml(whyText)}</div>
+                <div class="verify-block"><strong>Hint:</strong> ${escapeHtml(nextText)}</div>
+                <div class="verify-block"><strong>Rule/Theorem:</strong> ${escapeHtml(ruleText)}</div>
+            `;
+
+            const ordered = Array.from(list.querySelectorAll('.verify-step-item'))
+                .sort((a, b) => Number(a.dataset.stepIndex) - Number(b.dataset.stepIndex));
+            ordered.forEach(el => list.appendChild(el));
+            updateVerificationPanelSummary();
+        }
+
+        function updateVerificationPanelSummary(){
+            if(!document.documentElement.classList.contains('embedded-clean')) return;
+            const verified = Array.from(document.querySelectorAll('.proof-step-container')).filter(c=>c.dataset.verified === 'true').length;
+            const total = Array.from(document.querySelectorAll('.proof-step-container')).length;
+            const verifiedEl = document.getElementById('verified-steps-count');
+            const totalEl = document.getElementById('total-steps-count');
+            const banner = document.getElementById('verify-banner');
+            if(verifiedEl) verifiedEl.textContent = String(verified);
+            if(totalEl) totalEl.textContent = String(total);
+            if(banner){
+                if(total > 0 && verified === total){
+                    banner.textContent = 'All steps verified — ready to complete proof.';
+                    banner.classList.add('ready');
+                } else {
+                    banner.textContent = 'Verify all steps to complete proof.';
+                    banner.classList.remove('ready');
+                }
+            }
+            updateProgressionLocks();
+            const fsVal = document.getElementById('font-size-value');
+            if(fsVal){
+                try {
+                    fsVal.textContent = String(proofFontSize);
+                } catch (e) {}
+            }
+        }
+
+        function renderRelatedConcepts(response){
+            const wrap = document.getElementById('related-theorems');
+            if(!wrap) return;
+
+            const text = response?.response || response?.assistance || response?.message || '';
+            if(!text){
+                wrap.innerHTML = '<p class="text-muted">No related concepts available yet.</p>';
+                return;
+            }
+
+            const rendered = escapeHtml(latexToNaturalLanguage(text));
+            wrap.innerHTML = `<div class="assistant-message"><div class="message-content">${rendered}</div></div>`;
+        }
+
+        window.closeResponseModal = function(){
+            const modal = document.getElementById('response-modal');
+            if(!modal) return;
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+        };
+
+        function saveDraft(){
+            const payload = {
+                theorem: getCurrentTheorem(),
+                steps: Array.from(document.querySelectorAll('.proof-step')).map(s => s.value || ''),
+                savedAt: Date.now()
+            };
+            localStorage.setItem('reana_tutor_draft', JSON.stringify(payload));
+        }
+
+        function restoreDraft(){
+            let payload;
+            try {
+                payload = JSON.parse(localStorage.getItem('reana_tutor_draft') || 'null');
+            } catch (e) {
+                payload = null;
+            }
+
+            if(!payload) return;
+
+            const theoremInputEl = document.getElementById('theorem-input');
+            if(theoremInputEl && payload.theorem && !theoremInputEl.value.trim()){
+                theoremInputEl.value = payload.theorem;
+            }
+
+            if(Array.isArray(payload.steps) && payload.steps.length){
+                const stepsContainer = document.getElementById('proof-steps');
+                if(stepsContainer){
+                    const existing = Array.from(stepsContainer.querySelectorAll('.proof-step-container'));
+                    for(let i = existing.length; i < payload.steps.length; i++){
+                        const container = document.createElement('div');
+                        container.className = 'proof-step-container';
+                        container.innerHTML = `
+                            <div class="step-header">
+                                <span class="step-number">Step ${i + 1}</span>
+                                <button class="btn-verify-step">✓ Verify</button>
+                            </div>
+                            <textarea class="proof-step proof-textarea" placeholder="Write your proof step here..." rows="3"></textarea>
+                            <div class="step-latex-preview" data-step-index="${i}">Preview will appear here.</div>
+                            <div class="step-feedback"></div>
+                        `;
+                        stepsContainer.appendChild(container);
+                        const ta = container.querySelector('.proof-step');
+                        attachProofStepListeners(ta, i);
+                    }
+
+                    Array.from(stepsContainer.querySelectorAll('.proof-step')).forEach((ta, idx) => {
+                        ta.value = payload.steps[idx] || '';
+                    });
+                }
+            }
+
+            updateTheoremPreview();
+            updateProofPreview();
+        }
+
+        const theoremInputEl = document.getElementById('theorem-input');
+        if(theoremInputEl){
+            attachLatexPasteSupport(theoremInputEl);
+            theoremInputEl.addEventListener('input', () => {
+                saveDraft();
+                updateProgressionLocks();
+            });
+        }
+
+        document.addEventListener('input', (event) => {
+            if(event.target && event.target.classList && event.target.classList.contains('proof-step')){
+                saveDraft();
+                updateProgressionLocks();
+            }
+        });
+
+        document.querySelectorAll('.proof-step').forEach((stepField) => {
+            attachLatexPasteSupport(stepField);
+        });
+
+        const btnGetStrategy = document.getElementById('btn-get-strategy');
+        if(btnGetStrategy){
+            btnGetStrategy.addEventListener('click', async () => {
+                if (proofCompleted) {
+                    alert('Proof is complete! No further guidance is available.');
+                    return;
+                }
+                const theorem = getCurrentTheorem();
+                if(theorem.length < 5){
+                    alert('Please enter a valid theorem first (at least 5 characters).');
+                    return;
+                }
+                setLoadingState(true, 'Generating proof strategy...');
+                try {
+                    const result = await tutorClient.suggestStrategy(theorem);
+                    if(result?.success){
+                        renderAssistantResponse('💡 Proof Strategy', result.response || result.assistance || result.message);
+                        const relatedBtn = document.getElementById('btn-suggest-related');
+                        if(relatedBtn) relatedBtn.style.display = 'inline-flex';
+                    } else {
+                        renderAssistantResponse('⚠️ Strategy Error', result?.error || 'Unable to generate strategy.');
+                    }
+                } catch (error) {
+                    renderAssistantResponse('⚠️ Strategy Error', error?.message || 'Unable to generate strategy.');
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+        }
+
+        const btnGetHint = document.getElementById('btn-get-hint');
+        if(btnGetHint){
+            btnGetHint.addEventListener('click', async () => {
+                if (proofCompleted) {
+                    alert('Proof is complete! No further guidance is available.');
+                    return;
+                }
+                const theorem = getCurrentTheorem();
+                if(theorem.length < 5){
+                    alert('Please enter a valid theorem first (at least 5 characters).');
+                    return;
+                }
+
+                const currentProof = getCurrentProofText();
+                const stuckPoint = currentProof ? 'I need help with the next logical step.' : 'How should I start this proof?';
+
+                setLoadingState(true, 'Generating hint...');
+                try {
+                    const result = await tutorClient.getHint(theorem, currentProof, stuckPoint);
+                    if(result?.success){
+                        renderAssistantResponse('❓ Hint', result.response || result.assistance || result.message);
+                    } else {
+                        renderAssistantResponse('⚠️ Hint Error', result?.error || 'Unable to generate hint.');
+                    }
+                } catch (error) {
+                    renderAssistantResponse('⚠️ Hint Error', error?.message || 'Unable to generate hint.');
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+        }
+
+        const btnSuggestRelated = document.getElementById('btn-suggest-related');
+        if(btnSuggestRelated){
+            btnSuggestRelated.addEventListener('click', async () => {
+                const theorem = getCurrentTheorem();
+                if(theorem.length < 5){
+                    alert('Please enter a valid theorem first (at least 5 characters).');
+                    return;
+                }
+
+                setLoadingState(true, 'Finding related concepts...');
+                try {
+                    const result = await tutorClient.suggestRelated(theorem, 'similar');
+                    if(result?.success){
+                        renderRelatedConcepts(result);
+                    } else {
+                        renderRelatedConcepts({ response: result?.error || 'Unable to fetch related concepts.' });
+                    }
+                } catch (error) {
+                    renderRelatedConcepts({ response: error?.message || 'Unable to fetch related concepts.' });
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+        }
+
+        restoreDraft();
+        updateProgressionLocks();
     })();
     </script>
 </body>

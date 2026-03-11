@@ -1,3 +1,8 @@
+<?php
+header('Location: frontend/pages/welcome.html', true, 302);
+exit;
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -197,7 +202,7 @@
             <nav class="header-nav">
                 <a href="#features">Features</a>
                 <a href="#how-it-works">How It Works</a>
-                <a href="frontend/pages/dashboard.html">Get Started</a>
+                <a href="frontend/pages/welcome.html">Get Started</a>
             </nav>
         </div>
     </div>
@@ -211,7 +216,7 @@
             through interactive proof construction, step-by-step guidance, and instant feedback. 
             Perfect for undergraduate mathematics students preparing for exams and thesis defense.
         </p>
-        <a href="frontend/pages/tutor.html" class="cta-button">🚀 Start Learning Now</a>
+        <a href="frontend/pages/welcome.html" class="cta-button">🚀 Start Learning Now</a>
     </div>
     
     <!-- Features Section -->
