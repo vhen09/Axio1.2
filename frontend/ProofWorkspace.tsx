@@ -7,6 +7,7 @@ import { useAppState } from "./AppContext";
 import LaTeXPreview from "./LaTeXPreview";
 import ProofStepEditor from "./ProofStepEditor";
 import VerificationPanel from "./VerificationPanel";
+import EquationKeyboard from "./EquationKeyboard";
 import { toast } from "sonner";
 
 const ProofWorkspace = () => {
@@ -17,6 +18,10 @@ const ProofWorkspace = () => {
     verifyStep, fontSize, setFontSize, resetWorkspace, saveCurrentProof,
     canAddStep, canCompleteProof,
   } = useAppState();
+
+  const handleInsertTheoremSymbol = (symbol: string) => {
+    setTheorem(theorem + " " + symbol);
+  };
 
   const handleSave = () => {
     if (!theorem.trim()) {
@@ -82,6 +87,8 @@ const ProofWorkspace = () => {
                     Natural Language
                   </button>
                 </div>
+                {/* Equation keyboard */}
+                <EquationKeyboard onInsert={handleInsertTheoremSymbol} />
                 {/* Font size */}
                 <div className="flex items-center gap-1">
                   <Button

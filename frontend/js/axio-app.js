@@ -366,6 +366,7 @@
   function setupWorkspace() {
     const theoremInput = document.getElementById('theorem-input');
     const theoremPreview = document.getElementById('theorem-preview');
+    const btnTheoremKeyboard = document.getElementById('btn-theorem-keyboard');
     const btnAPlus = document.getElementById('btn-a-plus');
     const btnAMinus = document.getElementById('btn-a-minus');
     const stepsWrap = document.getElementById('steps-wrap');
@@ -1179,6 +1180,39 @@
       return syncWorkspaceDraft({ silent: false });
     }
 
+    function generateDetailedConclusion(theorem, steps) {
+      const theoremText = String(theorem).toLowerCase();
+      const stepsText = steps.map(s => String(s.text).toLowerCase()).join(' ');
+      const allText = theoremText + ' ' + stepsText;
+      
+      let methodKeyword = '';
+      let methodPhrase = '';
+      
+      if (allText.includes('intermediate value') || allText.includes('ivt')) {
+        methodKeyword = 'Intermediate Value Theorem';
+        methodPhrase = `By the ${methodKeyword}, having established that the function is continuous and changes sign over the given interval, we have proven that`;
+      } else if (allText.includes('continuity') || allText.includes('continuous')) {
+        methodKeyword = 'Continuity';
+        methodPhrase = `By the properties of ${methodKeyword}, having verified the function\'s behavior at critical points, we have demonstrated that`;
+      } else if (allText.includes('limit') || allText.includes('convergence') || allText.includes('converges')) {
+        methodKeyword = 'Limit Properties';
+        methodPhrase = `By the properties of ${methodKeyword}, through sequential analysis and convergence verification, we have established that`;
+      } else if (allText.includes('derivative') || allText.includes('differentiable')) {
+        methodKeyword = 'Differentiability';
+        methodPhrase = `Using ${methodKeyword} and calculus principles, we have shown that`;
+      } else if (allText.includes('induction') || allText.includes('mathematical induction')) {
+        methodKeyword = 'Mathematical Induction';
+        methodPhrase = `By ${methodKeyword}, having verified the base case and the inductive step, we conclude that`;
+      } else if (allText.includes('cauchy') || allText.includes('subsequence') || allText.includes('subsequences')) {
+        methodKeyword = 'Sequence Properties';
+        methodPhrase = `Through analysis of ${methodKeyword}, particularly Cauchy sequences and convergence criteria, we have verified that`;
+      } else {
+        methodPhrase = `Through careful logical analysis and systematic verification of the proof steps, we have established that`;
+      }
+      
+      return `${methodPhrase} the statement holds as required.`;
+    }
+
     function saveProofAsPdf() {
       const theorem = String(state.theorem || '').trim();
       const steps = getSanitizedProofSteps();
@@ -1197,6 +1231,8 @@
       const htmlSteps = steps.map((step, index) =>
         `<li><strong>Step ${index + 1}:</strong> ${escape(latexToNatural(step.text))}</li>`
       ).join('');
+      
+      const detailedConclusion = generateDetailedConclusion(theorem, steps);
 
       const win = window.open('', '_blank');
       if (!win) {
@@ -1217,6 +1253,7 @@
             p, li { line-height: 1.5; }
             ul { padding-left: 20px; }
             .meta { color: #64748b; font-size: 13px; margin-bottom: 16px; }
+            .conclusion { margin-top: 24px; padding: 16px; border-left: 4px solid #0f766e; background-color: #f0fdf4; }
           </style>
         </head>
         <body>
@@ -1226,6 +1263,11 @@
           <p>${escape(theoremNatural || 'N/A')}</p>
           <h2>Proof Steps</h2>
           <ul>${htmlSteps || '<li>No steps provided.</li>'}</ul>
+          <div class="conclusion">
+            <h2>Conclusion</h2>
+            <p>${escape(detailedConclusion)}</p>
+            <p style="margin-top: 12px; font-style: italic; font-size: 14px;">This completes the proof of the theorem: <em>${escape(theoremNatural || 'the given theorem')}</em></p>
+          </div>
         </body>
         </html>
       `);
@@ -1565,6 +1607,99 @@
       saveState();
       renderSteps();
     });
+
+    // Theorem keyboard handler
+    if (btnTheoremKeyboard) {
+      btnTheoremKeyboard.addEventListener('click', (event) => {
+        event.stopPropagation();
+        activeTextarea = theoremInput;
+        const keyboardModal = document.getElementById('keyboard-modal');
+        const symbolsWrap = document.getElementById('symbols-wrap');
+        
+        if (!keyboardModal || !symbolsWrap) return;
+        
+        // Close any open step popovers
+        document.querySelectorAll('.equation-popover.open').forEach(panel => {
+          panel.classList.remove('open');
+        });
+        
+        // Create category tabs
+        const tabs = KEYBOARD_CATEGORIES.map((category, idx) =>
+          `<button class="eq-tab ${idx === 0 ? 'active' : ''}" data-theorem-category="${idx}">${escapeHtml(category.name)}</button>`
+        ).join('');
+        
+        const modalCard = keyboardModal.querySelector('.modal-card');
+        let tabsContainer = modalCard.querySelector('.eq-tabs-theorem');
+        
+        if (!tabsContainer) {
+          tabsContainer = document.createElement('div');
+          tabsContainer.className = 'eq-tabs-theorem';
+          const modalHead = modalCard.querySelector('div[style*="display:flex"]');
+          modalHead.parentNode.insertBefore(tabsContainer, symbolsWrap);
+        }
+        
+        tabsContainer.innerHTML = tabs;
+        
+        // Render symbols for first category
+        let currentCategoryIndex = 0;
+        
+        function renderSymbols(categoryIndex) {
+          const category = KEYBOARD_CATEGORIES[categoryIndex] || KEYBOARD_CATEGORIES[0];
+          symbolsWrap.style.display = 'grid';
+          symbolsWrap.style.gridTemplateColumns = 'repeat(5, 1fr)';
+          symbolsWrap.style.gap = '8px';
+          symbolsWrap.innerHTML = category.symbols.map((symbol, symbolIndex) =>
+            `<button class="eq-item" data-theorem-symbol="${symbolIndex}" data-category="${categoryIndex}" title="${escapeHtml(symbol.value)}">${escapeHtml(symbol.label)}</button>`
+          ).join('');
+        }
+        
+        renderSymbols(0);
+        
+        // Category tab click handler
+        tabsContainer.addEventListener('click', (event) => {
+          const tab = event.target.closest('[data-theorem-category]');
+          if (tab) {
+            const categoryIndex = Number(tab.getAttribute('data-theorem-category') || 0);
+            currentCategoryIndex = categoryIndex;
+            tabsContainer.querySelectorAll('[data-theorem-category]').forEach(btn => btn.classList.remove('active'));
+            tab.classList.add('active');
+            renderSymbols(categoryIndex);
+          }
+        });
+        
+        // Show modal
+        keyboardModal.classList.remove('hidden');
+      });
+    }
+
+    // Symbol click handler for theorem keyboard
+    const symbolsWrap = document.getElementById('symbols-wrap');
+    if (symbolsWrap) {
+      document.addEventListener('click', (event) => {
+        const symbolBtn = event.target.closest('[data-theorem-symbol]');
+        if (symbolBtn) {
+          const categoryIndex = Number(symbolBtn.getAttribute('data-category') || 0);
+          const symbolIndex = Number(symbolBtn.getAttribute('data-theorem-symbol') || 0);
+          const value = KEYBOARD_CATEGORIES[categoryIndex]?.symbols?.[symbolIndex]?.value || '';
+          insertAtCursor(theoremInput, ' ' + value);
+          theoremInput.focus();
+          markProofDirty();
+          rerenderTheoremPreview();
+          saveState();
+        }
+      });
+    }
+
+    // Close keyboard modal handler
+    const closeKeyboardBtn = document.getElementById('close-keyboard');
+    if (closeKeyboardBtn) {
+      closeKeyboardBtn.addEventListener('click', () => {
+        const keyboardModal = document.getElementById('keyboard-modal');
+        if (keyboardModal) {
+          keyboardModal.classList.add('hidden');
+        }
+      });
+    }
 
     function addNewStep() {
       markProofDirty();

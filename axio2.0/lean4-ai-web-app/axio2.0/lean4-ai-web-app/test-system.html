@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REANA System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #2980b9; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .link-list a {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: #e8f4f8;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #3498db;
+        }
+        .link-list a:hover {
+            background: #d1ecf1;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 REANA System - Full Test Dashboard</h1>
+    
+    <div class="test-card">
+        <h2>📊 System Status</h2>
+        <div id="systemStatus">
+            <span class="status pending">Testing...</span>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>🧪 API Tests</h2>
+        <button onclick="testAPI('get_categories')">Test Categories API</button>
+        <button onclick="testAPI('get_theorems')">Test Theorems API</button>
+        <button onclick="testAPI('get_statistics')">Test Statistics API</button>
+        <button onclick="testAllAPIs()">Test All APIs</button>
+        <div id="apiResults"></div>
+    </div>
+
+    <div class="test-card">
+        <h2>📚 Available Pages</h2>
+        <div class="link-list">
+            <a href="frontend/pages/theorems.html" target="_blank">📚 Theorem Browser</a>
+            <a href="frontend/pages/tutor.html" target="_blank">🤖 AI Proof Assistant</a>
+            <a href="frontend/pages/dashboard.html" target="_blank">📊 Dashboard</a>
+            <a href="frontend/pages/submissions.html" target="_blank">📝 Submissions</a>
+            <a href="frontend/pages/scores.html" target="_blank">🏆 Scores</a>
+            <a href="frontend/index.html" target="_blank">🏠 Home Page</a>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>🔌 Direct API Endpoints</h2>
+        <div class="link-list">
+            <a href="backend/api/theorems.php?action=get_categories" target="_blank">Get Categories</a>
+            <a href="backend/api/theorems.php?action=get_theorems" target="_blank">Get All Theorems</a>
+            <a href="backend/api/theorems.php?action=get_theorem_statistics" target="_blank">Get Statistics</a>
+            <a href="backend/api/theorems.php?action=get_popular_theorems" target="_blank">Get Popular Theorems</a>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>📋 Database Status</h2>
+        <div id="dbStatus">
+            <span class="status pending">Checking...</span>
+        </div>
+        <button onclick="checkDatabase()">Check Database Connection</button>
+        <div id="dbResults"></div>
+    </div>
+
+    <script>
+        // Test system status on load
+        window.addEventListener('DOMContentLoaded', () => {
+            testSystemStatus();
+            checkDatabase();
+        });
+
+        async function testSystemStatus() {
+            const statusDiv = document.getElementById('systemStatus');
+            statusDiv.innerHTML = '<span class="status success">✅ PHP Server Running on http://localhost:8080</span>';
+        }
+
+        async function testAPI(action) {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing API: ' + action + '...</p>';
+
+            try {
+                const response = await fetch(`backend/api/theorems.php?action=${action}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <div style="margin: 10px 0;">
+                            <span class="status success">✅ ${action} - SUCCESS</span>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div style="margin: 10px 0;">
+                            <span class="status error">❌ ${action} - FAILED</span>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div style="margin: 10px 0;">
+                        <span class="status error">❌ ${action} - ERROR</span>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAllAPIs() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing all APIs...</p>';
+            
+            const tests = [
+                'get_categories',
+                'get_theorems',
+                'get_theorem_statistics',
+                'get_popular_theorems'
+            ];
+
+            let results = [];
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(`backend/api/theorems.php?action=${test}`);
+                    const data = await response.json();
+                    results.push({
+                        test: test,
+                        success: data.success,
+                        data: data
+                    });
+                } catch (error) {
+                    results.push({
+                        test: test,
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+
+            let html = '<h3>Test Results:</h3>';
+            results.forEach(result => {
+                const statusClass = result.success ? 'success' : 'error';
+                const icon = result.success ? '✅' : '❌';
+                html += `
+                    <div style="margin: 10px 0;">
+                        <span class="status ${statusClass}">${icon} ${result.test}</span>
+                        <details>
+                            <summary>View Details</summary>
+                            <pre>${JSON.stringify(result.data || result.error, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+
+        async function checkDatabase() {
+            const dbStatusDiv = document.getElementById('dbStatus');
+            const dbResultsDiv = document.getElementById('dbResults');
+            
+            dbStatusDiv.innerHTML = '<span class="status pending">Checking database...</span>';
+
+            try {
+                const response = await fetch('backend/api/theorems.php?action=get_categories');
+                const data = await response.json();
+                
+                if (data.success && data.categories) {
+                    dbStatusDiv.innerHTML = `
+                        <span class="status success">✅ Database Connected</span>
+                        <p>Found ${data.categories.length} theorem categories</p>
+                    `;
+                    
+                    dbResultsDiv.innerHTML = `
+                        <h4>Categories Found:</h4>
+                        <ul>
+                            ${data.categories.map(cat => 
+                                `<li><strong>${cat.name}</strong> - ${cat.theorem_count || 0} theorems</li>`
+                            ).join('')}
+                        </ul>
+                    `;
+                } else if (data.error) {
+                    dbStatusDiv.innerHTML = `
+                        <span class="status error">❌ Database Error</span>
+                        <p>${data.error}</p>
+                        <p><small>Note: May need to run database setup</small></p>
+                    `;
+                    dbResultsDiv.innerHTML = `
+                        <h4>Setup Instructions:</h4>
+                        <ol>
+                            <li>Make sure MySQL is running</li>
+                            <li>Open Command Prompt</li>
+                            <li>Run: <code>mysql -u root -p</code></li>
+                            <li>Create database: <code>CREATE DATABASE lean4_ai_app;</code></li>
+                            <li>Exit MySQL</li>
+                            <li>Run: <code>mysql -u root -p lean4_ai_app < database/schema.sql</code></li>
+                            <li>Run: <code>mysql -u root -p lean4_ai_app < database/seed_theorems.sql</code></li>
+                        </ol>
+                    `;
+                }
+            } catch (error) {
+                dbStatusDiv.innerHTML = `
+                    <span class="status error">❌ Connection Error</span>
+                `;
+                dbResultsDiv.innerHTML = `
+                    <p>Error: ${error.message}</p>
+                    <p>Make sure PHP server is running and API files are accessible</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

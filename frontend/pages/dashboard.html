@@ -16,9 +16,9 @@
       <div class="logo">AXIO</div>
       <a class="nav-link active" href="dashboard.html">◈ Unified Proof Workspace</a>
       <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
-      <a class="nav-link" href="scores.html">⌗ Scores</a>
-      <a class="nav-link" href="settings.html">⚙ Settings</a>
-      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
+      <a class="nav-link" href="scores.html"> Scores</a>
+      <a class="nav-link" href="settings.html"> Settings</a>
+      <a class="nav-link" href="#" id="sidebar-logout"> Logout</a>
     </aside>
 
     <main class="main">
@@ -49,6 +49,7 @@
             <h2>Input Theorem or Statement</h2>
             <textarea id="theorem-input" class="field" rows="5" placeholder="Enter the Theorem or Statement you want to prove…"></textarea>
             <div class="font-controls">
+              <button id="btn-theorem-keyboard" class="btn" title="Insert math symbols">Equations</button>
               <button id="btn-a-plus" class="btn">A+</button>
               <button id="btn-a-minus" class="btn">A−</button>
             </div>
@@ -126,7 +127,7 @@
               <div class="verify-divider"></div>
 
               <div class="verify-section">
-                <div class="verify-section-title">Next Step Guide</div>
+                <div class="verify-section-title">Hint:</div>
                 <div id="verify-next-guide" class="verify-section-body">Verify a step to receive the next instructional move.</div>
               </div>
 
@@ -148,12 +149,13 @@
     <div id="verify-popup-list" class="verify-popup-list"></div>
   </div>
 
-  <div id="keyboard-modal" class="modal">
+  <div id="keyboard-modal" class="modal hidden">
     <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <strong>Math Keyboard</strong>
-        <button id="close-keyboard" class="btn">Close</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+        <strong style="font-size:16px;">Math Symbols</strong>
+        <button id="close-keyboard" class="btn" style="font-size:12px;padding:5px 10px;">✕</button>
       </div>
+      <div id="eq-tabs-theorem" class="eq-tabs-theorem"></div>
       <div id="symbols-wrap" class="symbol-grid"></div>
     </div>
   </div>

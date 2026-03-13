@@ -52,11 +52,49 @@
             color: #4b5563;
             margin: 0;
         }
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+        .completion-summary {
+            background: linear-gradient(135deg, #ecfdf4 0%, #dbeafe 100%);
+            border: 2px solid #86efac;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .completion-summary.empty {
+            display: none;
+        }
+        .completion-summary .icon {
+            font-size: 40px;
+            color: #16a34a;
+            min-width: 50px;
+            text-align: center;
+        }
+        .completion-summary .content h3 {
+            margin: 0 0 8px 0;
+            color: #166534;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .completion-summary .content p {
+            margin: 0;
+            color: #15803d;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .completion-summary.partial {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border-color: #fdba74;
+        }
+        .completion-summary.partial .icon {
+            color: #d97706;
+        }
+        .completion-summary.partial .content h3 {
+            color: #92400e;
+        }
+        .completion-summary.partial .content p {
+            color: #b45309;
         }
         .mini-stat {
             background: #ffffff !important;
@@ -88,6 +126,38 @@
             padding: 20px;
             transition: all 0.3s;
             overflow-wrap: break-word;
+            position: relative;
+        }
+        .submission-card.completed {
+            border-color: rgba(5, 150, 105, 0.45);
+            background: linear-gradient(180deg, #f0fdf4, #f9fafb);
+        }
+        .submission-card.in-progress {
+            border-color: rgba(251, 146, 60, 0.3);
+            background: linear-gradient(180deg, #fff7ed, #f9fafb);
+        }
+        .completion-badge {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+        }
+        .completion-badge.completed {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .completion-badge.in-progress {
+            background: #fed7aa;
+            color: #92400e;
+            border: 1px solid #fdba74;
         }
         .submission-card:hover {
             border-color: rgba(5, 150, 105, 0.45);
@@ -333,6 +403,14 @@
             <div class="page-header">
                 <h1> My Proofs & Submissions</h1>
                 <p>Unified history of proof drafts, verifications, and completed submissions</p>
+            </div>
+            
+            <div id="completion-summary" class="completion-summary empty">
+                <div class="icon">✓</div>
+                <div class="content">
+                    <h3 id="completion-title">Great Progress!</h3>
+                    <p id="completion-text">You have completed 0 out of 0 proofs.</p>
+                </div>
             </div>
             
             <div class="stats-row">
@@ -696,6 +774,7 @@
                 document.getElementById('verified-count').textContent = analyticsSummary.verified_count ?? allSubmissions.filter(s => isSubmissionVerified(s)).length;
                 document.getElementById('pending-count').textContent = analyticsSummary.pending_count ?? 0;
                 document.getElementById('avg-score').textContent = analyticsSummary.avg_score ?? 0;
+                updateCompletionSummary(allSubmissions);
                 return;
             }
 
@@ -707,6 +786,43 @@
             const scores = allSubmissions.filter(s => s.score).map(s => parseInt(s.score));
             const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
             document.getElementById('avg-score').textContent = avg;
+            updateCompletionSummary(allSubmissions);
+        }
+        
+        function updateCompletionSummary(submissions) {
+            const completedCount = submissions.filter(s => isSubmissionCompleted(s)).length;
+            const totalCount = submissions.length;
+            const banner = document.getElementById('completion-summary');
+            const titleEl = document.getElementById('completion-title');
+            const textEl = document.getElementById('completion-text');
+            
+            if (totalCount === 0) {
+                banner.classList.add('empty');
+                return;
+            }
+            
+            banner.classList.remove('empty');
+            const percentage = Math.round((completedCount / totalCount) * 100);
+            
+            if (completedCount === totalCount) {
+                // All complete
+                titleEl.textContent = '🎉 All Proofs Complete!';
+                textEl.textContent = `You have successfully completed all ${totalCount} proof${totalCount !== 1 ? 's' : ''}. Excellent work!`;
+                banner.classList.remove('partial');
+                banner.classList.add('completed');
+            } else if (completedCount > 0) {
+                // Some complete
+                titleEl.textContent = `📊 Progress: ${percentage}% Complete`;
+                textEl.textContent = `You have completed ${completedCount} out of ${totalCount} proof${totalCount !== 1 ? 's' : ''}. Keep going!`;
+                banner.classList.remove('completed');
+                banner.classList.add('partial');
+            } else {
+                // None complete
+                titleEl.textContent = 'Get Started';
+                textEl.textContent = `Start verifying your proof steps to mark them as completed. You have ${totalCount} proof${totalCount !== 1 ? 's' : ''} in progress.`;
+                banner.classList.remove('completed');
+                banner.classList.add('partial');
+            }
         }
         
         function displaySubmissions(submissions) {
@@ -729,6 +845,8 @@
                 const scoreClass = score >= 90 ? 'score-excellent' : score >= 75 ? 'score-good' : score >= 60 ? 'score-fair' : 'score-poor';
                 const completed = isSubmissionCompleted(sub);
                 const statusLabel = completed ? 'Completed' : 'In Progress';
+                const cardClass = completed ? 'completed' : 'in-progress';
+                const badgeContent = completed ? '✓ Completed' : '⏳ In Progress';
                 const startedText = formatDateText(sub.started_at || sub.created_at);
                 const editedText = formatDateText(sub.last_edited_at || sub.created_at);
                 const titleText = String(sub.theorem_text || '').trim() || `Proof #${sub.id || 'N/A'}`;
@@ -736,7 +854,9 @@
                 const contentText = sub.proof_text || sub.input_text || sub.ai_message || 'No content available';
                 
                 return `
-                    <div class="submission-card">
+                    <div class="submission-card ${cardClass}">
+                        <div class="completion-badge ${cardClass}">${badgeContent}</div>
+                        
                         <div class="submission-header">
                             <div class="submission-title">${titleText}</div>
                             <div class="submission-actions">

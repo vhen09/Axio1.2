@@ -83,17 +83,29 @@
 
     async function authRequest(payload) {
       const endpoint = new URL('../../backend/api/auth.php', window.location.href).toString();
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Request failed.');
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Server error: Invalid response format. Please contact support.');
+        }
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Request failed.');
+        }
+        return data;
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          throw new Error('Server error: Could not parse response. Please check your credentials and try again.');
+        }
+        throw error;
       }
-      return data;
     }
 
     function setMode(signupMode) {

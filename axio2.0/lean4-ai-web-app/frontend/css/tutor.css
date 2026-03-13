@@ -20,11 +20,41 @@
     position: relative;
 }
 
-.proof-workspace,
+.proof-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: calc(100vh - 320px);
+    padding-right: 8px;
+}
+
+.proof-workspace::-webkit-scrollbar {
+    width: 6px;
+}
+
+.proof-workspace::-webkit-scrollbar-track {
+    background: rgba(125, 211, 252, 0.1);
+    border-radius: 4px;
+}
+
+.proof-workspace::-webkit-scrollbar-thumb {
+    background: rgba(125, 211, 252, 0.4);
+    border-radius: 4px;
+}
+
+.proof-workspace::-webkit-scrollbar-thumb:hover {
+    background: rgba(125, 211, 252, 0.6);
+}
+
 .ai-assistant-panel {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
 }
 
 .section-card {

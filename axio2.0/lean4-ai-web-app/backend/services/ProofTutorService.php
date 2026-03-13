@@ -116,10 +116,10 @@ Provide substantial mathematical detail (minimum 120 words per step).\n\n" . $th
             }
         }
         
-        $userMessage = $context . "\nStep {$stepNumber}: {$step}\n\nIs this step logically correct? Does it follow from the previous steps? Provide detailed feedback.";
+        $userMessage = $context . "\nStep {$stepNumber}: {$step}\n\nVerify this step and provide feedback.";
 
         return $this->callDeepSeekAPI($systemPrompt, $userMessage, [
-            'max_tokens' => 700,
+            'max_tokens' => 500,
             'fallback_type' => 'verify',
             'cache_ttl' => $this->cacheTtl
         ]);

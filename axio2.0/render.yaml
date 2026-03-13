@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: axio-app
+    runtime: php
+    plan: free
+    startCommand: cd backend && php -S 0.0.0.0:8080
+    buildCommand: |
+      echo "Installing dependencies..."
+      composer install --no-dev --optimize-autoloader
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: axio-db
+          property: connectionString
+      - key: DEEPSEEK_API_KEY
+        scope: build
+      - key: APP_ENV
+        value: production
+
+databases:
+  - name: axio-db
+    databaseName: axio_production
+    user: axio_user

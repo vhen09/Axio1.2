@@ -83,7 +83,7 @@ class ProofTutorService {
 
 Provide substantial mathematical detail (minimum 120 words per step).\n\n" . $this->buildTheoremConstraintRules();
         
-    $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n\n";
+        $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n\n";
         
         if (!empty($previousSteps)) {
             $userMessage .= "Previous steps completed:\n";
@@ -104,22 +104,73 @@ Provide substantial mathematical detail (minimum 120 words per step).\n\n" . $th
 
     /**
      * Verify a proof step and provide feedback
+     * IMPROVED: Detects when proof is complete and adjusts response accordingly
      */
     public function verifyProofStep($theorem, $step, $stepNumber, $previousSteps = []) {
-          $systemPrompt = "You are a rigorous Real Analysis proof verifier. Evaluate the student’s proof step and respond in a short and structured format only.\n\nYour response must include:\n\nStatus:\n\n✅ Correct (if the step is logically valid and properly justified)\n\n⚠️ Needs Work (if incomplete, informal, or not fully justified)\n\n❌ Incorrect (if mathematically wrong)\n\nInput Summary:\n\nBriefly describe what the student did (1–2 sentences only).\n\nWhat’s Wrong / Missing (ONLY if not fully correct):\n\nClearly state what is incorrect, missing, or informal.\nBe concise and focus only on important mathematical issues.\n\nImprovement:\n\nBriefly state how the step can be improved or corrected.\nDo not rewrite the full proof.\n\nNext Step Guide:\n\nGive a short hint on what should be done next.\nDo NOT give the full solution or carry out the next proof step.\n\n⚠️ Important Rules:\n\nKeep the response short and focused.\nDo NOT include long explanations.\nDo NOT restate the entire proof.\nDo NOT solve the next step.\nBe clear, direct, and structured.\n\n" . $this->buildTheoremConstraintRules();
+        // Build complete proof context to assess completeness
+        $allSteps = array_merge($previousSteps, [$step]);
+        $allStepsText = implode("\n", array_map(function($s, $i) {
+            return ($i + 1) . ". " . $s;
+        }, $allSteps, array_keys($allSteps)));
         
-    $context = $this->buildAuthoritativeTheoremSection($theorem) . "\n\n";
-        if (!empty($previousSteps)) {
-            $context .= "Previous steps:\n";
-            foreach ($previousSteps as $i => $prevStep) {
-                $context .= ($i + 1) . ". {$prevStep}\n";
-            }
-        }
+        // Build improved system prompt that detects proof completion
+        $systemPrompt = "You are a rigorous Real Analysis proof verifier. Your task is to:
+1. Evaluate if the current step is logically correct and properly justified
+2. Assess whether the proof (all steps combined) is now COMPLETE and rigorous
+3. Format your response with the required sections
+
+CRITICAL INSTRUCTION - YOU MUST DO THIS:
+- After evaluating correctness, you MUST assess if the proof is complete
+- A proof is COMPLETE if it fully proves the theorem statement without gaps or missing steps
+- Do NOT ignore this assessment - it's the MOST IMPORTANT part of your response
+
+Your response MUST include these sections ALWAYS:
+
+Status:
+✅ Correct (if the step is logically valid and properly justified)
+⚠️ Needs Work (if incomplete, informal, or not fully justified)
+❌ Incorrect (if mathematically wrong)
+
+Input Summary:
+Briefly describe what the student did (1–2 sentences only).
+
+What's Wrong / Missing (ONLY if not fully correct):
+Clearly state what is incorrect, missing, or informal.
+Be concise and focus only on important mathematical issues.
+
+Improvement:
+Briefly state how the step can be improved or corrected.
+Do not rewrite the full proof.
+
+PROOF COMPLETION ASSESSMENT:
+After checking the current step, you MUST assess whether all steps together form a COMPLETE proof.
+Write EXACTLY ONE of these outcomes:
+- ✅ PROOF IS COMPLETE AND CORRECT: The theorem is now fully proven. No further steps needed.
+- ⚠️ PROOF IS INCOMPLETE: More steps are needed. [Describe what's missing]
+- ❌ PROOF HAS ISSUES: The proof cannot be completed as-is due to these problems [describe]
+
+Next Step Guidance (ONLY if proof is NOT complete):
+If the proof is incomplete, give a short hint on what should be done next.
+If the proof IS complete, write: \"No further steps needed - the proof is complete.\"
+Do NOT give the full solution or carry out the next proof step.
+
+⚠️ Important Rules:
+- Keep the response short and focused.
+- Do NOT include long explanations.
+- Do NOT restate the entire proof.
+- Do NOT solve the next step.
+- Be clear, direct, and structured.
+- ALWAYS include the PROOF COMPLETION ASSESSMENT section.
+
+" . $this->buildTheoremConstraintRules();
         
-        $userMessage = $context . "\nStep {$stepNumber}: {$step}\n\nIs this step logically correct? Does it follow from the previous steps? Provide detailed feedback.";
+        $context = $this->buildAuthoritativeTheoremSection($theorem) . "\n\n";
+        $context .= "Complete proof progress so far:\n{$allStepsText}\n\n";
+        
+        $userMessage = $context . "Is Step {$stepNumber} logically correct? After reviewing all steps together, is the proof now complete? Provide your full assessment including the PROOF COMPLETION ASSESSMENT section.";
 
         return $this->callDeepSeekAPI($systemPrompt, $userMessage, [
-            'max_tokens' => 700,
+            'max_tokens' => 800,
             'fallback_type' => 'verify',
             'cache_ttl' => $this->cacheTtl
         ]);
@@ -210,7 +261,7 @@ List everything you'll need:
 
 Be thorough and pedagogical. Minimum 250 words with substantial mathematical content.\n\n" . $this->buildTheoremConstraintRules();
         
-    $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n";
+        $userMessage = $this->buildAuthoritativeTheoremSection($theorem) . "\n";
         if ($theoremType) {
             $userMessage .= "Type: {$theoremType}\n";
         }

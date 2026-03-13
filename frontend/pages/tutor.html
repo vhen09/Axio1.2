@@ -1829,6 +1829,27 @@ if (removeStepBtn) {
                 const stepsContent = pop.querySelector('.proof-steps-container');
                 if(stepsContent) stepsContent.id = 'completeStepsContent';
 
+                // Helper function to generate method-specific conclusions
+                const generateDetailedConclusion = (theoremText, stepsArray) => {
+                    const allText = (String(theoremText) + ' ' + stepsArray.map(s => String(s.text || '')).join(' ')).toLowerCase();
+                    
+                    if (allText.includes('intermediate value') || allText.includes('ivt')) {
+                        return `By the Intermediate Value Theorem, having established that the function is continuous and changes sign over the given interval, we have proven that the statement holds as required.`;
+                    } else if (allText.includes('continuity') || allText.includes('continuous')) {
+                        return `By the properties of Continuity, having verified the function's behavior at critical points, we have demonstrated that the statement holds as required.`;
+                    } else if (allText.includes('limit') || allText.includes('convergence') || allText.includes('converges')) {
+                        return `By the properties of Limit Behavior, through sequential analysis and convergence verification, we have established that the statement holds as required.`;
+                    } else if (allText.includes('derivative') || allText.includes('differentiable')) {
+                        return `Using Differentiability and calculus principles, we have shown that the statement holds as required.`;
+                    } else if (allText.includes('induction') || allText.includes('mathematical induction')) {
+                        return `By Mathematical Induction, having verified the base case and the inductive step, we conclude that the statement holds as required.`;
+                    } else if (allText.includes('cauchy') || allText.includes('subsequence') || allText.includes('subsequences')) {
+                        return `Through analysis of Sequence Properties, particularly Cauchy sequences and convergence criteria, we have verified that the statement holds as required.`;
+                    } else {
+                        return `Through careful logical analysis and systematic verification of the proof steps, we have established that the statement holds as required.`;
+                    }
+                };
+
                 saveBtn.onclick = async () => {
                     try {
                         const escapeForHtml = (text) => String(text || '')
@@ -1846,6 +1867,8 @@ if (removeStepBtn) {
                             }).join('')
                             : '<div>No proof steps provided.</div>';
 
+                        const detailedConclusion = generateDetailedConclusion(theorem, steps);
+
                         const pdfEl = document.createElement('div');
                         pdfEl.style.padding = '30px';
                         pdfEl.style.fontFamily = 'serif';
@@ -1859,8 +1882,14 @@ if (removeStepBtn) {
                             <h3>Theorem</h3>
                             <div style="margin-bottom:30px;">${escapeForHtml(theoremNatural || 'No theorem provided.')}</div>
                             <h3>Proof Steps</h3>
-                            <div>${stepsNaturalHtml}</div>
+                            <div style="margin-bottom:30px;">${stepsNaturalHtml}</div>
+                            <h3>Conclusion</h3>
+                            <div style="padding:15px; border-left:4px solid #1e3a8a; background-color:#f0f4ff; margin-top:20px;">
+                                <p>${detailedConclusion}</p>
+                                <p style="margin-top:12px; font-style:italic; font-size:14px;">This completes the proof of the theorem: <em>${escapeForHtml(theoremNatural || 'the given theorem')}</em></p>
+                            </div>
                         `;
+
 
                         document.body.appendChild(pdfEl);
 

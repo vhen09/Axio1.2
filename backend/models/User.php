@@ -5,11 +5,11 @@ class User {
     private $username;
     private $password;
     private $email;
+    private $connection;
+    private $lastError = '';
 
-    public function __construct($username, $password, $email) {
-        $this->username = $username;
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-        $this->email = $email;
+    public function __construct($connection) {
+        $this->connection = $connection;
     }
 
     public function getId() {
@@ -27,8 +27,15 @@ class User {
     public function setId($id) {
         $this->id = $id;
     }
+    
+    public function getLastError() {
+        return $this->lastError;
+    }
 
     public function validatePassword($password) {
+        if (!isset($this->password)) {
+            return false;
+        }
         return password_verify($password, $this->password);
     }
 
@@ -38,5 +45,91 @@ class User {
             'username' => $this->username,
             'email' => $this->email,
         ];
+    }
+    
+    /**
+     * Create a new user in the database
+     */
+    public function create($username, $password) {
+        try {
+            $username = trim((string)$username);
+            $password = (string)$password;
+            
+            if (strlen($username) < 3) {
+                $this->lastError = 'Username must be at least 3 characters';
+                return false;
+            }
+            
+            if (strlen($password) < 6) {
+                $this->lastError = 'Password must be at least 6 characters';
+                return false;
+            }
+            
+            // Check if username already exists
+            if ($this->findByUsername($username)) {
+                $this->lastError = 'Username already exists';
+                return false;
+            }
+            
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            $query = "INSERT INTO users (username, password, created_at) VALUES (?, ?, NOW())";
+            $stmt = $this->connection->prepare($query);
+            
+            if (!$stmt) {
+                $errorInfo = $this->connection->errorInfo();
+                $this->lastError = 'Database error: ' . $errorInfo[2];
+                return false;
+            }
+            
+            if ($stmt->execute([$username, $hashedPassword])) {
+                $this->id = $this->connection->lastInsertId();
+                $this->username = $username;
+                return true;
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                $this->lastError = 'Failed to create user: ' . $errorInfo[2];
+                return false;
+            }
+        } catch (Exception $e) {
+            $this->lastError = 'Exception: ' . $e->getMessage();
+            return false;
+        }
+    }
+    
+    /**
+     * Find user by username
+     */
+    public function findByUsername($username) {
+        try {
+            $username = trim((string)$username);
+            
+            $query = "SELECT id, username, password FROM users WHERE username = ? LIMIT 1";
+            $stmt = $this->connection->prepare($query);
+            
+            if (!$stmt) {
+                $errorInfo = $this->connection->errorInfo();
+                $this->lastError = 'Database error: ' . $errorInfo[2];
+                return false;
+            }
+            
+            if ($stmt->execute([$username])) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    $this->id = $row['id'];
+                    $this->username = $row['username'];
+                    $this->password = $row['password'];
+                    return $row;
+                }
+                return false;
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                $this->lastError = 'Query error: ' . $errorInfo[2];
+                return false;
+            }
+        } catch (Exception $e) {
+            $this->lastError = 'Exception: ' . $e->getMessage();
+            return false;
+        }
     }
 }
