@@ -242,6 +242,25 @@ function completeProofFlow($db, $converter, $leanService) {
             'Verification failed: ' . ($verificationResult['error'] ?? 'Unknown error')
     ];
     
+    // Step 3.5: Generate AI completion message if verification successful
+    $aiCompletionMessage = null;
+    if ($verificationResult['success']) {
+        $theoremName = $theoremContext['name'] ?? 'Theorem';
+        $theoremStatement = $theoremContext['statement'] ?? ($data['theorem_statement'] ?? 'No statement');
+        
+        $completionResult = $converter->generateCompletionMessage($theoremName, $theoremStatement, $lean_code);
+        
+        if ($completionResult['success']) {
+            $aiCompletionMessage = $completionResult['raw_response'];
+            $response['ai_completion_message'] = $aiCompletionMessage;
+            $response['steps'][] = [
+                'step' => 'ai_message',
+                'message' => 'AI Feedback Generated',
+                'content' => $aiCompletionMessage
+            ];
+        }
+    }
+    
     // Step 4: Save proof attempt
     if ($user_id && $theorem_id && $db instanceof PDO) {
         $status = $verificationResult['success'] ? 'success' : 'failed';

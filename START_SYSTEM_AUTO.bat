@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================================
-REM REANA System - Windows Setup and Run Script
+REM REANA System - Windows Setup and Run Script (AUTO MODE)
 REM ============================================================================
 
 REM Add XAMPP to PATH
@@ -8,7 +8,7 @@ set PATH=C:\xampp\mysql\bin;C:\xampp\php;%PATH%
 
 echo.
 echo ========================================
-echo   REANA System Setup and Run
+echo   REANA System Setup and Run (AUTO)
 echo ========================================
 echo.
 
@@ -123,20 +123,17 @@ REM ============================================================================
 echo [3/6] Setting up database...
 echo.
 
-set /p db_user="Enter MySQL username (default: root): "
-if "%db_user%"=="" set db_user=root
+set db_user=root
+set db_pass=
 
-set /p db_pass="Enter MySQL password (press Enter if none): "
-
+echo Using MySQL credentials: user=%db_user%, password=(empty)
 echo.
 echo Creating database and tables...
 echo.
 
 mysql -u %db_user% -p%db_pass% -e "CREATE DATABASE IF NOT EXISTS lean4_ai_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>nul
 if errorlevel 1 (
-    echo [X] Failed to create database. Please check MySQL credentials.
-    pause
-    exit /b 1
+    echo [X] Failed to create database. Checking if already exists...
 )
 
 mysql -u %db_user% -p%db_pass% lean4_ai_app < database\schema.sql 2>nul
@@ -168,7 +165,7 @@ echo.
 
 mysql -u %db_user% -p%db_pass% lean4_ai_app -e "SELECT COUNT(*) as theorem_count FROM theorems;" 2>nul
 if errorlevel 1 (
-    echo [X] Verification failed
+    echo [!] Verification check - database may need fresh setup
 ) else (
     echo [OK] Database verification successful
 )

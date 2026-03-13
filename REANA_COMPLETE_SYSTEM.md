@@ -40,7 +40,7 @@ Lahat ng major theorems sa Real Analysis ay nandito na:
 
 #### **Chapter 6: Integration**
 - Fundamental Theorem of Calculus (Parts 1 & 2)
-- Mean Value Theorem for Integrals
+- Mean Value Theorem for Integrals 
 
 #### **Chapter 7: Function Sequences**
 - Uniform Limit Theorem

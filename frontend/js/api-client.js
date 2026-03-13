@@ -1,5 +1,5 @@
 const apiClient = {
-    baseUrl: 'http://localhost:8000/backend/api/',
+    baseUrl: '../../backend/api/',
 
     async post(endpoint, data) {
         const response = await fetch(this.baseUrl + endpoint, {
@@ -38,4 +38,4 @@ const apiClient = {
     },
 };
 
-export default apiClient;
+window.apiClient = apiClient;

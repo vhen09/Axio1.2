@@ -109,6 +109,41 @@ class NaturalLanguageToLeanConverter {
     }
     
     /**
+     * Generate AI completion feedback message
+     * Called when a proof is successfully verified
+     */
+    public function generateCompletionMessage($theoremName, $theoremStatement, $leanCode) {
+        $systemPrompt = "You are an AI assistant helping mathematicians learn proof writing. You are supportive and celebrate their achievements. Respond ONLY in English.";
+        
+        $userMessage = "A student has successfully completed a proof for the following theorem:\n\n";
+        $userMessage .= "**Theorem**: {$theoremName}\n";
+        $userMessage .= "**Statement**: {$theoremStatement}\n\n";
+        $userMessage .= "**Lean Proof**:\n```lean\n{$leanCode}\n```\n\n";
+        $userMessage .= "Generate a brief, encouraging congratulatory message. IMPORTANT: You MUST explicitly state 'The proof is complete' or similar message. Be warm and supportive, and highlight what they accomplished.";
+        
+        $result = $this->callDeepSeekAPI($systemPrompt, $userMessage);
+        
+        // Ensure the message explicitly states completion
+        if ($result['success']) {
+            $content = $result['raw_response'];
+            
+            // If the response doesn't contain completion message, add it
+            if (!preg_match('/(complete|proven|verified|congratulations)/i', $content)) {
+                $result['raw_response'] = "The proof is complete! " . $content;
+            }
+            
+            return $result;
+        }
+        
+        // Fallback message if API fails
+        return [
+            'success' => true,
+            'raw_response' => 'The proof is complete! Excellent work! Your Lean proof has been successfully verified and is mathematically correct. Congratulations on completing this proof!',
+            'fallback' => true
+        ];
+    }
+    
+    /**
      * Build system prompt for conversion
      */
     private function buildSystemPrompt() {
