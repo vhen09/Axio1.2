@@ -55,6 +55,9 @@ export interface VerificationEntry {
   explanation?: string;
   hint?: string;
   rule?: string;
+  improvement?: string;
+  nextStep?: string;
+  errorType?: 'logic' | 'syntax' | 'definition' | 'notation' | 'other';
   timestamp: number;
 }
 

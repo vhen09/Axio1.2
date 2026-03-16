@@ -14,8 +14,8 @@
   <div class="app">
     <aside id="sidebar" class="sidebar">
       <div class="logo">AXIO</div>
-      <a class="nav-link active" href="dashboard.html">◈ Unified Proof Workspace</a>
-      <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link active" href="dashboard.html"> Unified Proof Workspace</a>
+      <a class="nav-link" href="submissions.html"> My Proofs</a>
       <a class="nav-link" href="scores.html"> Scores</a>
       <a class="nav-link" href="settings.html"> Settings</a>
       <a class="nav-link" href="#" id="sidebar-logout"> Logout</a>
@@ -124,11 +124,11 @@
                 <div id="verify-hint" class="verify-section-body"></div>
               </div>
 
-              <div class="verify-divider"></div>
-
-              <div class="verify-section">
-                <div class="verify-section-title">Hint:</div>
+              <div id="verify-next-step-wrap" class="verify-section verify-hidden">
+                <div class="verify-divider"></div>
+                <div class="verify-section-title">Next Step Guidance</div>
                 <div id="verify-next-guide" class="verify-section-body">Verify a step to receive the next instructional move.</div>
+                <div class="verify-divider" style="margin-top: 16px; margin-bottom: 0;"></div>
               </div>
 
               <div class="verify-next-step-action">
@@ -152,7 +152,7 @@
   <div id="keyboard-modal" class="modal hidden">
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-        <strong style="font-size:16px;">Math Symbols</strong>
+        <strong style="font-size:16px;"></strong>
         <button id="close-keyboard" class="btn" style="font-size:12px;padding:5px 10px;">✕</button>
       </div>
       <div id="eq-tabs-theorem" class="eq-tabs-theorem"></div>

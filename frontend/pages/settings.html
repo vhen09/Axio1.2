@@ -357,11 +357,7 @@
                             <input type="text" id="username" name="username" placeholder="Enter your username" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">New Password (leave blank to keep current)</label>
+                            <label for="password">Password (leave blank to keep current)</label>
                             <input type="password" id="password" name="password" placeholder="••••••••">
                         </div>
                         <button type="submit" class="btn-save"> Save Profile</button>
@@ -414,7 +410,6 @@
             // Load profile from localStorage
             const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
             if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
-            if (savedProfile.email) document.getElementById('email').value = savedProfile.email;
             
             // Load preferences
             const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
@@ -431,8 +426,7 @@
         document.getElementById('profile-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const profile = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value
+                username: document.getElementById('username').value
             };
             localStorage.setItem('reana_profile', JSON.stringify(profile));
             showSuccess();

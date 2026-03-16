@@ -5,9 +5,10 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:8080');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Credentials: true');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -29,6 +30,21 @@ class Auth {
         if (!$this->demoMode) {
             $this->user = new User($this->db->getConnection());
         }
+    }
+
+    public function checkUsernameAvailable($username) {
+        $username = trim((string)$username);
+
+        if (strlen($username) < 3) {
+            return json_encode(['success' => false, 'available' => false, 'message' => 'Username must be at least 3 characters']);
+        }
+
+        if ($this->demoMode) {
+            return json_encode(['success' => true, 'available' => true]);
+        }
+
+        $exists = $this->user->findByUsername($username);
+        return json_encode(['success' => true, 'available' => !$exists]);
     }
 
     public function register($username, $password) {
@@ -131,6 +147,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $data['username'] ?? $_POST['username'] ?? '';
         $password = $data['password'] ?? $_POST['password'] ?? '';
         echo $auth->register($username, $password);
+    } elseif ($action === 'check_username') {
+        $username = $data['username'] ?? $_POST['username'] ?? '';
+        echo $auth->checkUsernameAvailable($username);
     } elseif ($action === 'login') {
         $username = $data['username'] ?? $_POST['username'] ?? '';
         $password = $data['password'] ?? $_POST['password'] ?? '';

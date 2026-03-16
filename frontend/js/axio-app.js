@@ -1312,6 +1312,8 @@
         if (verifyMissingWrapEl) verifyMissingWrapEl.classList.add('verify-hidden');
         if (verifyImprovementWrapEl) verifyImprovementWrapEl.classList.add('verify-hidden');
         if (verifyHintWrapEl) verifyHintWrapEl.classList.add('verify-hidden');
+        const verifyNextStepWrapEl = document.getElementById('verify-next-step-wrap');
+        if (verifyNextStepWrapEl) verifyNextStepWrapEl.classList.add('verify-hidden');
         if (verifyNextGuideEl) verifyNextGuideEl.textContent = 'Verify a step to receive the next instructional move.';
         if (nextStepGuideBtn) nextStepGuideBtn.disabled = true;
         return;
@@ -1345,14 +1347,82 @@
 
       const hasImprovement = !!String(result.improvement || '').trim();
       if (verifyImprovementWrapEl) verifyImprovementWrapEl.classList.toggle('verify-hidden', !hasImprovement);
-      if (verifyImprovementEl) verifyImprovementEl.textContent = hasImprovement ? String(result.improvement) : '';
+      
+      // Check if proof is complete BEFORE cleaning the text
+      const rawImprovementText = String(result.improvement || '').trim();
+      const rawProofCompletion = String(result.proofCompletion || '').trim();
+      
+      // More flexible proof completion detection - remove extra whitespace for matching
+      const normalizedImprovementText = rawImprovementText.replace(/\s+/g, ' ');
+      const normalizedProofCompletion = rawProofCompletion.replace(/\s+/g, ' ');
+      
+      // Multiple ways to detect proof completion 
+      let isProofComplete = result.isProofComplete === true || 
+                            /PROOF[\s]*IS[\s]*COMPLETE|no[\s]*further[\s]*steps|proof[\s]*is[\s]*complete/i.test(normalizedImprovementText) ||
+                            /PROOF[\s]*IS[\s]*COMPLETE|proof[\s]*complete/i.test(normalizedProofCompletion);
+      
+      console.log('=== PROOF COMPLETION CHECK ===', {
+        isProofComplete,
+        rawText: rawImprovementText.substring(0, 80),
+        normalized: normalizedImprovementText.substring(0, 80),
+        matches: {
+          'PROOF IS COMPLETE': /PROOF[\s]*IS[\s]*COMPLETE/i.test(normalizedImprovementText),
+          'no further steps': /no[\s]*further[\s]*steps/i.test(normalizedImprovementText),
+          'proof is complete': /proof[\s]*is[\s]*complete/i.test(normalizedImprovementText)
+        }
+      });
+      
+      if (verifyImprovementEl && hasImprovement) {
+        // Clean up improvement text to be more concise
+        let improvedText = rawImprovementText;
+        
+        // Remove redundant headers
+        improvedText = improvedText.replace(/^(PROOF COMPLETION ASSESSMENT:|IMPROVEMENT:|improvement:)\s*\n?/gi, '');
+        improvedText = improvedText.replace(/Next Step Guidance.*?(?=No further steps|$)/is, '');
+        improvedText = improvedText.replace(/\(ONLY if proof is NOT complete\):?/gi, '');
+        
+        // Remove checkmarks and multiple newlines
+        improvedText = improvedText.replace(/✓\s*/g, '');
+        improvedText = improvedText.replace(/\n\n+/g, '\n');
+        
+        // Trim and show
+        verifyImprovementEl.textContent = improvedText.trim();
+      }
 
       const hasHint = !isCorrect && !!String(result.hint || '').trim();
       if (verifyHintWrapEl) verifyHintWrapEl.classList.toggle('verify-hidden', !hasHint);
       if (verifyHintEl) verifyHintEl.textContent = hasHint ? String(result.hint) : '';
 
-      if (verifyNextGuideEl) verifyNextGuideEl.textContent = nextStepHint;
-      if (nextStepGuideBtn) nextStepGuideBtn.disabled = !isCorrect;
+      // CRITICAL: Hide Next Step Guide section if proof is complete
+      const verifyNextStepWrapEl = document.getElementById('verify-next-step-wrap');
+      console.log('Next Step Wrap Element:', verifyNextStepWrapEl, 'isProofComplete:', isProofComplete);
+      
+      if (verifyNextStepWrapEl) {
+        // Force clear any previous classes first
+        verifyNextStepWrapEl.classList.remove('verify-hidden');
+        
+        // Then set based on completion status
+        if (isProofComplete) {
+          verifyNextStepWrapEl.classList.add('verify-hidden');
+          console.log('✅ HIDING Next Step Guidance section - proof is complete!');
+        } else {
+          console.log('▶️ SHOWING Next Step Guidance section - proof incomplete');
+          if (verifyNextGuideEl) {
+            verifyNextGuideEl.textContent = nextStepHint;
+          }
+        }
+      }
+      
+      // Disable Next Step button if proof is complete
+      if (nextStepGuideBtn) {
+        if (isProofComplete) {
+          nextStepGuideBtn.disabled = true;
+          console.log('✅ DISABLED Next Step button - proof is complete!');
+        } else {
+          nextStepGuideBtn.disabled = !isCorrect;
+          console.log('▶️ Next Step button state:', { isCorrect, disabled: nextStepGuideBtn.disabled });
+        }
+      }
     }
 
     async function performLogout() {
