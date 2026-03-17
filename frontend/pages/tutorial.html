@@ -609,7 +609,7 @@
 
       <!-- LaTeX Card 1 -->
       <div id="latexCard1" class="content hidden">
-        <div class="step-label">LEARN LATEX: EXAMPLE 1 OF 10</div>
+        <div class="step-label">LEARN LATEX: EXAMPLE 1 OF 5</div>
         <h2 class="latex-title">Let's Practice Typing</h2>
         <p style="color: #64748b; margin-bottom: 24px;">Type this LaTeX expression on your keyboard (don't copy-paste):</p>
         
@@ -642,7 +642,7 @@
 
       <!-- LaTeX Card 2 -->
       <div id="latexCard2" class="content hidden">
-        <div class="step-label">LEARN LATEX: EXAMPLE 2 OF 10</div>
+        <div class="step-label">LEARN LATEX: EXAMPLE 2 OF 5</div>
         <h2 class="latex-title">Let's Practice Typing</h2>
         <p style="color: #64748b; margin-bottom: 24px;">Type this LaTeX expression on your keyboard (don't copy-paste):</p>
         
@@ -675,7 +675,7 @@
 
       <!-- LaTeX Card 3 -->
       <div id="latexCard3" class="content hidden">
-        <div class="step-label">LEARN LATEX: EXAMPLE 3 OF 10</div>
+        <div class="step-label">LEARN LATEX: EXAMPLE 3 OF 5</div>
         <h2 class="latex-title">Let's Practice Typing</h2>
         <p style="color: #64748b; margin-bottom: 24px;">Type this LaTeX expression on your keyboard (don't copy-paste):</p>
         
@@ -708,7 +708,7 @@
 
       <!-- LaTeX Card 4 -->
       <div id="latexCard4" class="content hidden">
-        <div class="step-label">LEARN LATEX: EXAMPLE 4 OF 10</div>
+        <div class="step-label">LEARN LATEX: EXAMPLE 4 OF 5</div>
         <h2 class="latex-title">Let's Practice Typing</h2>
         <p style="color: #64748b; margin-bottom: 24px;">Type this LaTeX expression on your keyboard (don't copy-paste):</p>
         
@@ -741,7 +741,7 @@
 
       <!-- LaTeX Card 5 -->
       <div id="latexCard5" class="content hidden">
-        <div class="step-label">LEARN LATEX: EXAMPLE 5 OF 10</div>
+        <div class="step-label">LEARN LATEX: EXAMPLE 5 OF 5</div>
         <h2 class="latex-title">Let's Practice Typing</h2>
         <p style="color: #64748b; margin-bottom: 24px;">Type this LaTeX expression on your keyboard (don't copy-paste):</p>
         
@@ -858,12 +858,10 @@
 
   <script>
     let currentPage = 'welcome'; // 'welcome', 'latexCard', 'steps'
-    let currentLatexCard = 0; // 1-5
+    let currentLatexCard = 0; // 1-5 for latex cards
     let currentStep = 1;
     const totalSteps = 4;
     const totalLatexCards = 5;
-    let isNewUser = false;
-    let tutorialStarted = false;
     let isNewUser = false;
     let tutorialStarted = false;
 
@@ -901,7 +899,7 @@
       const container = document.getElementById('progressDots');
       container.innerHTML = '';
       
-      const totalPages = 1 + totalLatexCards + totalSteps; // 15 pages total
+      const totalPages = 1 + totalLatexCards + totalSteps; // 10 pages total
       let currentPageNum = 0;
 
       if (currentPage === 'welcome') {
