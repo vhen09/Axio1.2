@@ -78,6 +78,8 @@
       align-items: center;
       justify-content: center;
       padding: 40px 20px;
+      position: relative;
+      z-index: 1;
     }
 
     .landing-container {
@@ -206,7 +208,139 @@
       padding: 12px 0;
     }
 
+    /* Floating Math Particles */
+    .particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.08;
+      font-weight: 700;
+      will-change: transform;
+    }
+
+    .particle:nth-child(1) {
+      animation: float 15s infinite ease-in-out;
+      top: 10%;
+      left: 5%;
+      animation-delay: 0s;
+      color: #1e3a8a;
+      font-size: 3rem;
+    }
+
+    .particle:nth-child(2) {
+      animation: float 18s infinite ease-in-out;
+      top: 20%;
+      right: 10%;
+      animation-delay: 2s;
+      color: #059669;
+      font-size: 2.5rem;
+    }
+
+    .particle:nth-child(3) {
+      animation: float 20s infinite ease-in-out;
+      bottom: 15%;
+      left: 8%;
+      animation-delay: 4s;
+      color: #0f766e;
+      font-size: 2.8rem;
+    }
+
+    .particle:nth-child(4) {
+      animation: float 17s infinite ease-in-out;
+      top: 30%;
+      left: 15%;
+      animation-delay: 1s;
+      color: #1e3a8a;
+      font-size: 2.2rem;
+    }
+
+    .particle:nth-child(5) {
+      animation: float 19s infinite ease-in-out;
+      bottom: 20%;
+      right: 15%;
+      animation-delay: 3s;
+      color: #059669;
+      font-size: 2.6rem;
+    }
+
+    .particle:nth-child(6) {
+      animation: float 16s infinite ease-in-out;
+      top: 50%;
+      right: 5%;
+      animation-delay: 5s;
+      color: #0f766e;
+      font-size: 2.4rem;
+    }
+
+    .particle:nth-child(7) {
+      animation: float 21s infinite ease-in-out;
+      top: 15%;
+      right: 25%;
+      animation-delay: 1.5s;
+      color: #1e3a8a;
+      font-size: 2.3rem;
+    }
+
+    .particle:nth-child(8) {
+      animation: float 18s infinite ease-in-out;
+      bottom: 25%;
+      left: 25%;
+      animation-delay: 4.5s;
+      color: #059669;
+      font-size: 2.7rem;
+    }
+
+    .particle:nth-child(9) {
+      animation: float 19s infinite ease-in-out;
+      top: 60%;
+      left: 30%;
+      animation-delay: 2.5s;
+      color: #0f766e;
+      font-size: 2.5rem;
+    }
+
+    .particle:nth-child(10) {
+      animation: float 17s infinite ease-in-out;
+      bottom: 10%;
+      right: 20%;
+      animation-delay: 3.5s;
+      color: #1e3a8a;
+      font-size: 2.6rem;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0.08;
+      }
+      25% {
+        transform: translate(30px, -50px) rotate(90deg);
+        opacity: 0.12;
+      }
+      50% {
+        transform: translate(-20px, 60px) rotate(180deg);
+        opacity: 0.08;
+      }
+      75% {
+        transform: translate(50px, 30px) rotate(270deg);
+        opacity: 0.1;
+      }
+    }
+
     @media (max-width: 768px) {
+      .particles-container {
+        display: none;
+      }
       .landing-content {
         padding: 40px 24px;
       }
@@ -234,6 +368,20 @@
   </style>
 </head>
 <body>
+  <!-- Floating Math Particles Background -->
+  <div class="particles-container">
+    <div class="particle">π</div>
+    <div class="particle">∫</div>
+    <div class="particle">∑</div>
+    <div class="particle">√</div>
+    <div class="particle">∞</div>
+    <div class="particle">∇</div>
+    <div class="particle">±</div>
+    <div class="particle">≈</div>
+    <div class="particle">⊕</div>
+    <div class="particle">∆</div>
+  </div>
+
   <nav class="landing-nav">
     <div class="landing-brand">AXIO</div>
   </nav>
