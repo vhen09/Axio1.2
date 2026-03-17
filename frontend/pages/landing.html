@@ -96,12 +96,27 @@
       text-align: center;
     }
 
-    .landing-logo {
-      font-size: 3rem;
+    .logo-container {
       margin-bottom: 20px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #1e3a8a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .landing-logo {
+      width: 150px;
+      height: 150px;
+      max-width: 100%;
+      filter: drop-shadow(0 4px 15px rgba(30, 58, 138, 0.2));
+      transition: transform 0.3s ease;
+    }
+
+    .landing-logo:hover {
+      transform: scale(1.05);
+    }
+
+    #leftPupil, #rightPupil {
+      transition: cx 0.05s ease-out, cy 0.05s ease-out;
     }
 
     .landing-title {
@@ -489,7 +504,26 @@
   <main class="landing-main">
     <div class="landing-container">
       <div class="landing-content">
-        <div class="landing-logo">◯</div>
+        <!-- Interactive AXIO Logo with Gaze Tracking -->
+        <div class="logo-container">
+          <svg id="axioLogo" class="landing-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main circle -->
+            <circle cx="100" cy="100" r="85" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+            
+            <!-- Left eye white -->
+            <circle id="leftEyeWhite" cx="70" cy="90" r="20" fill="white" stroke="#1e3a8a" stroke-width="2"/>
+            <!-- Right eye white -->
+            <circle id="rightEyeWhite" cx="130" cy="90" r="20" fill="white" stroke="#1e3a8a" stroke-width="2"/>
+            
+            <!-- Left pupil (will move with cursor) -->
+            <circle id="leftPupil" cx="70" cy="90" r="10" fill="#1e3a8a"/>
+            <!-- Right pupil (will move with cursor) -->
+            <circle id="rightPupil" cx="130" cy="90" r="10" fill="#1e3a8a"/>
+            
+            <!-- Smile arc -->
+            <path d="M 70 120 Q 100 145 130 120" stroke="#1e3a8a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
         
         <h1 class="landing-title">Welcome to AXIO</h1>
         
@@ -576,6 +610,69 @@
 
     // Check auth on page load
     document.addEventListener('DOMContentLoaded', checkAuth);
+
+    // ===== AXIO Logo Gaze Tracking =====
+    function setupGazeTracking() {
+      const leftPupil = document.getElementById('leftPupil');
+      const rightPupil = document.getElementById('rightPupil');
+      const leftEyeWhite = document.getElementById('leftEyeWhite');
+      const rightEyeWhite = document.getElementById('rightEyeWhite');
+      const logo = document.getElementById('axioLogo');
+
+      if (!leftPupil || !rightPupil) return;
+
+      const pupilRadius = 10;
+      const eyeRadius = 20;
+      const maxDistance = eyeRadius - pupilRadius;
+
+      // Left eye position: cx="70" cy="90"
+      // Right eye position: cx="130" cy="90"
+      const leftEyePos = { x: 70, y: 90 };
+      const rightEyePos = { x: 130, y: 90 };
+
+      document.addEventListener('mousemove', (e) => {
+        if (!logo) return;
+
+        const logoRect = logo.getBoundingClientRect();
+        const logoCenter = {
+          x: logoRect.left + logoRect.width / 2,
+          y: logoRect.top + logoRect.height / 2
+        };
+
+        const cursorPos = { x: e.clientX, y: e.clientY };
+
+        // Calculate angle and distance for left eye
+        const leftAngle = Math.atan2(
+          cursorPos.y - (logoCenter.y - logoRect.height / 2 + (leftEyePos.y / 200) * logoRect.height),
+          cursorPos.x - (logoCenter.x - logoRect.width / 2 + (leftEyePos.x / 200) * logoRect.width)
+        );
+
+        const leftPupilX = leftEyePos.x + Math.cos(leftAngle) * maxDistance;
+        const leftPupilY = leftEyePos.y + Math.sin(leftAngle) * maxDistance;
+
+        // Calculate angle and distance for right eye
+        const rightAngle = Math.atan2(
+          cursorPos.y - (logoCenter.y - logoRect.height / 2 + (rightEyePos.y / 200) * logoRect.height),
+          cursorPos.x - (logoCenter.x - logoRect.width / 2 + (rightEyePos.x / 200) * logoRect.width)
+        );
+
+        const rightPupilX = rightEyePos.x + Math.cos(rightAngle) * maxDistance;
+        const rightPupilY = rightEyePos.y + Math.sin(rightAngle) * maxDistance;
+
+        // Update pupil positions
+        leftPupil.setAttribute('cx', leftPupilX);
+        leftPupil.setAttribute('cy', leftPupilY);
+        rightPupil.setAttribute('cx', rightPupilX);
+        rightPupil.setAttribute('cy', rightPupilY);
+      });
+    }
+
+    // Initialize gaze tracking when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupGazeTracking);
+    } else {
+      setupGazeTracking();
+    }
   </script>
 </body>
 </html>
