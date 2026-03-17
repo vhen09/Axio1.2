@@ -189,7 +189,7 @@ html, body { margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-se
 .btn.success { background: var(--green); border-color: var(--green); color: #fff; }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.avatar-wrap { position: relative; margin-left: auto; }
+.avatar-wrap { position: relative; margin-left: auto; z-index: 100; }
 .avatar {
   width: 36px;
   height: 36px;
@@ -199,6 +199,8 @@ html, body { margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-se
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+  z-index: 100;
+  position: relative;
 }
 .dropdown {
   position: absolute;
@@ -211,6 +213,7 @@ html, body { margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-se
   box-shadow: var(--shadow);
   display: none;
   overflow: hidden;
+  z-index: 101;
 }
 .dropdown button {
   width: 100%;
