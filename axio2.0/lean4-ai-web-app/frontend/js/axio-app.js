@@ -1250,16 +1250,25 @@
     // Helper function to clean emoji/icons from feedback text
     function cleanFeedbackText(text) {
       if (!text) return '';
+      let cleaned = String(text);
+      
+      // AGGRESSIVE: Remove PROOF COMPLETION ASSESSMENT and everything after it
+      cleaned = cleaned.split(/PROOF\s+COMPLETION\s+ASSESSMENT/i)[0];
+      
       // Remove common emojis and icons
-      return String(text)
+      cleaned = cleaned
         .replace(/✅|✔️|✓|☑️|✔/g, '')
         .replace(/⚠️|⚡️|❌|✗|❗|⚡/g, '')
         .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emoji unicode range
         .replace(/\[PROOF COMPLETION ASSESSMENT:\]/g, '')
         .replace(/\*\*PROOF COMPLETION ASSESSMENT:\*\*/g, '')
-        .replace(/\*\*PROOF COMPLETION ASSESSMENT:\n\*/g, '')
+        .replace(/\*\*PROOF IS INCOMPLETE.*?(?=\n|$)/gis, '')
         .replace(/\n\*\*/g, '\n') // Remove extra ** 
+        .replace(/^(Improvement|Hint|Status|Input Summary|What's Wrong):\s*\n?/gim, '') // Remove section headers
+        .replace(/NO FURTHER STEPS|no further steps|proof is complete|PROOF IS COMPLETE/gi, '')
         .trim();
+      
+      return cleaned;
     }
 
     // Helper function to truncate and make feedback concise
