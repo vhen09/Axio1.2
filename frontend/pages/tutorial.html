@@ -858,10 +858,14 @@
 
   <script>
     let currentPage = 'welcome'; // 'welcome', 'latexCard', 'steps'
-    let currentLatexCard = 0; // 1-10
+    let currentLatexCard = 0; // 1-5
     let currentStep = 1;
     const totalSteps = 4;
-    const totalLatexCards = 10;
+    const totalLatexCards = 5;
+    let isNewUser = false;
+    let tutorialStarted = false;
+    let isNewUser = false;
+    let tutorialStarted = false;
 
     function insertSymbol(symbol, element) {
       // Get the first focused input or first latex-practice input
@@ -1039,6 +1043,7 @@
     }
 
     function startTutorial() {
+      tutorialStarted = true;
       currentPage = 'latexCard';
       currentLatexCard = 1;
       showPage('latexCard');
@@ -1092,6 +1097,12 @@
     }
 
     function skipTutorial() {
+      // Prevent new users from skipping the tutorial
+      if (isNewUser) {
+        alert('As a new user, you must complete the tutorial to get the most out of AXIO. Please continue!');
+        return;
+      }
+      
       if (currentPage !== 'welcome') {
         if (!confirm('Skip the tutorial?')) {
           return;
@@ -1116,6 +1127,8 @@
       }
 
       sessionStorage.setItem('tutorial_completed', 'true');
+      // Clear new_user flag when tutorial is finally completed
+      sessionStorage.removeItem('new_user');
       window.location.href = 'dashboard.html';
     }
 
@@ -1139,8 +1152,10 @@
 
         sessionStorage.setItem('current_user_id', data.user_id);
 
-        // Auto-set LaTeX preference for new users
+        // Check if this is a new user
         if (sessionStorage.getItem('new_user') === 'true') {
+          isNewUser = true;
+          
           fetch('../../backend/api/user-preferences.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1152,9 +1167,9 @@
           })
           .then(r => r.json())
           .then(d => {
-            console.log('Skill set:', d);
+            console.log('Skill set for new user:', d);
             sessionStorage.setItem('latex_skill_done', 'true');
-            sessionStorage.removeItem('new_user');
+            // DON'T remove new_user flag yet - we need it to enforce tutorial completion
           })
           .catch(e => console.error('Error:', e));
         }
