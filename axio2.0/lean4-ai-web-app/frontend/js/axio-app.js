@@ -1247,6 +1247,33 @@
       updateVerificationPanel(result);
     }
 
+    // Helper function to clean emoji/icons from feedback text
+    function cleanFeedbackText(text) {
+      if (!text) return '';
+      // Remove common emojis and icons
+      return String(text)
+        .replace(/✅|✔️|✓|☑️|✔/g, '')
+        .replace(/⚠️|⚡️|❌|✗|❗|⚡/g, '')
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emoji unicode range
+        .replace(/\[PROOF COMPLETION ASSESSMENT:\]/g, '')
+        .replace(/\*\*PROOF COMPLETION ASSESSMENT:\*\*/g, '')
+        .replace(/\*\*PROOF COMPLETION ASSESSMENT:\n\*/g, '')
+        .replace(/\n\*\*/g, '\n') // Remove extra ** 
+        .trim();
+    }
+
+    // Helper function to truncate and make feedback concise
+    function makeConcisFeedback(text, maxSentences = 2) {
+      if (!text) return '';
+      const cleaned = cleanFeedbackText(text);
+      const sentences = cleaned.split(/(?<=[.!?])\s+/);
+      return sentences.slice(0, maxSentences).join(' ').trim();
+    }
+
+    function renderVerifyPanel(result) {
+      updateVerificationPanel(result);
+    }
+
     function updateVerificationPanel(result = null) {
       const total = Array.isArray(state.steps) ? state.steps.length : 0;
       const verified = Array.isArray(state.steps)
@@ -1294,20 +1321,20 @@
       if (verifyStatusValueEl) {
         verifyStatusValueEl.innerHTML = `<span class="${statusClass}">${statusText}</span>`;
       }
-      if (verifyInputSummaryEl) verifyInputSummaryEl.textContent = result.inputSummary || '';
-      if (verifyJustificationEl) verifyJustificationEl.textContent = result.justification || result.msg || '';
+      if (verifyInputSummaryEl) verifyInputSummaryEl.textContent = makeConcisFeedback(result.inputSummary || '', 2);
+      if (verifyJustificationEl) verifyJustificationEl.textContent = makeConcisFeedback(result.justification || result.msg || '', 3);
 
       const hasMissing = !isCorrect && !!String(result.missing || '').trim();
       if (verifyMissingWrapEl) verifyMissingWrapEl.classList.toggle('verify-hidden', !hasMissing);
-      if (verifyMissingEl) verifyMissingEl.textContent = hasMissing ? String(result.missing) : '';
+      if (verifyMissingEl) verifyMissingEl.textContent = makeConcisFeedback(result.missing || '', 2);
 
       const hasImprovement = !!String(result.improvement || '').trim();
       if (verifyImprovementWrapEl) verifyImprovementWrapEl.classList.toggle('verify-hidden', !hasImprovement);
-      if (verifyImprovementEl) verifyImprovementEl.textContent = hasImprovement ? String(result.improvement) : '';
+      if (verifyImprovementEl) verifyImprovementEl.textContent = makeConcisFeedback(result.improvement || '', 2);
 
       const hasHint = !isCorrect && !!String(result.hint || '').trim();
       if (verifyHintWrapEl) verifyHintWrapEl.classList.toggle('verify-hidden', !hasHint);
-      if (verifyHintEl) verifyHintEl.textContent = hasHint ? String(result.hint) : '';
+      if (verifyHintEl) verifyHintEl.textContent = makeConcisFeedback(result.hint || '', 2);
 
       if (verifyNextGuideEl) verifyNextGuideEl.textContent = nextStepHint;
       if (nextStepGuideBtn) nextStepGuideBtn.disabled = !isCorrect;
