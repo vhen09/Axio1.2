@@ -701,7 +701,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      switchToSignup();
+      // Check URL parameter to determine which mode to show
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode');
+      
+      if (mode === 'login') {
+        switchToLogin();
+      } else {
+        switchToSignup();
+      }
+      
       document.getElementById('auth-form').addEventListener('submit', handleAuth);
       
       document.getElementById('forgot-password-link').addEventListener('click', (e) => {
