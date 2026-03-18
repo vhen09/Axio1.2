@@ -1140,9 +1140,32 @@
 
         state.proofCompleted = true;
         state.completedAt = new Date().toISOString();
-  if (data.submission_id) state.draftSubmissionId = Number(data.submission_id);
+        if (data.submission_id) state.draftSubmissionId = Number(data.submission_id);
         saveState();
         updateSavePdfButtonState();
+
+        // Update localStorage proofs array with the new completed proof
+        // This ensures the score appears immediately on the scores page
+        const newProof = {
+          id: data.submission_id || state.draftSubmissionId || Date.now(),
+          theorem: state.theorem || '',
+          steps: steps.length,
+          accuracy: data.score || 0,
+          status: 'completed',
+          verified: true,
+          completedAt: state.completedAt
+        };
+        
+        // Add or update the proof in the proofs array
+        const proofIndex = proofs.findIndex(p => p.id === newProof.id);
+        if (proofIndex >= 0) {
+          proofs[proofIndex] = newProof;
+        } else {
+          proofs.unshift(newProof); // Add to beginning
+        }
+        
+        // Save updated proofs array to localStorage
+        saveJSON(KEYS.proofs, proofs);
 
         const result = {
           cls: 'correct',

@@ -598,25 +598,41 @@
             }).join('');
 
             container.querySelectorAll('[data-continue-id]').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const id = btn.getAttribute('data-continue-id');
                     const target = allSubmissions.find(item => String(item.id) === String(id));
                     if (target) openSubmission(target);
                 });
             });
             container.querySelectorAll('[data-pdf-id]').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const id = btn.getAttribute('data-pdf-id');
                     const target = allSubmissions.find(item => String(item.id) === String(id));
                     if (target) downloadProofPdf(target);
                 });
             });
             container.querySelectorAll('[data-delete-id]').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const id = btn.getAttribute('data-delete-id');
                     deleteSubmission(id);
                 });
             });
+        }
+
+        // Prevent multiple simultaneous loads
+        let isLoadingSubmissions = false;
+        
+        async function loadSubmissionsWithDebounce() {
+          if (isLoadingSubmissions) return;
+          isLoadingSubmissions = true;
+          try {
+            await loadSubmissions();
+          } finally {
+            isLoadingSubmissions = false;
+          }
         }
 
         function filterSubmissions(type, clickedButton) {
@@ -632,9 +648,22 @@
             displaySubmissions(filtered);
         }
 
-        document.addEventListener('visibilitychange', () => { if (!document.hidden) loadSubmissions(); });
-        setInterval(() => { if (!document.hidden) loadSubmissions(); }, 4000);
-        document.addEventListener('DOMContentLoaded', loadSubmissions);
+        // Load submissions once on startup, then only on visibility change
+        let lastLoadTime = 0;
+        document.addEventListener('visibilitychange', () => { 
+          if (!document.hidden) {
+            const now = Date.now();
+            if (now - lastLoadTime > 3000) { // Only reload if more than 3 seconds have passed
+              lastLoadTime = now;
+              loadSubmissionsWithDebounce();
+            }
+          }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+          lastLoadTime = Date.now();
+          loadSubmissionsWithDebounce();
+        });
     </script>
 </body>
 </html>
