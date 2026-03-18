@@ -10,7 +10,7 @@ CREATE TABLE submissions (
     user_id INT NOT NULL,
     input_text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE scores (
@@ -67,8 +67,8 @@ CREATE TABLE proof_attempts (
     score INT,
     time_spent_seconds INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (theorem_id) REFERENCES theorems(id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (theorem_id) REFERENCES theorems(id) ON DELETE CASCADE,
     INDEX idx_user_theorem (user_id, theorem_id),
     INDEX idx_status (verification_status)
 );
