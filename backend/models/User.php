@@ -128,11 +128,13 @@ class User {
             if (!$stmt) {
                 $errorInfo = $this->connection->errorInfo();
                 $this->lastError = 'Database error: ' . $errorInfo[2];
+                error_log("findByUsername PREPARE ERROR for '$username': " . $this->lastError);
                 return false;
             }
             
             if ($stmt->execute([$username])) {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                error_log("findByUsername QUERY for '$username' returned: " . var_export($row, true));
                 if ($row) {
                     $this->id = $row['id'];
                     $this->username = $row['username'];
@@ -143,10 +145,12 @@ class User {
             } else {
                 $errorInfo = $stmt->errorInfo();
                 $this->lastError = 'Query error: ' . $errorInfo[2];
+                error_log("findByUsername EXECUTE ERROR for '$username': " . $this->lastError);
                 return false;
             }
         } catch (Exception $e) {
             $this->lastError = 'Exception: ' . $e->getMessage();
+            error_log("findByUsername EXCEPTION for '$username': " . $this->lastError);
             return false;
         }
     }

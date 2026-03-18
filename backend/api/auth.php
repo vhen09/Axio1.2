@@ -67,7 +67,14 @@ class Auth {
             return json_encode(['success' => true, 'message' => 'Demo mode: User registered successfully (not saved)', 'demo_mode' => true, 'user_id' => 1, 'username' => $username]);
         }
 
-        if ($this->user->findByUsername($username)) {
+        // Debug: Log registration attempt
+        error_log("Registration attempt for username: " . $username);
+        
+        $existingUser = $this->user->findByUsername($username);
+        error_log("Username check result for '$username': " . var_export($existingUser, true));
+        
+        if ($existingUser) {
+            error_log("Username '$username' already exists");
             return json_encode(['success' => false, 'message' => 'Username already exists. Please choose another one.']);
         }
         
