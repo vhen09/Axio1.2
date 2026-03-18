@@ -366,8 +366,12 @@
                             <input type="text" id="username" name="username" placeholder="Enter your username" required>
                         </div>
                         <div class="form-group">
-                            <label for="password">Password (leave blank to keep current)</label>
-                            <input type="password" id="password" name="password" placeholder="••••••••">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="full_name" placeholder="Enter your full name">
                         </div>
                         <button type="submit" class="btn-save"> Save Profile</button>
                     </form>
@@ -484,9 +488,17 @@
           }
       }
 
-      function showSuccess() {
+      function showSuccess(message = '✓ Settings saved successfully!', isError = false) {
           const msg = document.getElementById('success-message');
+          msg.textContent = message;
           msg.style.display = 'block';
+          if (isError) {
+              msg.style.background = 'rgba(239, 68, 68, 0.12)';
+              msg.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+          } else {
+              msg.style.background = 'rgba(5, 150, 105, 0.12)';
+              msg.style.borderColor = 'rgba(5, 150, 105, 0.4)';
+          }
           setTimeout(() => msg.style.display = 'none', 3000);
       }
 
@@ -530,7 +542,8 @@
           // ✅ Step 3: Display user info
           if (username) {
             document.getElementById('username').value = username;
-            if (email) document.getElementById('email').innerText = email;
+            if (email) document.getElementById('email').value = email;
+            if (fullName) document.getElementById('full-name').value = fullName;
           }
 
           // Load preferences
@@ -554,9 +567,11 @@
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const fullName = document.getElementById('full-name').value.trim();
             
             if (!username) {
-              showSuccess('Username is required', 'error');
+              showSuccess('Username is required', true);
               return;
             }
 
@@ -567,7 +582,9 @@
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
-                  username: username
+                  username: username,
+                  email: email,
+                  full_name: fullName
                 })
               });
 
@@ -587,13 +604,13 @@
                   username: data.user.username
                 }));
 
-                showSuccess('Profile updated successfully!');
+                showSuccess('✓ Profile updated successfully!');
               } else {
-                showSuccess(data.error || 'Failed to update profile', 'error');
+                showSuccess('✗ ' + (data.error || 'Failed to update profile'), true);
               }
             } catch (error) {
               console.error('Error updating profile:', error);
-              showSuccess('Error saving profile: ' + error.message, 'error');
+              showSuccess('✗ Error saving profile: ' + error.message, true);
             }
         });
         
