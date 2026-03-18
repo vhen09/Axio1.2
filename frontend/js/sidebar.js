@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    makeLogoClickable();
     initSidebarToggle(sidebar);
     injectLogoutNav();
 });
@@ -105,6 +106,16 @@ function initSidebarToggle(sidebar) {
         const collapsed = !sidebar.classList.contains('collapsed');
         setCollapsedState(collapsed);
     });
+}
+
+function makeLogoClickable() {
+    const logo = document.querySelector('.sidebar .logo');
+    if (logo && !logo.style.cursor) {
+        logo.style.cursor = 'pointer';
+        logo.addEventListener('click', () => {
+            window.location.href = 'landing.html';
+        });
+    }
 }
 
 function injectLogoutNav() {
