@@ -1469,7 +1469,17 @@
         });
       } catch (error) {
       }
+      // Clear all client-side session data
       localStorage.removeItem('axio.workspace.state');
+      localStorage.removeItem('reana_profile');
+      localStorage.removeItem('reana_preferences');
+      localStorage.removeItem('reana_proofs');
+      localStorage.removeItem('reana_submissions');
+      
+      // Flag landing.html to show login instead of redirecting
+      sessionStorage.setItem('just_logged_out', 'true');
+      sessionStorage.clear(); // Clear any cached user data
+      
       window.location.href = 'welcome.html';
     }
 

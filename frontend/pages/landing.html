@@ -597,6 +597,14 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
+      // Check if user just logged out
+      const justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
+      if (justLoggedOut) {
+        sessionStorage.removeItem('just_logged_out');
+        console.log('User just logged out, showing login page');
+        return; // Stay on landing page to show login
+      }
+      
       fetch('../../backend/api/auth.php?action=check_session', {
         method: 'GET',
         credentials: 'include',
