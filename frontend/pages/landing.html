@@ -585,6 +585,13 @@
     }
 
     function continueToWorkspace() {
+      // Guard: Don't navigate if already navigating
+      if (isNavigating) {
+        console.log('Already navigating, ignoring duplicate request');
+        return;
+      }
+      isNavigating = true;
+      
       // Proceed to appropriate page based on onboarding status
       if (!currentUserData) {
         // No user data, go to auth
@@ -607,11 +614,17 @@
       }
     }
 
-    // Check if user is already logged in and get their onboarding status
+    // GUARD: Prevent infinite redirect loops
+    let isNavigating = false;
+    
     function checkAuth() {
       // Prevent multiple concurrent auth checks
       if (authCheckRunning) {
         console.log('Auth check already running, skipping...');
+        return;
+      }
+      if (isNavigating) {
+        console.log('Already navigating, skipping auth check');
         return;
       }
       authCheckRunning = true;

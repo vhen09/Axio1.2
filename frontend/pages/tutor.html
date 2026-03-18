@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="../css/tutor.css">
     <link rel="stylesheet" href="../css/lovable-ui.css">
     <script>
-        if (!window.location.search.includes('embedded=1') && window.top === window.self) {
+        // Prevent double-redirect by checking if we're actually embedded
+        let tutorRedirectDone = sessionStorage.getItem('tutor_redirect_done');
+        if (!tutorRedirectDone && !window.location.search.includes('embedded=1') && window.top === window.self) {
+            sessionStorage.setItem('tutor_redirect_done', 'true');
+            // Only redirect once per session
             window.location.replace('dashboard.html');
         }
         if (window.location.search.includes('embedded=1')) {

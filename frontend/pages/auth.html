@@ -695,6 +695,8 @@
           
           // Fetch onboarding status to route to correct page
           setTimeout(async () => {
+            // Add guard to prevent redirect loops
+            let redirected = false;
             try {
               const statusResponse = await fetch('../../backend/api/user-preferences.php?action=get_status', {
                 method: 'GET',

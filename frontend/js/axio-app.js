@@ -878,7 +878,10 @@
       const theoremMismatchByText = /(does not match|not match|mismatch|not aligned|not connected|off-topic|irrelevant|doesn't align)/.test(combinedAiText);
 
       const aiStatusCorrect = statusMeta.cls === 'correct';
-      const forcedMismatch = theoremMismatchByText || (theoremMismatchByAlignment && !aiStatusCorrect);
+      // CRITICAL FIX #1 & #2: Don't override AI verdict when correct
+      // Only force mismatch if AI explicitly said it doesn't match AND is not correct
+      // This prevents correct steps from being falsely marked as "Needs Revision"
+      const forcedMismatch = theoremMismatchByText && !aiStatusCorrect;
       const finalCls = forcedMismatch ? 'warn' : statusMeta.cls;
       const finalStatusLabel = forcedMismatch ? 'Needs Revision' : statusMeta.statusLabel;
       const finalMsg = forcedMismatch ? 'Step does not match theorem statement.' : statusMeta.msg;
@@ -1105,9 +1108,16 @@
         return;
       }
 
-      const allVerified = steps.every((step) => step.verified);
+      // CRITICAL FIX #1: Properly check if all steps are verified
+      // After fix to toStructuredAiResult, correct steps stay verified
+      const allVerified = steps.every((step) => step.verified === true);
+      const unverifiedCount = steps.filter((step) => step.verified !== true).length;
+      
       if (!allVerified) {
-        alert('Please verify all steps first. Each step must show as Correct.');
+        const msg = unverifiedCount === 1 
+          ? `Please verify ${unverifiedCount} step first. It must show as Correct.`
+          : `Please verify ${unverifiedCount} steps first. They must all show as Correct.`;
+        alert(msg);
         return;
       }
 
@@ -1124,7 +1134,11 @@
         score: computeProofScore(steps)
       };
 
-      if (completeProofBtn) completeProofBtn.disabled = true;
+      // CRITICAL FIX #3: Prevent double-clicks by disabling button immediately
+      if (completeProofBtn) {
+        completeProofBtn.disabled = true;
+        completeProofBtn.textContent = 'Completing...';
+      }
 
       try {
         const response = await fetch('../../backend/api/submissions.php', {
@@ -1181,7 +1195,11 @@
         renderVerifyPanel(result);
         alert('✗ ' + result.msg);
       } finally {
-        if (completeProofBtn) completeProofBtn.disabled = false;
+        // FIX #3: Only re-enable if proof not actually completed
+        if (completeProofBtn && !state.proofCompleted) {
+          completeProofBtn.disabled = false;
+          completeProofBtn.textContent = '✓ Complete Proof';
+        }
       }
     }
 
@@ -1288,8 +1306,16 @@
     function setFeedback(stepId, result) {
       const step = state.steps.find(s => s.id === stepId);
       if (!step) return;
-      step.feedback = result.cls === 'correct' ? '' : `${result.statusLabel}: ${result.justification}`;
+      // CRITICAL FIX #2: Always set status to AI's actual verdict
+      // This ensures correct steps remain correct for proof completion
       step.status = result.cls;
+      // Keep feedback concise and accurate
+      if (result.cls === 'correct') {
+        step.feedback = ''; // No feedback needed for correct steps  
+      } else {
+        // Only show feedback for steps that need work
+        step.feedback = result.justification || result.statusLabel || 'Needs Revision';
+      }
       step.verifyAttempts = Number(step.verifyAttempts || 0) + 1;
       saveState();
     }
