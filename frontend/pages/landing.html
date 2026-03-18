@@ -548,8 +548,9 @@
         </p>
 
         <div class="landing-actions">
-          <button class="btn btn-primary" onclick="navigateTo('auth.html?mode=signup')">Get Started</button>
-          <button class="btn btn-secondary" onclick="navigateTo('auth.html?mode=login')">I have an account</button>
+          <button id="btn-get-started" class="btn btn-primary" onclick="navigateTo('auth.html?mode=signup')">Get Started</button>
+          <button id="btn-login" class="btn btn-secondary" onclick="navigateTo('auth.html?mode=login')">I have an account</button>
+          <button id="btn-continue" class="btn btn-primary" onclick="continueToWorkspace()" style="display:none;">Continue to Workspace</button>
         </div>
 
         <div class="landing-divider"></div>
@@ -577,9 +578,33 @@
   <script>
     // Prevent multiple auth checks
     let authCheckRunning = false;
+    let currentUserData = null;
     
     function navigateTo(page) {
       window.location.href = page;
+    }
+
+    function continueToWorkspace() {
+      // Proceed to appropriate page based on onboarding status
+      if (!currentUserData) {
+        // No user data, go to auth
+        window.location.href = 'auth.html?mode=login';
+        return;
+      }
+
+      const status = currentUserData.data;
+      if (!status.onboarding_complete) {
+        if (!status.latex_skill_level) {
+          // New user - start skill check
+          window.location.href = 'latex-skill-check.html';
+        } else {
+          // Skill check done - go to tutorial
+          window.location.href = 'tutorial.html';
+        }
+      } else {
+        // Onboarding complete - go to dashboard
+        window.location.href = 'dashboard.html';
+      }
     }
 
     // Check if user is already logged in and get their onboarding status
@@ -602,6 +627,9 @@
       if (justLoggedOut) {
         sessionStorage.removeItem('just_logged_out');
         console.log('User just logged out, showing login page');
+        document.getElementById('btn-get-started').style.display = 'block';
+        document.getElementById('btn-login').style.display = 'block';
+        document.getElementById('btn-continue').style.display = 'none';
         return; // Stay on landing page to show login
       }
       
@@ -612,80 +640,45 @@
       })
       .then(r => r.json())
       .then(data => {
-        clearTimeout(timeoutId);
-        console.log('Landing auth check response:', data);
-        
         if (data.authenticated) {
           console.log('User already logged in');
-          // User is logged in, skip landing page
+          // User is logged in - show continue button
           sessionStorage.setItem('current_user_id', data.user_id);
           
-          // Check onboarding status from server
+          // Fetch onboarding status
           return fetch('../../backend/api/user-preferences.php?action=get_status', {
             method: 'GET',
             credentials: 'include',
             signal: controller.signal
           });
         } else {
-          // Not authenticated - stay on landing page
+          console.log('Not authenticated - show login buttons');
+          // Not authenticated - show signup/login buttons
+          document.getElementById('btn-get-started').style.display = 'block';
+          document.getElementById('btn-login').style.display = 'block';
+          document.getElementById('btn-continue').style.display = 'none';
           return null;
         }
       })
       .then(response => response ? response.json() : null)
       .then(prefData => {
         clearTimeout(timeoutId);
-        if (!prefData || !prefData.success) {
-          console.log('Could not get preference status, using session flags');
-          // Fallback to sessionStorage if API fails
-          const newUser = sessionStorage.getItem('new_user');
-          const skillCheckDone = sessionStorage.getItem('latex_skill_done');
-          const tutorialDone = sessionStorage.getItem('tutorial_completed');
-          
-          console.log('User flags:', { newUser, skillCheckDone, tutorialDone });
-          
-          if (!skillCheckDone) {
-            // Skill check never done - go there first
-            console.log('Redirecting to latex skill check (first time)');
-            window.location.href = 'latex-skill-check.html';
-          } else if (!tutorialDone) {
-            // Skill check done but tutorial not done
-            console.log('Redirecting to tutorial (skill check already done)');
-            window.location.href = 'tutorial.html';
-          } else {
-            // Both done - go to dashboard
-            console.log('Redirecting to dashboard');
-            window.location.href = 'dashboard.html';
-          }
-          return;
-        }
-
-        // Use server-side preference status
-        const status = prefData.data;
-        console.log('User onboarding status:', status);
-
-        // Route based on onboarding completion
-        if (!status.onboarding_complete) {
-          // User hasn't completed onboarding yet
-          // Check if latex_skill_level is NULL/not set (never done skill check)
-          if (!status.latex_skill_level) {
-            // FIRST TIME - user never did skill check, send them there
-            console.log('Redirecting to latex skill check (first time)');
-            window.location.href = 'latex-skill-check.html';
-          } else {
-            // Skill check already done (level is 'beginner' or 'advanced') - show tutorial
-            console.log('Redirecting to tutorial (skill check already done)');
-            window.location.href = 'tutorial.html';
-          }
-        } else {
-          // Onboarding complete - go to dashboard
-          console.log('Onboarding complete, redirecting to dashboard');
-          window.location.href = 'dashboard.html';
+        if (prefData && prefData.success) {
+          // Store user data and show continue button
+          currentUserData = prefData;
+          document.getElementById('btn-get-started').style.display = 'none';
+          document.getElementById('btn-login').style.display = 'none';
+          document.getElementById('btn-continue').style.display = 'block';
+          console.log('User authenticated, showing continue button');
         }
       })
       .catch(err => {
         clearTimeout(timeoutId);
         console.error('Landing auth check failed:', err);
-        // Not authenticated or error - stay on landing page
+        // Not authenticated or error - show login buttons
+        document.getElementById('btn-get-started').style.display = 'block';
+        document.getElementById('btn-login').style.display = 'block';
+        document.getElementById('btn-continue').style.display = 'none';
       });
     }
 
