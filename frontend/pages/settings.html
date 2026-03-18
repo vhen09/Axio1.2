@@ -415,7 +415,82 @@
     <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
-      // Load saved settings
+      // Global functions for data management
+      async function clearAllData() {
+          if (!confirm('Are you sure you want to clear all saved data? This cannot be undone.')) {
+              return;
+          }
+
+          try {
+              const response = await fetch('../../backend/api/submissions.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'clear_user_data' })
+              });
+
+              const data = await response.json();
+              if (!response.ok || !data.success) {
+                  throw new Error(data.error || 'Unable to clear backend data');
+              }
+
+              [
+                  'reana_saved_theorem',
+                  'reana_saved_steps',
+                  'reana_completed_submissions',
+                  'reana_verification_records',
+                  'reana_profile',
+                  'reana_preferences',
+                  'axio.workspace.state',
+                  'axio.proofs',
+                  'axio.settings'
+              ].forEach((key) => localStorage.removeItem(key));
+
+              alert(`✓ Data cleared successfully!\nDeleted submissions: ${data.deleted_submissions || 0}\nDeleted scores: ${data.deleted_scores || 0}`);
+          } catch (error) {
+              alert('✗ Clear data failed: ' + error.message);
+          }
+      }
+      
+      async function exportData() {
+          try {
+              // Fetch data from APIs
+              const [submissionsRes, scoresRes] = await Promise.all([
+                  fetch('../../backend/api/submissions.php'),
+                  fetch('../../backend/api/scores.php')
+              ]);
+              
+              const submissions = await submissionsRes.json();
+              const scores = await scoresRes.json();
+              
+              const exportData = {
+                  exported_at: new Date().toISOString(),
+                  submissions: submissions.submissions || [],
+                  scores: scores.scores || [],
+                  profile: JSON.parse(localStorage.getItem('reana_profile') || '{}')
+              };
+              
+              // Download as JSON
+              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `reana_export_${Date.now()}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+              
+              alert('✓ Data exported successfully!');
+          } catch (error) {
+              alert('✗ Export failed: ' + error.message);
+          }
+      }
+
+      function showSuccess() {
+          const msg = document.getElementById('success-message');
+          msg.style.display = 'block';
+          setTimeout(() => msg.style.display = 'none', 3000);
+      }
+
+      // Load saved settings on page load
       document.addEventListener('DOMContentLoaded', () => {
         // Load profile from localStorage
         const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
@@ -458,80 +533,6 @@
                 showSuccess();
             });
         });
-        
-        function showSuccess() {
-            const msg = document.getElementById('success-message');
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
-        }
-        
-        async function clearAllData() {
-            if (!confirm('Are you sure you want to clear all saved data? This cannot be undone.')) {
-                return;
-            }
-
-            try {
-                const response = await fetch('../../backend/api/submissions.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'clear_user_data' })
-                });
-
-                const data = await response.json();
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Unable to clear backend data');
-                }
-
-                [
-                    'reana_saved_theorem',
-                    'reana_saved_steps',
-                    'reana_completed_submissions',
-                    'reana_verification_records',
-                    'reana_profile',
-                    'reana_preferences',
-                    'axio.workspace.state',
-                    'axio.proofs',
-                    'axio.settings'
-                ].forEach((key) => localStorage.removeItem(key));
-
-                alert(`✓ Data cleared successfully!\nDeleted submissions: ${data.deleted_submissions || 0}\nDeleted scores: ${data.deleted_scores || 0}`);
-            } catch (error) {
-                alert('✗ Clear data failed: ' + error.message);
-            }
-        }
-        
-        async function exportData() {
-            try {
-                // Fetch data from APIs
-                const [submissionsRes, scoresRes] = await Promise.all([
-                    fetch('../../backend/api/submissions.php'),
-                    fetch('../../backend/api/scores.php')
-                ]);
-                
-                const submissions = await submissionsRes.json();
-                const scores = await scoresRes.json();
-                
-                const exportData = {
-                    exported_at: new Date().toISOString(),
-                    submissions: submissions.submissions || [],
-                    scores: scores.scores || [],
-                    profile: JSON.parse(localStorage.getItem('reana_profile') || '{}')
-                };
-                
-                // Download as JSON
-                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `reana_export_${Date.now()}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                alert('✓ Data exported successfully!');
-            } catch (error) {
-                alert('✗ Export failed: ' + error.message);
-            }
-        }
-    </script>
+      });
 </body>
 </html>
