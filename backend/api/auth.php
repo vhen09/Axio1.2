@@ -101,24 +101,49 @@ class Auth {
         $username = trim((string)$username);
         $password = (string)$password;
 
+        error_log("=== LOGIN ATTEMPT ===");
+        error_log("Username: $username");
+        error_log("Demo mode: " . ($this->demoMode ? 'YES' : 'NO'));
+
         if ($username === '' || $password === '') {
+            error_log("LOGIN FAILED: Empty username or password");
             return json_encode(['success' => false, 'message' => 'Username and password are required.']);
         }
 
+        // SECURITY: Login REQUIRES database connection. Never accept unverified credentials.
         if ($this->demoMode) {
-            $_SESSION['user_id'] = 1;
-            $_SESSION['username'] = $username !== '' ? $username : 'demo_user';
-            return json_encode(['success' => true, 'message' => 'Demo mode: Login successful', 'demo_mode' => true, 'user_id' => 1, 'username' => $_SESSION['username']]);
+            error_log("SECURITY ALERT: Login attempt in demo mode (database unavailable). REJECTING.");
+            return json_encode([
+                'success' => false, 
+                'message' => 'Authentication service is unavailable. Please try again later.',
+                'auth_error' => 'database_unavailable'
+            ]);
         }
         
         $user = $this->user->findByUsername($username);
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            return json_encode(['success' => true, 'message' => 'Login successful.', 'user_id' => $user['id'], 'username' => $user['username']]);
-        } else {
+        error_log("User lookup result: " . ($user ? 'FOUND' : 'NOT FOUND'));
+        
+        if (!$user) {
+            error_log("LOGIN FAILED: User '$username' does not exist");
             return json_encode(['success' => false, 'message' => 'Invalid username or password.']);
         }
+        
+        // Verify password using bcrypt hashing
+        if (!password_verify($password, $user['password'])) {
+            error_log("LOGIN FAILED: Invalid password for user '$username'");
+            return json_encode(['success' => false, 'message' => 'Invalid username or password.']);
+        }
+        
+        // Password verified successfully
+        error_log("LOGIN SUCCESS: User '$username' (ID: {$user['id']}) authenticated");
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        return json_encode([
+            'success' => true, 
+            'message' => 'Login successful.', 
+            'user_id' => $user['id'], 
+            'username' => $user['username']
+        ]);
     }
 
     public function logout() {
@@ -170,11 +195,49 @@ try {
         $action = $_GET['action'] ?? '';
         
         if ($action === 'check_session' || $action === '') {
+            $authenticated = false;
+            $user_id = null;
+            $username = null;
+            
+            // Check if session has user_id
+            if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+                // SECURITY: Verify user still exists and credentials are valid
+                if (!$this->demoMode) {
+                    // Fetch user from database to validate session
+                    try {
+                        $db = new Database();
+                        $connection = $db->getConnection();
+                        $stmt = $connection->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
+                        $stmt->execute([$_SESSION['user_id']]);
+                        $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($dbUser) {
+                            // User still exists in database
+                            $authenticated = true;
+                            $user_id = $dbUser['id'];
+                            $username = $dbUser['username'];
+                        } else {
+                            // User doesn't exist in DB - session is invalid
+                            error_log("SECURITY: Session validation FAILED - user ID {$_SESSION['user_id']} not found in database");
+                            session_destroy();
+                            $_SESSION = [];
+                        }
+                    } catch (Exception $e) {
+                        error_log("Session validation error: " . $e->getMessage());
+                        $authenticated = false;
+                    }
+                } else {
+                    // Cannot validate in demo mode
+                    $authenticated = false;
+                    error_log("SECURITY: Session check in demo mode - session validation disabled");
+                }
+            }
+            
             echo json_encode([
                 'success' => true,
-                'authenticated' => isset($_SESSION['user_id']),
-                'user_id' => $_SESSION['user_id'] ?? null,
-                'username' => $_SESSION['username'] ?? null
+                'authenticated' => $authenticated,
+                'user_id' => $user_id,
+                'username' => $username
             ]);
             exit();
         }
