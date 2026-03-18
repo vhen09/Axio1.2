@@ -4,16 +4,15 @@ return [
     'deepseek_api_url' => 'https://api.deepseek.com/v1/chat/completions',
     
     // ========================================
-    // 🔑 API KEY FROM ENVIRONMENT VARIABLES
+    // 🔑 PUT YOUR DEEPSEEK API KEY HERE:
     // ========================================
-    // DO NOT hardcode API keys in this file!
-    // Set via environment variables instead:
-    // 1. Go to Render Dashboard
-    // 2. Environment → Add Variable
-    // 3. Name: DEEPSEEK_API_KEY
-    // 4. Value: sk-xxxxxxxxxxxxxxxxxxxxx
+    // 1. Go to: https://platform.deepseek.com/
+    // 2. Sign up or login
+    // 3. Go to "API Keys" section
+    // 4. Create new key
+    // 5. Copy the key (starts with sk-) and paste it below between the quotes
     
-    'deepseek_api_key' => getenv('DEEPSEEK_API_KEY') ?: '',
+    'deepseek_api_key' => 'sk-72e7818157464142a3430d562d3db41d',
     
     'timeout' => 60,
     'connect_timeout' => 10,
