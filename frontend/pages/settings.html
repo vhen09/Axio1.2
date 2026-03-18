@@ -415,8 +415,19 @@
     <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
-        // Load saved settings
-        document.addEventListener('DOMContentLoaded', () => {
+      // Load saved settings
+      document.addEventListener('DOMContentLoaded', () => {
+        // Minimal auth check - redirect to landing if not authenticated
+        fetch('../../backend/api/auth.php?action=check_session', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (!data.authenticated) {
+            window.location.href = 'landing.html';
+            return;
+          }
             // Load profile from localStorage
             const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
             if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
