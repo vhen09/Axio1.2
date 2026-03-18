@@ -278,8 +278,10 @@
     <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
-        // Check authentication on page load
-        apiClient.checkAuthAndRedirect();
+        // Check authentication after page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            apiClient.checkAuthAndRedirect();
+        });
 
         let allSubmissions = [];
         let analyticsSummary = null;

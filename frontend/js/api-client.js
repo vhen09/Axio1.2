@@ -58,7 +58,7 @@ const apiClient = {
             
             if (!data.authenticated) {
                 console.log('User not authenticated, redirecting to login');
-                window.location.href = '/frontend/pages/auth.html?mode=login';
+                window.location.href = 'auth.html?mode=login';
                 return null;
             }
             
@@ -70,7 +70,7 @@ const apiClient = {
                 console.warn('Auth check timed out, page may not be fully protected');
                 return null;
             }
-            window.location.href = '/frontend/pages/auth.html?mode=login';
+            window.location.href = 'auth.html?mode=login';
             return null;
         }
     }
