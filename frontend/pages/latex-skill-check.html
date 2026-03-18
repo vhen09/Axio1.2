@@ -318,11 +318,16 @@
           }
         }
 
-        // Save message and redirect to landing.html
-        // landing.html will check updated onboarding status and route to dashboard/tutorial
+        // Save message and redirect based on skill level
+        // If advanced (knows LaTeX): go to dashboard
+        // If beginner (doesn't know LaTeX): go to tutorial
         showMessage('Preferences saved! Redirecting...', 'success');
         setTimeout(() => {
-          window.location.href = 'landing.html';
+          if (skillLevel === 'advanced') {
+            window.location.href = 'dashboard.html';
+          } else {
+            window.location.href = 'tutorial.html';
+          }
         }, 1000);
       } catch (err) {
         console.error('Error saving preference:', err);
