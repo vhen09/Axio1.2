@@ -502,6 +502,12 @@
         document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
         document.getElementById('dark-theme').checked = prefs.darkTheme === true;
 
+        // Apply dark theme on page load
+        if (prefs.darkTheme === true) {
+            document.documentElement.classList.add('theme-dark');
+            document.body.classList.add('theme-dark');
+        }
+
         if (typeof window.setThemePreference === 'function') {
             window.setThemePreference(document.getElementById('dark-theme').checked);
         }
@@ -526,8 +532,16 @@
                 };
                 localStorage.setItem('reana_preferences', JSON.stringify(prefs));
 
-                if (toggle.id === 'dark-theme' && typeof window.setThemePreference === 'function') {
-                    window.setThemePreference(prefs.darkTheme);
+                // Apply dark theme immediately
+                if (toggle.id === 'dark-theme') {
+                    const isDark = toggle.checked;
+                    document.documentElement.classList.toggle('theme-dark', isDark);
+                    document.body.classList.toggle('theme-dark', isDark);
+                    
+                    // Also call setThemePreference if available
+                    if (typeof window.setThemePreference === 'function') {
+                        window.setThemePreference(isDark);
+                    }
                 }
 
                 showSuccess();
