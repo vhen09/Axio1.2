@@ -643,13 +643,16 @@
           
           console.log('User flags:', { newUser, skillCheckDone, tutorialDone });
           
-          if (newUser === 'true' || !skillCheckDone) {
-            console.log('Redirecting to latex skill check');
+          if (!skillCheckDone) {
+            // Skill check never done - go there first
+            console.log('Redirecting to latex skill check (first time)');
             window.location.href = 'latex-skill-check.html';
           } else if (!tutorialDone) {
-            console.log('Redirecting to tutorial');
+            // Skill check done but tutorial not done
+            console.log('Redirecting to tutorial (skill check already done)');
             window.location.href = 'tutorial.html';
           } else {
+            // Both done - go to dashboard
             console.log('Redirecting to dashboard');
             window.location.href = 'dashboard.html';
           }
@@ -663,13 +666,14 @@
         // Route based on onboarding completion
         if (!status.onboarding_complete) {
           // User hasn't completed onboarding yet
-          if (status.latex_skill_level === 'beginner') {
-            // Go to LaTeX skill assessment
-            console.log('Redirecting to latex skill check');
+          // Check if latex_skill_level is NULL/not set (never done skill check)
+          if (!status.latex_skill_level) {
+            // FIRST TIME - user never did skill check, send them there
+            console.log('Redirecting to latex skill check (first time)');
             window.location.href = 'latex-skill-check.html';
           } else {
-            // Advanced user or already assessed - show tutorial
-            console.log('Redirecting to tutorial');
+            // Skill check already done (level is 'beginner' or 'advanced') - show tutorial
+            console.log('Redirecting to tutorial (skill check already done)');
             window.location.href = 'tutorial.html';
           }
         } else {
