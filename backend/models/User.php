@@ -101,7 +101,12 @@ class User {
                 return true;
             } else {
                 $errorInfo = $stmt->errorInfo();
-                $this->lastError = 'Failed to create user: ' . $errorInfo[2];
+                // Check for UNIQUE constraint violation (error code 23000)
+                if ($errorInfo[0] == '23000') {
+                    $this->lastError = 'Username already exists. Please choose another one.';
+                } else {
+                    $this->lastError = 'Failed to create user: ' . $errorInfo[2];
+                }
                 return false;
             }
         } catch (Exception $e) {
