@@ -122,30 +122,48 @@ class User {
         try {
             $username = trim((string)$username);
             
+            error_log("=== findByUsername START === Name: '$username'");
+            error_log("Connection check: " . (isset($this->connection) ? 'EXISTS' : 'MISSING'));
+            
+            if (!isset($this->connection)) {
+                error_log("CRITICAL ERROR: Database connection not set!");
+                return false;
+            }
+            
             $query = "SELECT id, username, password FROM users WHERE username = ? LIMIT 1";
+            error_log("SQL Query: " . $query);
+            error_log("Parameter: " . $username);
+            
             $stmt = $this->connection->prepare($query);
             
             if (!$stmt) {
                 $errorInfo = $this->connection->errorInfo();
                 $this->lastError = 'Database error: ' . $errorInfo[2];
-                error_log("findByUsername PREPARE ERROR for '$username': " . $this->lastError);
+                error_log("PREPARE ERROR: " . $this->lastError);
                 return false;
             }
             
+            error_log("Successfully prepared statement");
+            
             if ($stmt->execute([$username])) {
+                error_log("Execute succeeded, fetching result...");
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                error_log("findByUsername QUERY for '$username' returned: " . var_export($row, true));
+                error_log("RESULT: " . ($row ? 'FOUND USER' : 'NO USER FOUND'));
+                error_log("Row data: " . var_export($row, true));
+                
                 if ($row) {
                     $this->id = $row['id'];
                     $this->username = $row['username'];
                     $this->password = $row['password'];
+                    error_log("Object set: id={$this->id}, username={$this->username}");
                     return $row;
                 }
+                error_log("User '$username' does NOT exist in database");
                 return false;
             } else {
                 $errorInfo = $stmt->errorInfo();
                 $this->lastError = 'Query error: ' . $errorInfo[2];
-                error_log("findByUsername EXECUTE ERROR for '$username': " . $this->lastError);
+                error_log("EXECUTE ERROR: " . $this->lastError);
                 return false;
             }
         } catch (Exception $e) {

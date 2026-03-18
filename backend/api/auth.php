@@ -68,18 +68,23 @@ class Auth {
         }
 
         // Debug: Log registration attempt
-        error_log("Registration attempt for username: " . $username);
+        error_log("=== REGISTRATION ATTEMPT ===");
+        error_log("Username: " . $username);
+        error_log("Demo mode: " . ($this->demoMode ? 'YES' : 'NO'));
         
         $existingUser = $this->user->findByUsername($username);
-        error_log("Username check result for '$username': " . var_export($existingUser, true));
+        error_log("DB Lookup result: " . var_export($existingUser, true));
         
         if ($existingUser) {
-            error_log("Username '$username' already exists");
+            error_log("Username '$username' already exists in database");
             return json_encode(['success' => false, 'message' => 'Username already exists. Please choose another one.']);
         }
         
+        error_log("Username '$username' is available, attempting creation...");
+        
         if ($this->user->create($username, $password)) {
             $newUser = $this->user->findByUsername($username);
+            error_log("Account created successfully for '$username'");
             return json_encode([
                 'success' => true, 
                 'message' => 'User registered successfully.',
