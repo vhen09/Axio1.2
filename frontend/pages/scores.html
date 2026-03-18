@@ -503,6 +503,9 @@
     <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
+        // Check authentication on page load
+        apiClient.checkAuthAndRedirect();
+
         let allScores = [];
         let analyticsSummary = null;
         let analyticsRecentActivity = [];

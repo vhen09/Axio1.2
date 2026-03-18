@@ -412,8 +412,12 @@
     </main>
     </div>
     
+    <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
+        // Check authentication on page load
+        apiClient.checkAuthAndRedirect();
+
         // Load saved settings
         document.addEventListener('DOMContentLoaded', () => {
             // Load profile from localStorage
