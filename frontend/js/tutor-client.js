@@ -203,4 +203,4 @@ In Real Analysis, this concept is important because it provides the foundation f
     }
 };
 
-export default tutorClient;
+window.tutorClient = tutorClient;
