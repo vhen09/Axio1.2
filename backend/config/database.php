@@ -21,6 +21,19 @@ class Database {
             // Fallback to localhost for local development
             $this->connectWithCredentials();
         }
+        
+        // CRITICAL SECURITY: If DB connection failed in production/Render environment, 
+        // REFUSE to start in demo mode (which accepts any credentials!)
+        $isProduction = isset($_ENV['RENDER']) || getenv('RENDER') || 
+                       isset($_ENV['DATABASE_URL']) || getenv('DATABASE_URL');
+        if ($this->demoMode && $isProduction) {
+            // Log the authentication failure
+            error_log('SECURITY ALERT: Database connection failed on production/Render environment.');
+            error_log('DATABASE_URL: ' . (getenv('DATABASE_URL') ? 'SET' : 'NOT SET'));
+            error_log('REFUSING to start in demo mode on production. Please check database configuration.');
+            // Return error instead of silently proceeding
+            throw new Exception('Database connection failed on production environment. System cannot start in demo mode.');
+        }
     }
 
     private function connectFromUrl($url) {

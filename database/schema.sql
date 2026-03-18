@@ -83,3 +83,19 @@ CREATE TABLE proof_conversations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (proof_attempt_id) REFERENCES proof_attempts(id)
 );
+
+-- User Preferences and Onboarding State
+CREATE TABLE user_preferences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    latex_skill_level ENUM('beginner', 'intermediate', 'advanced') DEFAULT 'beginner',
+    tutorial_completed BOOLEAN DEFAULT FALSE,
+    tutorial_skipped BOOLEAN DEFAULT FALSE,
+    first_login_completed BOOLEAN DEFAULT FALSE,
+    onboarding_step INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user (user_id),
+    INDEX idx_tutorial_completed (tutorial_completed)
+);

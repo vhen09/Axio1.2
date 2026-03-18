@@ -85,6 +85,19 @@ class User {
             if ($stmt->execute([$username, $hashedPassword])) {
                 $this->id = $this->connection->lastInsertId();
                 $this->username = $username;
+                
+                // Create default user preferences for new user
+                try {
+                    $prefQuery = "INSERT INTO user_preferences (user_id) VALUES (?)";
+                    $prefStmt = $this->connection->prepare($prefQuery);
+                    if ($prefStmt) {
+                        $prefStmt->execute([$this->id]);
+                    }
+                } catch (Exception $e) {
+                    // Preferences creation failed but user was created, log it but continue
+                    error_log('Failed to create user preferences for user ' . $this->id . ': ' . $e->getMessage());
+                }
+                
                 return true;
             } else {
                 $errorInfo = $stmt->errorInfo();

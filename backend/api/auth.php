@@ -32,6 +32,10 @@ class Auth {
         }
     }
 
+    public function isDemoMode() {
+        return $this->demoMode;
+    }
+
     public function checkUsernameAvailable($username) {
         $username = trim((string)$username);
 
@@ -147,50 +151,61 @@ class Auth {
 }
 
 // Example usage
-$auth = new Auth();
+try {
+    $auth = new Auth();
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $action = $_GET['action'] ?? '';
-    
-    if ($action === 'check_session' || $action === '') {
-        echo json_encode([
-            'success' => true,
-            'authenticated' => isset($_SESSION['user_id']),
-            'user_id' => $_SESSION['user_id'] ?? null,
-            'username' => $_SESSION['username'] ?? null
-        ]);
-        exit();
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $action = $_GET['action'] ?? '';
+        
+        if ($action === 'check_session' || $action === '') {
+            echo json_encode([
+                'success' => true,
+                'authenticated' => isset($_SESSION['user_id']),
+                'user_id' => $_SESSION['user_id'] ?? null,
+                'username' => $_SESSION['username'] ?? null
+            ]);
+            exit();
+        }
     }
-}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!is_array($data)) {
-        $data = [];
-    }
-    $action = $data['action'] ?? $_POST['action'] ?? '';
-    
-    if ($action === 'register' || $action === 'signup' || $action === 'sign_up') {
-        $username = $data['username'] ?? $_POST['username'] ?? '';
-        $password = $data['password'] ?? $_POST['password'] ?? '';
-        echo $auth->register($username, $password);
-    } elseif ($action === 'check_username') {
-        $username = $data['username'] ?? $_POST['username'] ?? '';
-        echo $auth->checkUsernameAvailable($username);
-    } elseif ($action === 'login') {
-        $username = $data['username'] ?? $_POST['username'] ?? '';
-        $password = $data['password'] ?? $_POST['password'] ?? '';
-        echo $auth->login($username, $password);
-    } elseif ($action === 'logout') {
-        echo $auth->logout();
-    } elseif ($action === 'reset_password') {
-        $username = $data['username'] ?? $_POST['username'] ?? '';
-        $newPassword = $data['newPassword'] ?? $_POST['newPassword'] ?? '';
-        echo $auth->resetPassword($username, $newPassword);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $action = $data['action'] ?? $_POST['action'] ?? '';
+        
+        if ($action === 'register' || $action === 'signup' || $action === 'sign_up') {
+            $username = $data['username'] ?? $_POST['username'] ?? '';
+            $password = $data['password'] ?? $_POST['password'] ?? '';
+            echo $auth->register($username, $password);
+        } elseif ($action === 'check_username') {
+            $username = $data['username'] ?? $_POST['username'] ?? '';
+            echo $auth->checkUsernameAvailable($username);
+        } elseif ($action === 'login') {
+            $username = $data['username'] ?? $_POST['username'] ?? '';
+            $password = $data['password'] ?? $_POST['password'] ?? '';
+            echo $auth->login($username, $password);
+        } elseif ($action === 'logout') {
+            echo $auth->logout();
+        } elseif ($action === 'reset_password') {
+            $username = $data['username'] ?? $_POST['username'] ?? '';
+            $newPassword = $data['newPassword'] ?? $_POST['newPassword'] ?? '';
+            echo $auth->resetPassword($username, $newPassword);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid action']);
+        echo json_encode(['success' => false, 'message' => 'Invalid request method']);
     }
-} else {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+} catch (Exception $e) {
+    // Database configuration error - return clear error message
+    error_log('CRITICAL AUTH ERROR: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'error' => 'System authentication service is unavailable. Please contact support.',
+        'message' => 'Authentication service unreachable'
+    ]);
 }
 ?>
