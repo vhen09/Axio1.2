@@ -5,6 +5,9 @@
  * Endpoints for browsing, searching, and selecting theorems
  */
 
+// Auto-initialize database fallback on every request
+@require_once __DIR__ . '/../config/auto-setup.php';
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../services/Logger.php';
 

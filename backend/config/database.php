@@ -55,8 +55,10 @@ class Database {
                 // Build DSN based on database type
                 if ($dbType === 'postgresql') {
                     $dsn = "pgsql:host={$this->host};port={$port};dbname={$this->db}";
+                    error_log("Attempting PostgreSQL connection to {$this->host}:{$port}");
                 } else {
                     $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db};charset=utf8mb4";
+                    error_log("Attempting MySQL connection to {$this->host}:{$port}");
                 }
                 
                 $this->pdo = new PDO($dsn, $this->user, $this->pass, 
@@ -67,8 +69,27 @@ class Database {
                 throw new Exception('Invalid DATABASE_URL format. Expected: mysql://user:pass@host:port/db or postgresql://user:pass@host:port/db');
             }
         } catch (PDOException | Exception $e) {
+            error_log("Connection error: " . $e->getMessage());
+            // Try SQLite fallback if available
+            $this->tryDemoMode();
+        }
+    }
+
+    private function tryDemoMode() {
+        try {
+            // Try SQLite as fallback for development
+            $sqlitePath = __DIR__ . '/../../data/axio.db';
+            if (!is_dir(dirname($sqlitePath))) {
+                mkdir(dirname($sqlitePath), 0755, true);
+            }
+            
+            $this->pdo = new PDO('sqlite:' . $sqlitePath, null, null,
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+            error_log("✓ Fallback to SQLite database");
+        } catch (PDOException $e) {
+            error_log('SQLite fallback also failed, demo mode enabled: ' . $e->getMessage());
             $this->demoMode = true;
-            error_log('Database connection failed with URL, running in DEMO MODE: ' . $e->getMessage());
         }
     }
 

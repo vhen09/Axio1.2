@@ -1,6 +1,9 @@
 <?php
 // This file interfaces with the Lean4 logic engine, sending inputs for verification and receiving results.
 
+// Auto-initialize database fallback on every request
+@require_once __DIR__ . '/../config/auto-setup.php';
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../services/LeanService.php';
 require_once __DIR__ . '/../services/ValidationService.php';

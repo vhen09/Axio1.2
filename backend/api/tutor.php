@@ -4,6 +4,9 @@
  * Handles all AI tutoring requests for proof assistance
  */
 
+// Auto-initialize database fallback on every request
+@require_once __DIR__ . '/../config/auto-setup.php';
+
 require_once __DIR__ . '/../services/ProofTutorService.php';
 
 header('Content-Type: application/json');

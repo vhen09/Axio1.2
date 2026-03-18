@@ -5,6 +5,9 @@
  * Supports proving theorems from the REANA library using natural language
  */
 
+// Auto-initialize database fallback on every request
+@require_once __DIR__ . '/../config/auto-setup.php';
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../services/NaturalLanguageToLeanConverter.php';
 require_once __DIR__ . '/../services/LeanService.php';

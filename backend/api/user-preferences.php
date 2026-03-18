@@ -1,5 +1,8 @@
 <?php
 // User Preferences API - handles onboarding, tutorial state, skill level
+// Auto-initialize database fallback on every request
+@require_once __DIR__ . '/../config/auto-setup.php';
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/UserPreferences.php';
 

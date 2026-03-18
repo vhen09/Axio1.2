@@ -1,4 +1,7 @@
 <?php
+// Auto-initialize database on app startup
+@require_once __DIR__ . '/backend/config/auto-setup.php';
+
 header('Location: frontend/pages/welcome.html', true, 302);
 exit;
 ?>
