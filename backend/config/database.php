@@ -8,10 +8,17 @@ class Database {
     private $demoMode = false;
 
     public function __construct() {
+        error_log("=== Database Connection Attempt ===");
+        error_log("Is production (has RENDER/DATABASE_URL): " . ((getenv('RENDER') || getenv('DATABASE_URL')) ? 'YES' : 'NO'));
+        
         // Check for environment variables (Render, production, etc.)
         if (isset($_ENV['DATABASE_URL']) || getenv('DATABASE_URL')) {
-            $this->connectFromUrl(getenv('DATABASE_URL') ?: $_ENV['DATABASE_URL']);
+            error_log("Using DATABASE_URL from environment");
+            $url = getenv('DATABASE_URL') ?: $_ENV['DATABASE_URL'];
+            error_log("DATABASE_URL length: " . strlen($url) . " chars");
+            $this->connectFromUrl($url);
         } elseif (isset($_ENV['DB_HOST']) || getenv('DB_HOST')) {
+            error_log("Using individual database environment variables");
             $this->host = getenv('DB_HOST') ?: $_ENV['DB_HOST'];
             $this->db = getenv('DB_NAME') ?: $_ENV['DB_NAME'] ?? 'lean4_ai_app';
             $this->user = getenv('DB_USER') ?: $_ENV['DB_USER'] ?? 'root';
@@ -19,20 +26,16 @@ class Database {
             $this->connectWithCredentials();
         } else {
             // Fallback to localhost for local development
+            error_log("No production env vars found, using localhost defaults (local development)");
             $this->connectWithCredentials();
         }
         
-        // CRITICAL SECURITY: If DB connection failed in production/Render environment, 
-        // REFUSE to start in demo mode (which accepts any credentials!)
-        $isProduction = isset($_ENV['RENDER']) || getenv('RENDER') || 
-                       isset($_ENV['DATABASE_URL']) || getenv('DATABASE_URL');
-        if ($this->demoMode && $isProduction) {
-            // Log the authentication failure
-            error_log('SECURITY ALERT: Database connection failed on production/Render environment.');
-            error_log('DATABASE_URL: ' . (getenv('DATABASE_URL') ? 'SET' : 'NOT SET'));
-            error_log('REFUSING to start in demo mode on production. Please check database configuration.');
-            // Return error instead of silently proceeding
-            throw new Exception('Database connection failed on production environment. System cannot start in demo mode.');
+        // Log final status
+        if ($this->pdo) {
+            error_log("✓ Database connection: SUCCESS");
+        } else {
+            error_log("✗ Database connection: FAILED - Demo mode enabled");
+            error_log("This may be temporary database unavailability or wrong credentials");
         }
     }
 

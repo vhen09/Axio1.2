@@ -64,7 +64,13 @@ class Auth {
         }
 
         if ($this->demoMode) {
-            return json_encode(['success' => true, 'message' => 'Demo mode: User registered successfully (not saved)', 'demo_mode' => true, 'user_id' => 1, 'username' => $username]);
+            error_log("⚠️ WARNING: Running in DEMO MODE - Database unavailable or disconnected");
+            error_log("Signup blocked in demo mode - users cannot be created without database");
+            return json_encode([
+                'success' => false, 
+                'message' => 'Database connection unavailable. Please try again in a few moments.',
+                'db_error' => true
+            ]);
         }
 
         // Comprehensive logging for signup debugging
