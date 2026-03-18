@@ -262,37 +262,82 @@
         return;
       }
 
-      const latexSkill = selected.value;
+      const selectedValue = selected.value;
+      
+      // Map user response to skill level
+      // "yes" (familiar with LaTeX) → "advanced"
+      // "no" (not familiar) → "beginner"
+      const skillLevel = selectedValue === 'yes' ? 'advanced' : 'beginner';
 
       try {
-        // Save the preference to backend
+        // Save the skill level to backend
         const response = await fetch('../../backend/api/user-preferences.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'set_latex_skill',
-            latex_skill: latexSkill
+            level: skillLevel
           }),
           credentials: 'include'
         });
 
         const data = await response.json();
 
+        if (!data.success) {
+          showMessage('Error saving preferences', 'error');
+          // Continue anyway but log the error
+          console.error('Failed to save preferences:', data);
+        }
+
         // Mark skill check as done in sessionStorage
         if (currentUserId) {
           sessionStorage.setItem('latex_skill_checked_' + currentUserId, 'true');
         }
         sessionStorage.setItem('latex_skill_done', 'true');
+        sessionStorage.setItem('latex_skill_level', skillLevel);
 
+        // If user is familiar with LaTeX (advanced), skip tutorial entirely
+        if (skillLevel === 'advanced') {
+          console.log('User is advanced in LaTeX - skipping tutorial');
+          try {
+            const skipResponse = await fetch('../../backend/api/user-preferences.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'skip_tutorial'
+              }),
+              credentials: 'include'
+            });
+            const skipData = await skipResponse.json();
+            if (skipData.success) {
+              showMessage('Welcome back! Going to dashboard...', 'success');
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 500);
+              return;
+            }
+          } catch (err) {
+            console.error('Error skipping tutorial:', err);
+          }
+        }
+
+        // Beginner users need tutorial
         showMessage('Preferences saved! Redirecting to tutorial...', 'success');
         setTimeout(() => {
           window.location.href = 'tutorial.html';
         }, 500);
       } catch (err) {
         console.error('Error saving preference:', err);
-        // Continue anyway
+        // Continue anyway but use sessionStorage as fallback
         sessionStorage.setItem('latex_skill_done', 'true');
-        window.location.href = 'tutorial.html';
+        sessionStorage.setItem('latex_skill_level', skillLevel);
+        
+        // Still route correctly even if API fails
+        if (skillLevel === 'advanced') {
+          window.location.href = 'dashboard.html';
+        } else {
+          window.location.href = 'tutorial.html';
+        }
       }
     }
 
