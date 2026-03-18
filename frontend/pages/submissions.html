@@ -278,19 +278,6 @@
     <script src="../js/api-client.js"></script>
     <script src="../js/sidebar.js"></script>
     <script>
-      // Minimal auth check - redirect to landing if not authenticated
-      fetch('../../backend/api/auth.php?action=check_session', {
-        method: 'GET',
-        credentials: 'include'
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.authenticated) {
-          window.location.href = 'landing.html';
-        }
-      })
-      .catch(err => console.log('Auth check error:', err));
-
         let allSubmissions = [];
         let analyticsSummary = null;
         let viewMode = 'natural';

@@ -417,31 +417,19 @@
     <script>
       // Load saved settings
       document.addEventListener('DOMContentLoaded', () => {
-        // Minimal auth check - redirect to landing if not authenticated
-        fetch('../../backend/api/auth.php?action=check_session', {
-          method: 'GET',
-          credentials: 'include'
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (!data.authenticated) {
-            window.location.href = 'landing.html';
-            return;
-          }
-            // Load profile from localStorage
-            const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
-            if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
-            
-            // Load preferences
-            const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
-            document.getElementById('auto-save').checked = prefs.autoSave !== false;
-            document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
-            document.getElementById('dark-theme').checked = prefs.darkTheme === true;
+        // Load profile from localStorage
+        const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
+        if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
+        
+        // Load preferences
+        const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
+        document.getElementById('auto-save').checked = prefs.autoSave !== false;
+        document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
+        document.getElementById('dark-theme').checked = prefs.darkTheme === true;
 
-            if (typeof window.setThemePreference === 'function') {
-                window.setThemePreference(document.getElementById('dark-theme').checked);
-            }
-        });
+        if (typeof window.setThemePreference === 'function') {
+            window.setThemePreference(document.getElementById('dark-theme').checked);
+        }
         
         // Save profile
         document.getElementById('profile-form').addEventListener('submit', (e) => {
