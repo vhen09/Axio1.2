@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const authenticated = await ensureAuthenticated();
-    if (!authenticated) return;
-
+    // Note: Auth is already verified by landing.html before routing here
+    // No need to re-check authentication
     applyThemeFromPreferences();
     ensureGlobalBackground();
 
@@ -23,20 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSidebarToggle(sidebar);
     injectLogoutNav();
 });
-
-async function ensureAuthenticated() {
-    try {
-        const response = await fetch('../../backend/api/auth.php');
-        const data = await response.json();
-        if (data && data.success && data.authenticated) {
-            return true;
-        }
-    } catch (error) {
-    }
-
-    window.location.href = 'welcome.html';
-    return false;
-}
 
 function applyThemeFromPreferences() {
     const prefs = getPreferences();

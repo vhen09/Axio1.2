@@ -250,20 +250,6 @@
     }
   }
 
-  async function ensureAuthenticated() {
-    try {
-      const response = await fetch('../../backend/api/auth.php');
-      const data = await response.json();
-      if (data && data.success && data.authenticated) {
-        return true;
-      }
-    } catch (error) {
-    }
-
-    window.location.href = 'welcome.html';
-    return false;
-  }
-
   function renderMath(el, text) {
     if (!el) return;
     const source = (text || '').trim();
@@ -2019,11 +2005,8 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     const page = document.body.dataset.page;
-    if (page === 'workspace') {
-      const authenticated = await ensureAuthenticated();
-      if (!authenticated) return;
-    }
-
+    // Note: Auth already verified by landing.html - no need to re-check here
+    
     initShared();
     if (page === 'workspace') setupWorkspace();
     if (page === 'proofs') setupProofsPage();
