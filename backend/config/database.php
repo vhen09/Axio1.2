@@ -13,7 +13,7 @@ class Database {
         
         // Check for environment variables (Render, production, etc.)
         if (isset($_ENV['DATABASE_URL']) || getenv('DATABASE_URL')) {
-            error_log("Using DATABASE_URL from environment");
+            error_log("Using DATABASE_URL from environment (supports MySQL or PostgreSQL)");
             $url = getenv('DATABASE_URL') ?: $_ENV['DATABASE_URL'];
             error_log("DATABASE_URL length: " . strlen($url) . " chars");
             $this->connectFromUrl($url);
@@ -41,20 +41,30 @@ class Database {
 
     private function connectFromUrl($url) {
         try {
-            // Parse DATABASE_URL: mysql://user:password@host:port/dbname
-            if (preg_match('/^mysql:\/\/([^:]+):(.*)@([^:\/]+)(?::(\d+))?\/(.+)$/', $url, $matches)) {
-                $this->user = urldecode($matches[1]);
-                $this->pass = urldecode($matches[2]);
-                $this->host = $matches[3];
-                $port = $matches[4] ?? 3306;
-                $this->db = $matches[5];
+            // Parse DATABASE_URL: mysql://user:password@host:port/dbname OR postgresql://user:password@host:port/dbname
+            $dbType = 'mysql'; // default
+            
+            if (preg_match('/^(mysql|postgresql):\/\/([^:]+):(.*)@([^:\/]+)(?::(\d+))?\/(.+)$/', $url, $matches)) {
+                $dbType = $matches[1];
+                $this->user = urldecode($matches[2]);
+                $this->pass = urldecode($matches[3]);
+                $this->host = $matches[4];
+                $port = $matches[5] ?? ($dbType === 'postgresql' ? 5432 : 3306);
+                $this->db = $matches[6];
                 
-                $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db};charset=utf8mb4";
+                // Build DSN based on database type
+                if ($dbType === 'postgresql') {
+                    $dsn = "pgsql:host={$this->host};port={$port};dbname={$this->db}";
+                } else {
+                    $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db};charset=utf8mb4";
+                }
+                
                 $this->pdo = new PDO($dsn, $this->user, $this->pass, 
                     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
                 );
+                error_log("✓ Connected via {$dbType}");
             } else {
-                throw new Exception('Invalid DATABASE_URL format');
+                throw new Exception('Invalid DATABASE_URL format. Expected: mysql://user:pass@host:port/db or postgresql://user:pass@host:port/db');
             }
         } catch (PDOException | Exception $e) {
             $this->demoMode = true;
