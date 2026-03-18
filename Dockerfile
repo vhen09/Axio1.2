@@ -9,12 +9,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy entire project
 COPY . /app
 
-# Install PHP dependencies
-WORKDIR /app/backend
+# Install PHP dependencies from root where composer.json is located
 RUN composer install --no-dev --optimize-autoloader
-
-# Back to app root
-WORKDIR /app
 
 # Expose port
 EXPOSE 8080
