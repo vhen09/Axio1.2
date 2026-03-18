@@ -491,13 +491,50 @@
       }
 
       // Load saved settings on page load
-      document.addEventListener('DOMContentLoaded', () => {
-        // Load profile from localStorage
-        const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
-        if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
-        
-        // Load preferences
-        const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // ✅ Step 1: Try sessionStorage first (currently logged-in user)
+          let username = sessionStorage.getItem('username');
+          let email = sessionStorage.getItem('email');
+          let fullName = sessionStorage.getItem('full_name');
+
+          // ✅ Step 2: If not in session storage, fetch from backend (authoritative source)
+          if (!username) {
+            const response = await fetch('../../backend/api/user-profile.php?action=get', {
+              method: 'GET',
+              credentials: 'include'  // Important: send session cookies
+            });
+
+            if (!response.ok) {
+              if (response.status === 401) {
+                // Not authenticated - redirect to login
+                window.location.href = 'auth.html?mode=login';
+                return;
+              }
+              throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.success && data.user) {
+              username = data.user.username;
+              email = data.user.email;
+              fullName = data.user.full_name;
+
+              // Save to sessionStorage for future use
+              sessionStorage.setItem('username', username);
+              sessionStorage.setItem('email', email);
+              sessionStorage.setItem('full_name', fullName);
+            }
+          }
+
+          // ✅ Step 3: Display user info
+          if (username) {
+            document.getElementById('username').value = username;
+            if (email) document.getElementById('email').innerText = email;
+          }
+
+          // Load preferences
+          const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
         document.getElementById('auto-save').checked = prefs.autoSave !== false;
         document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
         document.getElementById('dark-theme').checked = prefs.darkTheme === true;
@@ -512,14 +549,52 @@
             window.setThemePreference(document.getElementById('dark-theme').checked);
         }
         
-        // Save profile
-        document.getElementById('profile-form').addEventListener('submit', (e) => {
+        // Save profile to backend
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const profile = {
-                username: document.getElementById('username').value
-            };
-            localStorage.setItem('reana_profile', JSON.stringify(profile));
-            showSuccess();
+            
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+              showSuccess('Username is required', 'error');
+              return;
+            }
+
+            try {
+              // ✅ Save to backend (authoritative)
+              const response = await fetch('../../backend/api/user-profile.php?action=update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                  username: username
+                })
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+
+              const data = await response.json();
+              if (data.success && data.user) {
+                // ✅ Update sessionStorage with new data
+                sessionStorage.setItem('username', data.user.username);
+                if (data.user.email) sessionStorage.setItem('email', data.user.email);
+                if (data.user.full_name) sessionStorage.setItem('full_name', data.user.full_name);
+
+                // Also save to localStorage for backward compatibility
+                localStorage.setItem('reana_profile', JSON.stringify({
+                  username: data.user.username
+                }));
+
+                showSuccess('Profile updated successfully!');
+              } else {
+                showSuccess(data.error || 'Failed to update profile', 'error');
+              }
+            } catch (error) {
+              console.error('Error updating profile:', error);
+              showSuccess('Error saving profile: ' + error.message, 'error');
+            }
         });
         
         // Save preferences on toggle
