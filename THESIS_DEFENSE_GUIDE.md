@@ -2,7 +2,7 @@
 
 ## **Opening Statement**
 
-> "REANA (Real Analysis Theorem-Proving System with AI) is an intelligent tutoring platform that helps students develop stronger Real Analysis proof-writing skills through AI-assisted guidance, natural language understanding, and interactive verification."
+> "Axio (Real Analysis Theorem-Proving System with AI) is an intelligent tutoring platform that helps students develop stronger Real Analysis proof-writing skills through AI-assisted guidance, natural language understanding, and interactive verification."
 
 ---
 
@@ -73,7 +73,7 @@
 > 2. **Immediate feedback** - Traditional courses provide feedback only after exams
 > 3. **Language barriers** - Students in multilingual contexts can't express proofs in their native language
 > 
-> REANA addresses all three by providing instant, AI-powered feedback on proofs written in any language, helping students iteratively improve their understanding."
+> Axio addresses all three by providing instant, AI-powered feedback on proofs written in any language, helping students iteratively improve their understanding."
 
 ---
 
