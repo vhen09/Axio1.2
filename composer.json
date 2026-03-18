@@ -1,0 +1,22 @@
+{
+  "name": "reana/lean4-ai-web-app",
+  "description": "REANA - Real Analysis Theorem Proving System with Lean4 and AI Tutoring",
+  "type": "project",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Backend\\": "backend/",
+      "Services\\": "backend/services/",
+      "Models\\": "backend/models/"
+    }
+  },
+  "minimum-stability": "stable",
+  "license": "MIT"
+}
