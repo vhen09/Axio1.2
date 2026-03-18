@@ -279,14 +279,14 @@
         <!-- Username -->
         <div class="form-group">
           <label>Username</label>
-          <input id="username" type="text" placeholder="Enter your username" required />
+          <input id="username" name="username" type="text" placeholder="Enter your username" required />
         </div>
 
         <!-- Password -->
         <div class="form-group">
           <label>Password</label>
           <div class="password-wrapper">
-            <input id="password" type="password" placeholder="Enter your password" required />
+            <input id="password" name="password" type="password" placeholder="Enter your password" required />
             <button type="button" class="password-toggle" id="toggle-password-btn" onclick="togglePasswordVisibility()" title="Show/hide password">
               <svg id="password-icon" viewBox="0 0 24 24">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -424,6 +424,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Apply theme preference
+      const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
+      if (prefs.darkTheme === true) {
+        document.documentElement.classList.add('theme-dark');
+        document.body.classList.add('theme-dark');
+      }
+
       document.getElementById('auth-form').addEventListener('submit', handleLogin);
       
       document.getElementById('forgot-password-link').addEventListener('click', (e) => {

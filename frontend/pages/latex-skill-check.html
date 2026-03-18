@@ -309,15 +309,29 @@
               credentials: 'include'
             });
             const skipData = await skipResponse.json();
+            console.log('Skip tutorial response:', skipData);
             if (skipData.success) {
               showMessage('Welcome back! Going to dashboard...', 'success');
+              // Delay to ensure backend updates
               setTimeout(() => {
                 window.location.href = 'dashboard.html';
-              }, 500);
+              }, 1000);
+              return;
+            } else {
+              console.error('Skip tutorial failed:', skipData);
+              // If skip_tutorial fails, still go to dashboard
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1000);
               return;
             }
           } catch (err) {
             console.error('Error skipping tutorial:', err);
+            // If API fails, still go to dashboard
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 1000);
+            return;
           }
         }
 
@@ -325,7 +339,7 @@
         showMessage('Preferences saved! Redirecting to tutorial...', 'success');
         setTimeout(() => {
           window.location.href = 'tutorial.html';
-        }, 500);
+        }, 1000);
       } catch (err) {
         console.error('Error saving preference:', err);
         // Continue anyway but use sessionStorage as fallback
