@@ -117,6 +117,33 @@ class Auth {
         session_destroy();
         return json_encode(['success' => true, 'message' => 'Logout successful.']);
     }
+
+    public function resetPassword($username, $newPassword) {
+        $username = trim((string)$username);
+        $newPassword = (string)$newPassword;
+
+        if ($username === '') {
+            return json_encode(['success' => false, 'message' => 'Username is required']);
+        }
+
+        if (strlen($newPassword) < 6) {
+            return json_encode(['success' => false, 'message' => 'Password must be at least 6 characters']);
+        }
+
+        if ($this->demoMode) {
+            return json_encode(['success' => true, 'message' => 'Password reset successful (demo mode)']);
+        }
+
+        $user = $this->user->findByUsername($username);
+        if (!$user) {
+            return json_encode(['success' => false, 'message' => 'Username not found']);
+        }
+
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $this->user->updatePassword($user['id'], $hashedPassword);
+        
+        return json_encode(['success' => true, 'message' => 'Password reset successful']);
+    }
 }
 
 // Example usage
@@ -156,6 +183,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo $auth->login($username, $password);
     } elseif ($action === 'logout') {
         echo $auth->logout();
+    } elseif ($action === 'reset_password') {
+        $username = $data['username'] ?? $_POST['username'] ?? '';
+        $newPassword = $data['newPassword'] ?? $_POST['newPassword'] ?? '';
+        echo $auth->resetPassword($username, $newPassword);
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
     }

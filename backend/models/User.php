@@ -132,4 +132,38 @@ class User {
             return false;
         }
     }
+
+    /**
+     * Update user password by user ID
+     */
+    public function updatePassword($userId, $hashedPassword) {
+        try {
+            $userId = (int)$userId;
+            
+            if ($userId <= 0) {
+                $this->lastError = 'Invalid user ID';
+                return false;
+            }
+            
+            $query = "UPDATE users SET password = ? WHERE id = ?";
+            $stmt = $this->connection->prepare($query);
+            
+            if (!$stmt) {
+                $errorInfo = $this->connection->errorInfo();
+                $this->lastError = 'Database error: ' . $errorInfo[2];
+                return false;
+            }
+            
+            if ($stmt->execute([$hashedPassword, $userId])) {
+                return true;
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                $this->lastError = 'Failed to update password: ' . $errorInfo[2];
+                return false;
+            }
+        } catch (Exception $e) {
+            $this->lastError = 'Exception: ' . $e->getMessage();
+            return false;
+        }
+    }
 }
