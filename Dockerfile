@@ -1,15 +1,15 @@
 FROM php:8.2-cli
 
-# Set working directory
+# Set working directory to axio2.0 where composer.json is located
 WORKDIR /app
 
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy entire project
-COPY . /app
+# Copy axio2.0 project
+COPY axio2.0/ /app/
 
-# Install PHP dependencies from root where composer.json is located
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Expose port
