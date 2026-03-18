@@ -1476,9 +1476,14 @@
       localStorage.removeItem('reana_proofs');
       localStorage.removeItem('reana_submissions');
       
-      // Flag landing.html to show login instead of redirecting
+      // Remove session tracking variables but keep logout flag
+      sessionStorage.removeItem('current_user_id');
+      sessionStorage.removeItem('new_user');
+      sessionStorage.removeItem('latex_skill_done');
+      sessionStorage.removeItem('tutorial_completed');
+      
+      // Flag landing.html to show login instead of redirecting (MUST be last)
       sessionStorage.setItem('just_logged_out', 'true');
-      sessionStorage.clear(); // Clear any cached user data
       
       window.location.href = 'welcome.html';
     }
