@@ -1179,7 +1179,7 @@
         }
         
         // Save updated proofs array to localStorage
-        saveJSON(KEYS.proofs, proofs);
+        setJSON(KEYS.proofs, proofs);
 
         const result = {
           cls: 'correct',
