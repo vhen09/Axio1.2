@@ -67,32 +67,39 @@ class Auth {
             return json_encode(['success' => true, 'message' => 'Demo mode: User registered successfully (not saved)', 'demo_mode' => true, 'user_id' => 1, 'username' => $username]);
         }
 
-        // Debug: Log registration attempt
-        error_log("=== REGISTRATION ATTEMPT ===");
-        error_log("Username: " . $username);
-        error_log("Demo mode: " . ($this->demoMode ? 'YES' : 'NO'));
+        // Comprehensive logging for signup debugging
+        error_log("==== SIGNUP REQUEST ====");
+        error_log("Username: '$username'");
+        error_log("Production mode: " . (!$this->demoMode ? 'YES' : 'NO'));
         
+        error_log("Checking username availability...");
         $existingUser = $this->user->findByUsername($username);
-        error_log("DB Lookup result: " . var_export($existingUser, true));
         
         if ($existingUser) {
-            error_log("Username '$username' already exists in database");
+            error_log("ERROR: Username '$username' already exists");
             return json_encode(['success' => false, 'message' => 'Username already exists. Please choose another one.']);
         }
         
-        error_log("Username '$username' is available, attempting creation...");
+        error_log("Username available - creating user...");
+        $createSuccess = $this->user->create($username, $password);
         
-        if ($this->user->create($username, $password)) {
+        if ($createSuccess) {
             $newUser = $this->user->findByUsername($username);
-            error_log("Account created successfully for '$username'");
-            return json_encode([
-                'success' => true, 
-                'message' => 'User registered successfully.',
-                'user_id' => $newUser['id'],
-                'username' => $newUser['username']
-            ]);
+            if ($newUser) {
+                error_log("SUCCESS: User created - ID: " . $newUser['id'] . ", Username: '$username'");
+                return json_encode([
+                    'success' => true, 
+                    'message' => 'User registered successfully.',
+                    'user_id' => $newUser['id'],
+                    'username' => $newUser['username']
+                ]);
+            } else {
+                error_log("ERROR: Create succeeded but user not found in DB");
+                return json_encode(['success' => false, 'message' => 'User created but verification failed.']);
+            }
         } else {
-            $modelError = method_exists($this->user, 'getLastError') ? $this->user->getLastError() : null;
+            $modelError = method_exists($this->user, 'getLastError') ? $this->user->getLastError() : 'Unknown error';
+            error_log("ERROR: User creation failed - " . $modelError);
             return json_encode(['success' => false, 'message' => $modelError ?: 'Registration failed.']);
         }
     }

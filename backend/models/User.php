@@ -66,25 +66,36 @@ class User {
             }
             
             // Check if username already exists
+            error_log("Checking if username '$username' already exists...");
             if ($this->findByUsername($username)) {
                 $this->lastError = 'Username already exists';
+                error_log("FAILED: Username '$username' already taken");
                 return false;
             }
             
+            error_log("Username available - hashing password...");
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             
             $query = "INSERT INTO users (username, password, created_at) VALUES (?, ?, NOW())";
+            error_log("Executing: INSERT INTO users (username, password, created_at)");
+            
             $stmt = $this->connection->prepare($query);
             
             if (!$stmt) {
                 $errorInfo = $this->connection->errorInfo();
                 $this->lastError = 'Database error: ' . $errorInfo[2];
+                error_log("FAILED to prepare statement: " . $this->lastError);
                 return false;
             }
             
-            if ($stmt->execute([$username, $hashedPassword])) {
-                $this->id = $this->connection->lastInsertId();
+            error_log("Statement prepared - executing INSERT for username '$username'...");
+            $executeResult = $stmt->execute([$username, $hashedPassword]);
+            
+            if ($executeResult) {
+                $newId = $this->connection->lastInsertId();
+                $this->id = $newId;
                 $this->username = $username;
+                error_log("SUCCESS: User saved to database - ID=$newId, Username='$username'");
                 
                 // Create default user preferences for new user
                 try {
@@ -92,10 +103,11 @@ class User {
                     $prefStmt = $this->connection->prepare($prefQuery);
                     if ($prefStmt) {
                         $prefStmt->execute([$this->id]);
+                        error_log("User preferences created for user $newId");
                     }
                 } catch (Exception $e) {
                     // Preferences creation failed but user was created, log it but continue
-                    error_log('Failed to create user preferences for user ' . $this->id . ': ' . $e->getMessage());
+                    error_log('Note: User preferences table missing or insert failed: ' . $e->getMessage());
                 }
                 
                 return true;
@@ -107,6 +119,7 @@ class User {
                 } else {
                     $this->lastError = 'Failed to create user: ' . $errorInfo[2];
                 }
+                error_log("FAILED to INSERT: " . json_encode($errorInfo));
                 return false;
             }
         } catch (Exception $e) {
