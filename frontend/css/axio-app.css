@@ -273,8 +273,20 @@ html, body { margin: 0; padding: 0; font-family: Inter, Segoe UI, Arial, sans-se
   background: #fff;
   padding: 10px;
   cursor: pointer;
+  color: #111827;
+  font-weight: 500;
 }
 .dropdown button:hover { background: #f1f5f9; }
+
+.theme-dark .dropdown button {
+  background: #0b1220 !important;
+  color: #e2e8f0 !important;
+  border: 0 !important;
+}
+.theme-dark .dropdown button:hover {
+  background: #1f2937 !important;
+  color: #f1f5f9 !important;
+}
 
 .workspace {
   display: grid;
