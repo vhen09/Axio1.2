@@ -297,8 +297,9 @@
         sessionStorage.setItem('latex_skill_level', skillLevel);
 
         // If user is familiar with LaTeX (advanced), skip tutorial entirely
+        // If user is advanced (knows LaTeX), skip the tutorial
         if (skillLevel === 'advanced') {
-          console.log('User is advanced in LaTeX - skipping tutorial');
+          console.log('User is advanced in LaTeX - marking tutorial as skipped');
           try {
             const skipResponse = await fetch('../../backend/api/user-preferences.php', {
               method: 'POST',
@@ -310,35 +311,18 @@
             });
             const skipData = await skipResponse.json();
             console.log('Skip tutorial response:', skipData);
-            if (skipData.success) {
-              showMessage('Welcome back! Going to dashboard...', 'success');
-              // Delay to ensure backend updates
-              setTimeout(() => {
-                window.location.href = 'dashboard.html';
-              }, 1000);
-              return;
-            } else {
-              console.error('Skip tutorial failed:', skipData);
-              // If skip_tutorial fails, still go to dashboard
-              setTimeout(() => {
-                window.location.href = 'dashboard.html';
-              }, 1000);
-              return;
-            }
+            // Continue regardless of result - go to landing.html which will route correctly
           } catch (err) {
             console.error('Error skipping tutorial:', err);
-            // If API fails, still go to dashboard
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 1000);
-            return;
+            // Continue anyway
           }
         }
 
-        // Beginner users need tutorial
-        showMessage('Preferences saved! Redirecting to tutorial...', 'success');
+        // Save message and redirect to landing.html
+        // landing.html will check updated onboarding status and route to dashboard/tutorial
+        showMessage('Preferences saved! Redirecting...', 'success');
         setTimeout(() => {
-          window.location.href = 'tutorial.html';
+          window.location.href = 'landing.html';
         }, 1000);
       } catch (err) {
         console.error('Error saving preference:', err);
