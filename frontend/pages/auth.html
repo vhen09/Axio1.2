@@ -582,16 +582,7 @@
         return;
       }
 
-      showMessage('Checking username availability...', 'success');
-      const isAvailable = await checkUsernameAvailability(username);
-      
-      if (isAvailable === false) {
-        showMessage('Username already taken. Please choose another one.');
-        return;
-      } else if (isAvailable === null) {
-        showMessage('Could not verify username. Please try again.');
-        return;
-      }
+      showMessage('Creating account...', 'success');
 
       try {
         const response = await fetch('../../backend/api/auth.php', {
