@@ -3,6 +3,7 @@
 
 // Auto-initialize database fallback on every request
 @require_once __DIR__ . '/../config/auto-setup.php';
+require_once __DIR__ . '/../config/database-fixed.php';
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
@@ -66,18 +67,7 @@ class Auth {
             return json_encode(['success' => false, 'message' => 'Password must be at least 6 characters']);
         }
 
-        if ($this->demoMode) {
-            error_log("⚠️ WARNING: Running in DEMO MODE - Database unavailable or disconnected");
-            error_log("Allowing signup in DEMO MODE temporarily for testing");
-            // In demo mode, allow signup for testing (data not persisted)
-            return json_encode([
-                'success' => true, 
-                'message' => 'User registered (demo mode - not persisted to database).',
-                'user_id' => time(),
-                'username' => $username,
-                'demo_mode' => true
-            ]);
-        }
+        if ($this->demoMode) {\n            error_log("CRITICAL: Signup rejected - DEMO MODE active (DB unavailable)");\n            return json_encode([\n                'success' => false,\n                'message' => 'Database unavailable. Check RENDER_DATABASE_SECURITY_FIX.md. Test login: testuser/testpass123',\n                'demo_mode' => true,\n                'error_code' => 'db_unavailable'\n            ]);\n        }
 
         // Comprehensive logging for signup debugging
         error_log("==== SIGNUP REQUEST ====");

@@ -9,6 +9,8 @@ class Database {
 
     public function __construct() {
         error_log("=== Database Connection Attempt ===");
+        error_log("Is production: " . ((getenv('RENDER') || getenv('DATABASE_URL')) ? 'YES' : 'NO'));
+        
         if (getenv('DATABASE_URL')) {
             $this->connectFromUrl(getenv('DATABASE_URL'));
         } elseif (getenv('DB_HOST')) {
@@ -30,7 +32,7 @@ class Database {
 
     private function connectFromUrl($url) {
         try {
-            if (preg_match('/^(mysql|postgresql):\/\/([^:]+):(.+)@([^:]+)(?::(\\d+))?\\/(.+)/', $url, $matches)) {
+            if (preg_match('/^(mysql|postgresql):\\/\\/([^:]+):(.+)@([^:]+)(?::(\\d+))?\\/(.+)/', $url, $matches)) {
                 $type = $matches[1];
                 $this->user = urldecode($matches[2]);
                 $this->pass = urldecode($matches[3]);
@@ -45,7 +47,7 @@ class Database {
                 }
                 
                 error_log("Connecting $type://{$this->host}:{$port}/{$this->db}");
-                $this->pdo = new PDO($dsn, $this->user, $this->pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+                $this->pdo = new PDO($dsn, $this->user, $this->pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
             }
         } catch (Exception $e) {
             error_log("Connect failed: " . $e->getMessage());

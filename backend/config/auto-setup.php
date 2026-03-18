@@ -16,7 +16,7 @@ if ($lockAge < 3600) {
 @touch($setupLockFile);
 
 try {
-    require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/../config/database-fixed.php';
     $db = new Database();
     $pdo = $db->getConnection();
     
