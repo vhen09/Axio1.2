@@ -115,7 +115,8 @@ try {
 
     if (!$db) {
         http_response_code(503);
-        echo json_encode(['success' => false, 'error' => 'Database is unavailable']);
+        error_log('Analytics API: Database connection failed');
+        echo json_encode(['success' => false, 'error' => 'Database is unavailable. Please try again later or contact support.']);
         exit();
     }
 

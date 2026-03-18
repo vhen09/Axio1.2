@@ -192,8 +192,9 @@ try {
         http_response_code(503);
         echo json_encode([
             'success' => false,
-            'error' => 'Database is unavailable'
+            'error' => 'Database is unavailable. Please ensure your database is configured properly and accessible. Contact support if the issue persists.'
         ]);
+        error_log('Submissions API: Database connection failed');
         exit();
     }
 
@@ -517,9 +518,10 @@ try {
     ]);
 } catch (Exception $e) {
     http_response_code(500);
+    error_log('Submissions API Error: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => 'Failed to save proof. ' . $e->getMessage() . '. Please try again or contact support if the issue persists.'
     ]);
 }
 ?>

@@ -8,6 +8,45 @@ class Database {
     private $demoMode = false;
 
     public function __construct() {
+        // Check for environment variables (Render, production, etc.)
+        if (isset($_ENV['DATABASE_URL']) || getenv('DATABASE_URL')) {
+            $this->connectFromUrl(getenv('DATABASE_URL') ?: $_ENV['DATABASE_URL']);
+        } elseif (isset($_ENV['DB_HOST']) || getenv('DB_HOST')) {
+            $this->host = getenv('DB_HOST') ?: $_ENV['DB_HOST'];
+            $this->db = getenv('DB_NAME') ?: $_ENV['DB_NAME'] ?? 'lean4_ai_app';
+            $this->user = getenv('DB_USER') ?: $_ENV['DB_USER'] ?? 'root';
+            $this->pass = getenv('DB_PASS') ?: $_ENV['DB_PASS'] ?? '';
+            $this->connectWithCredentials();
+        } else {
+            // Fallback to localhost for local development
+            $this->connectWithCredentials();
+        }
+    }
+
+    private function connectFromUrl($url) {
+        try {
+            // Parse DATABASE_URL: mysql://user:password@host:port/dbname
+            if (preg_match('/^mysql:\/\/([^:]+):(.*)@([^:\/]+)(?::(\d+))?\/(.+)$/', $url, $matches)) {
+                $this->user = urldecode($matches[1]);
+                $this->pass = urldecode($matches[2]);
+                $this->host = $matches[3];
+                $port = $matches[4] ?? 3306;
+                $this->db = $matches[5];
+                
+                $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db};charset=utf8mb4";
+                $this->pdo = new PDO($dsn, $this->user, $this->pass, 
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+            } else {
+                throw new Exception('Invalid DATABASE_URL format');
+            }
+        } catch (PDOException | Exception $e) {
+            $this->demoMode = true;
+            error_log('Database connection failed with URL, running in DEMO MODE: ' . $e->getMessage());
+        }
+    }
+
+    private function connectWithCredentials() {
         try {
             $this->pdo = new PDO(
                 "mysql:host={$this->host};dbname={$this->db};charset=utf8mb4", 
