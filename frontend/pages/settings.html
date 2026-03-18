@@ -417,8 +417,6 @@
     <script>
         // Load saved settings
         document.addEventListener('DOMContentLoaded', () => {
-            // Check authentication after page loads
-            apiClient.checkAuthAndRedirect();
             // Load profile from localStorage
             const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
             if (savedProfile.username) document.getElementById('username').value = savedProfile.username;

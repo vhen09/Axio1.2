@@ -575,12 +575,22 @@
   </main>
 
   <script>
+    // Prevent multiple auth checks
+    let authCheckRunning = false;
+    
     function navigateTo(page) {
       window.location.href = page;
     }
 
     // Check if user is already logged in and get their onboarding status
     function checkAuth() {
+      // Prevent multiple concurrent auth checks
+      if (authCheckRunning) {
+        console.log('Auth check already running, skipping...');
+        return;
+      }
+      authCheckRunning = true;
+      
       console.log('Landing page: Checking if already authenticated...');
       
       // Create abort controller with 5 second timeout
