@@ -50,8 +50,9 @@ try {
                     'user' => [
                         'id' => $user_id,
                         'username' => $_SESSION['username'] ?? 'demouser',
-                        'email' => 'demo@example.com',
-                        'full_name' => $_SESSION['username'] ?? 'Demo User',
+                        'email' => $_SESSION['email'] ?? 'demo@example.com',
+                        'first_name' => $_SESSION['first_name'] ?? 'Demo',
+                        'last_name' => $_SESSION['last_name'] ?? 'User',
                         'created_at' => date('Y-m-d H:i:s')
                     ]
                 ]);
@@ -59,7 +60,7 @@ try {
             }
 
             $stmt = $db->getConnection()->prepare(
-                "SELECT id, username, email, full_name, created_at FROM users WHERE id = ?"
+                "SELECT id, username, email, first_name, last_name, created_at FROM users WHERE id = ?"
             );
             $stmt->execute([$user_id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -108,9 +109,13 @@ try {
                 $updateFields[] = 'email = ?';
                 $updateValues[] = $data['email'];
             }
-            if (isset($data['full_name'])) {
-                $updateFields[] = 'full_name = ?';
-                $updateValues[] = $data['full_name'];
+            if (isset($data['first_name'])) {
+                $updateFields[] = 'first_name = ?';
+                $updateValues[] = $data['first_name'];
+            }
+            if (isset($data['last_name'])) {
+                $updateFields[] = 'last_name = ?';
+                $updateValues[] = $data['last_name'];
             }
             if (isset($data['username'])) {
                 // Check if username is already taken
@@ -136,13 +141,16 @@ try {
 
             // Fetch updated user
             $stmt = $db->getConnection()->prepare(
-                "SELECT id, username, email, full_name FROM users WHERE id = ?"
+                "SELECT id, username, email, first_name, last_name FROM users WHERE id = ?"
             );
             $stmt->execute([$user_id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // Update session
             $_SESSION['username'] = $user['username'];
+            if (isset($user['first_name'])) $_SESSION['first_name'] = $user['first_name'];
+            if (isset($user['last_name'])) $_SESSION['last_name'] = $user['last_name'];
+            if (isset($user['email'])) $_SESSION['email'] = $user['email'];
 
             echo json_encode([
                 'success' => true,

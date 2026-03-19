@@ -50,10 +50,13 @@ class User {
     /**
      * Create a new user in the database
      */
-    public function create($username, $password) {
+    public function create($username, $password, $firstName = '', $lastName = '', $email = '') {
         try {
             $username = trim((string)$username);
             $password = (string)$password;
+            $firstName = trim((string)$firstName);
+            $lastName = trim((string)$lastName);
+            $email = trim((string)$email);
             
             if (strlen($username) < 3) {
                 $this->lastError = 'Username must be at least 3 characters';
@@ -76,8 +79,8 @@ class User {
             error_log("Username available - hashing password...");
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             
-            $query = "INSERT INTO users (username, password, created_at) VALUES (?, ?, NOW())";
-            error_log("Executing: INSERT INTO users (username, password, created_at)");
+            $query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+            error_log("Executing: INSERT INTO users (username, password, first_name, last_name, email, created_at)");
             
             $stmt = $this->connection->prepare($query);
             
@@ -89,12 +92,13 @@ class User {
             }
             
             error_log("Statement prepared - executing INSERT for username '$username'...");
-            $executeResult = $stmt->execute([$username, $hashedPassword]);
+            $executeResult = $stmt->execute([$username, $hashedPassword, $firstName, $lastName, $email]);
             
             if ($executeResult) {
                 $newId = $this->connection->lastInsertId();
                 $this->id = $newId;
                 $this->username = $username;
+                $this->email = $email;
                 error_log("SUCCESS: User saved to database - ID=$newId, Username='$username'");
                 
                 // Create default user preferences for new user
@@ -143,7 +147,7 @@ class User {
                 return false;
             }
             
-            $query = "SELECT id, username, password FROM users WHERE username = ? LIMIT 1";
+            $query = "SELECT id, username, password, first_name, last_name, email FROM users WHERE username = ? LIMIT 1";
             error_log("SQL Query: " . $query);
             error_log("Parameter: " . $username);
             
@@ -168,6 +172,7 @@ class User {
                     $this->id = $row['id'];
                     $this->username = $row['username'];
                     $this->password = $row['password'];
+                    $this->email = $row['email'] ?? '';
                     error_log("Object set: id={$this->id}, username={$this->username}");
                     return $row;
                 }

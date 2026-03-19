@@ -53,9 +53,12 @@ class Auth {
         return json_encode(['success' => true, 'available' => !$exists]);
     }
 
-    public function register($username, $password) {
+    public function register($username, $password, $firstName = '', $lastName = '', $email = '') {
         $username = trim((string)$username);
         $password = (string)$password;
+        $firstName = trim((string)$firstName);
+        $lastName = trim((string)$lastName);
+        $email = trim((string)$email);
 
         if (strlen($username) < 3) {
             return json_encode(['success' => false, 'message' => 'Username must be at least 3 characters']);
@@ -79,6 +82,9 @@ class Auth {
         // Comprehensive logging for signup debugging
         error_log("==== SIGNUP REQUEST ====");
         error_log("Username: '$username'");
+        error_log("First Name: '$firstName'");
+        error_log("Last Name: '$lastName'");
+        error_log("Email: '$email'");
         error_log("Production mode: " . (!$this->demoMode ? 'YES' : 'NO'));
         
         error_log("Checking username availability...");
@@ -90,7 +96,7 @@ class Auth {
         }
         
         error_log("Username available - creating user...");
-        $createSuccess = $this->user->create($username, $password);
+        $createSuccess = $this->user->create($username, $password, $firstName, $lastName, $email);
         
         if ($createSuccess) {
             $newUser = $this->user->findByUsername($username);
@@ -100,7 +106,10 @@ class Auth {
                     'success' => true, 
                     'message' => 'User registered successfully.',
                     'user_id' => $newUser['id'],
-                    'username' => $newUser['username']
+                    'username' => $newUser['username'],
+                    'first_name' => $newUser['first_name'] ?? $firstName,
+                    'last_name' => $newUser['last_name'] ?? $lastName,
+                    'email' => $newUser['email'] ?? $email
                 ]);
             } else {
                 error_log("ERROR: Create succeeded but user not found in DB");
@@ -171,7 +180,10 @@ class Auth {
             'success' => true, 
             'message' => 'Login successful.', 
             'user_id' => $user['id'], 
-            'username' => $user['username']
+            'username' => $user['username'],
+            'first_name' => $user['first_name'] ?? '',
+            'last_name' => $user['last_name'] ?? '',
+            'email' => $user['email'] ?? ''
         ]);
     }
 
@@ -282,7 +294,10 @@ try {
         if ($action === 'register' || $action === 'signup' || $action === 'sign_up') {
             $username = $data['username'] ?? $_POST['username'] ?? '';
             $password = $data['password'] ?? $_POST['password'] ?? '';
-            echo $auth->register($username, $password);
+            $firstName = $data['first_name'] ?? $_POST['first_name'] ?? '';
+            $lastName = $data['last_name'] ?? $_POST['last_name'] ?? '';
+            $email = $data['email'] ?? $_POST['email'] ?? '';
+            echo $auth->register($username, $password, $firstName, $lastName, $email);
         } elseif ($action === 'check_username') {
             $username = $data['username'] ?? $_POST['username'] ?? '';
             echo $auth->checkUsernameAvailable($username);

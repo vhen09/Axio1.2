@@ -362,12 +362,20 @@
                     <h2>Profile Settings</h2>
                     <form id="profile-form">
                         <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                            <label for="firstname">First Name</label>
+                            <input type="text" id="firstname" name="first_name" placeholder="Enter your first name">
                         </div>
                         <div class="form-group">
-                            <label for="full-name">Full Name</label>
-                            <input type="text" id="full-name" name="full_name" placeholder="Enter your full name">
+                            <label for="lastname">Last Name</label>
+                            <input type="text" id="lastname" name="last_name" placeholder="Enter your last name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email address">
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
                         </div>
                         <button type="submit" class="btn-save"> Save Profile</button>
                     </form>
@@ -482,9 +490,10 @@
       document.addEventListener('DOMContentLoaded', async () => {
         try {
           // ✅ Step 1: Try sessionStorage first (currently logged-in user)
-          let username = sessionStorage.getItem('username');
+          let firstName = sessionStorage.getItem('first_name');
+          let lastName = sessionStorage.getItem('last_name');
           let email = sessionStorage.getItem('email');
-          let fullName = sessionStorage.getItem('full_name');
+          let username = sessionStorage.getItem('username');
 
           // ✅ Step 2: If not in session storage, fetch from backend (authoritative source)
           if (!username) {
@@ -504,23 +513,24 @@
 
             const data = await response.json();
             if (data.success && data.user) {
+              firstName = data.user.first_name;
+              lastName = data.user.last_name;
               username = data.user.username;
               email = data.user.email;
-              fullName = data.user.full_name;
 
               // Save to sessionStorage for future use
+              sessionStorage.setItem('first_name', firstName);
+              sessionStorage.setItem('last_name', lastName);
               sessionStorage.setItem('username', username);
-              sessionStorage.setItem('email', email);
-              sessionStorage.setItem('full_name', fullName);
+              sessionStorage.setItem('email', email || '');
             }
           }
 
           // ✅ Step 3: Display user info
-          if (username) {
-            document.getElementById('username').value = username;
-            if (email) document.getElementById('email').value = email;
-            if (fullName) document.getElementById('full-name').value = fullName;
-          }
+          if (firstName) document.getElementById('firstname').value = firstName;
+          if (lastName) document.getElementById('lastname').value = lastName;
+          if (email) document.getElementById('email').value = email;
+          if (username) document.getElementById('username').value = username;
 
           // Load preferences
           const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
@@ -542,9 +552,10 @@
         document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
+            const firstName = document.getElementById('firstname').value.trim();
+            const lastName = document.getElementById('lastname').value.trim();
             const email = document.getElementById('email').value.trim();
-            const fullName = document.getElementById('full-name').value.trim();
+            const username = document.getElementById('username').value.trim();
             
             if (!username) {
               showSuccess('Username is required', true);
@@ -559,8 +570,9 @@
                 credentials: 'include',
                 body: JSON.stringify({
                   username: username,
-                  email: email,
-                  full_name: fullName
+                  first_name: firstName,
+                  last_name: lastName,
+                  email: email
                 })
               });
 
@@ -571,13 +583,16 @@
               const data = await response.json();
               if (data.success && data.user) {
                 // ✅ Update sessionStorage with new data
+                sessionStorage.setItem('first_name', data.user.first_name || '');
+                sessionStorage.setItem('last_name', data.user.last_name || '');
+                sessionStorage.setItem('email', data.user.email || '');
                 sessionStorage.setItem('username', data.user.username);
-                if (data.user.email) sessionStorage.setItem('email', data.user.email);
-                if (data.user.full_name) sessionStorage.setItem('full_name', data.user.full_name);
 
                 // Also save to localStorage for backward compatibility
                 localStorage.setItem('reana_profile', JSON.stringify({
-                  username: data.user.username
+                  username: data.user.username,
+                  first_name: data.user.first_name,
+                  last_name: data.user.last_name
                 }));
 
                 showSuccess('✓ Profile updated successfully!');
