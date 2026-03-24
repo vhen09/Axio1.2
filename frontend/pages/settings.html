@@ -1,640 +1,1103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings -AXIO</title>
-    <link rel="stylesheet" href="../css/axio-app.css">
-  <link rel="stylesheet" href="../css/enhanced-ui.css">
-  <link rel="stylesheet" href="../css/dark-mode.css">
-  <link rel="stylesheet" href="../css/proof-modes.css">
-  <script src="../js/dark-mode-manager.js"></script>>
-    <style>
-        .sidebar-header {
-            display: none;
-        }
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #e6fffb;
-            text-decoration: none;
-            padding: 10px 12px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-        .sidebar .nav-item.active {
-            background: rgba(255, 255, 255, 0.16);
-            border-left: 4px solid #86efac;
-        }
-        .sidebar .nav-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-        .main-area {
-            padding: 22px;
-        }
-        .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .page-header {
-            background: #ffffff;
-            border: 1px solid rgba(30, 58, 138, 0.2);
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
-        }
-        .page-header h1 {
-            color: #1E3A8A;
-            margin: 0 0 10px 0;
-        }
-        .page-header p {
-            color: #111827;
-            margin: 0;
-        }
-        .settings-grid {
-            display: grid;
-            gap: 20px;
-        }
-        .settings-section {
-            background: #ffffff;
-            border: 1px solid rgba(30, 58, 138, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
-        }
-        .settings-section h2 {
-            color: #1E3A8A;
-            margin: 0 0 20px 0;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            color: #111827;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            background: #ffffff;
-            border: 1px solid rgba(30, 58, 138, 0.24);
-            border-radius: 6px;
-            color: #111827;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #1E3A8A;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.16);
-        }
-        .btn-save {
-            padding: 12px 30px;
-            background: #059669;
-            color: #ffffff;
-            border: 1px solid #059669;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-save:hover {
-            transform: translateY(-2px);
-            background: #047857;
-            border-color: #047857;
-            box-shadow: 0 6px 20px rgba(17, 24, 39, 0.14);
-        }
-        .btn-danger {
-            padding: 12px 30px;
-            background: #FBBF24;
-            color: #111827;
-            border: 1px solid #FBBF24;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(17, 24, 39, 0.14);
-        }
-        .shortcuts-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .shortcuts-table th, .shortcuts-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid rgba(30, 58, 138, 0.16);
-            vertical-align: middle;
-        }
-        .shortcuts-table th {
-            color: #1E3A8A;
-            font-weight: bold;
-        }
-        .shortcuts-table td {
-            color: #111827;
-        }
-        .shortcut-key {
-            background: #F3F4F6;
-            border: 1px solid rgba(30, 58, 138, 0.2);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #1E3A8A;
-            font-size: 0.95rem;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #F3F4F6;
-            transition: .4s;
-            border-radius: 34px;
-            border: 1px solid rgba(30, 58, 138, 0.24);
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #059669;
-            border-color: #059669;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .preference-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(30, 58, 138, 0.16);
-        }
-        .preference-item:last-child {
-            border-bottom: none;
-        }
-        .preference-label {
-            color: #111827;
-            line-height: 1.5;
-        }
-        .preference-label small {
-            display: block;
-            color: #111827;
-            margin-top: 5px;
-            opacity: 0.75;
-        }
-        .success-message {
-            background: rgba(5, 150, 105, 0.12);
-            border: 1px solid rgba(5, 150, 105, 0.4);
-            color: #111827;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXIO - Settings</title>
+  <link rel="stylesheet" href="../css/axio-app.css" />
+  <link rel="stylesheet" href="../css/toast-notifications.css" />
+  <style>
+    .settings-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px 40px 20px;
+    }
 
-        .theme-dark .page-header,
-        .theme-dark .settings-section {
-            background: #0b1220 !important;
-            border-color: rgba(148, 163, 184, 0.35) !important;
-            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45) !important;
-        }
-        .theme-dark .page-header h1,
-        .theme-dark .settings-section h2,
-        .theme-dark .shortcut-key,
-        .theme-dark .shortcuts-table th {
-            color: #c7d2fe !important;
-        }
-        .theme-dark .page-header p,
-        .theme-dark .form-group label,
-        .theme-dark .preference-label,
-        .theme-dark .preference-label small,
-        .theme-dark .shortcuts-table td,
-        .theme-dark .success-message {
-            color: #e2e8f0 !important;
-        }
-        .theme-dark .form-group input,
-        .theme-dark .form-group select {
-            background: #111827 !important;
-            color: #e2e8f0 !important;
-            border-color: rgba(148, 163, 184, 0.35) !important;
-        }
-        .theme-dark .form-group input:focus,
-        .theme-dark .form-group select:focus {
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22) !important;
-        }
-        .theme-dark .shortcut-key {
-            background: #1f2937 !important;
-            border-color: rgba(148, 163, 184, 0.35) !important;
-        }
-        .theme-dark .shortcuts-table th,
-        .theme-dark .shortcuts-table td,
-        .theme-dark .preference-item {
-            border-color: rgba(148, 163, 184, 0.22) !important;
-        }
-        .theme-dark .slider {
-            background-color: #475569 !important;
-            border-color: rgba(148, 163, 184, 0.35) !important;
-        }
-        .theme-dark .slider:before {
-            background-color: #e2e8f0 !important;
-        }
-        .theme-dark input:checked + .slider {
-            background-color: #10b981 !important;
-            border-color: #10b981 !important;
-        }
-        .theme-dark .btn-save,
-        .theme-dark .btn-danger {
-            box-shadow: none !important;
-        }
-        .theme-dark .page-header {
-            background: linear-gradient(180deg, #0f1b34 0%, #0b1220 100%) !important;
-            position: relative;
-            z-index: 10;
-        }
-    </style>
+    .settings-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .settings-section h2 {
+      margin: 0 0 20px 0;
+      color: #1f2937;
+      font-size: 1.25em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .setting-label {
+      flex: 1;
+    }
+
+    .setting-label strong {
+      display: block;
+      color: #1f2937;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .setting-label small {
+      color: #6b7280;
+      font-size: 0.9em;
+    }
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 54px;
+      height: 28px;
+      background: #d1d5db;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+      padding: 0;
+    }
+
+    .toggle-switch:hover {
+      background: #bfdbfe;
+    }
+
+    .toggle-switch.enabled {
+      background: #10b981;
+    }
+
+    .toggle-switch.enabled:hover {
+      background: #059669;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: left 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-switch.enabled::after {
+      left: 29px;
+    }
+
+    /* Button Group (for theme selection) */
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      padding: 8px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+
+    .button-group button:hover {
+      border-color: #1e3a8a;
+      background: #f3f4f6;
+    }
+
+    .button-group button.active {
+      background: #1e3a8a;
+      color: white;
+      border-color: #1e3a8a;
+    }
+
+    /* Select Dropdown */
+    select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.95em;
+      cursor: pointer;
+      background: white;
+      color: #374151;
+    }
+
+    select:hover {
+      border-color: #1e3a8a;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+
+    /* Dark Mode Styles */
+    .theme-dark .settings-section {
+      background: #1f2937;
+      border-color: #374151;
+    }
+
+    .theme-dark .settings-section h2 {
+      color: #f3f4f6;
+    }
+
+    .theme-dark .setting-label strong {
+      color: #f3f4f6;
+    }
+
+    .theme-dark .setting-label small {
+      color: #d1d5db;
+    }
+
+    .theme-dark .setting-item {
+      border-bottom-color: #374151;
+    }
+
+    .theme-dark select {
+      background: #374151;
+      color: #f3f4f6;
+      border-color: #4b5563;
+    }
+
+    .theme-dark select:hover {
+      border-color: #3b82f6;
+    }
+
+    .theme-dark .button-group button {
+      background: #374151;
+      color: #f3f4f6;
+      border-color: #4b5563;
+    }
+
+    .theme-dark .button-group button:hover {
+      background: #4b5563;
+      border-color: #3b82f6;
+    }
+
+    .theme-dark .button-group button.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    .theme-dark .toggle-switch {
+      background: #4b5563;
+    }
+
+    .theme-dark .toggle-switch:hover {
+      background: #5a6672;
+    }
+
+    .theme-dark .toggle-switch.enabled {
+      background: #10b981;
+    }
+
+    /* About & Tutorial Section Dark Mode */
+    .theme-dark .settings-section ul {
+      color: #d1d5db;
+    }
+
+    .theme-dark .settings-section p {
+      color: #e2e8f0;
+    }
+
+    .theme-dark .settings-section span {
+      color: #d1d5db;
+    }
+
+    /* Help & Tutorial Button Styles */
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #d1d5db;
+      color: #1e3a8a;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    .btn-ghost:hover {
+      border-color: #1e3a8a;
+      background: #f3f4f6;
+    }
+
+    .theme-dark .btn-ghost {
+      border-color: #4b5563;
+      color: #3b82f6;
+    }
+
+    .theme-dark .btn-ghost:hover {
+      background: #374151;
+      border-color: #3b82f6;
+    }
+
+    #link-scoring-info,
+    #link-feedback {
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95em;
+      transition: all 0.2s;
+    }
+
+    #link-scoring-info:hover,
+    #link-feedback:hover {
+      color: #1e40af;
+      text-decoration: underline;
+    }
+
+    .theme-dark #link-scoring-info,
+    .theme-dark #link-feedback {
+      color: #3b82f6;
+    }
+
+    .theme-dark #link-scoring-info:hover,
+    .theme-dark #link-feedback:hover {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .settings-container {
+        padding: 0 12px 30px 12px;
+      }
+
+      .settings-section {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px 0;
+      }
+
+      .setting-control {
+        width: 100%;
+        margin-top: 12px;
+        justify-content: space-between;
+      }
+
+      select {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .button-group {
+        width: 100%;
+      }
+
+      .button-group button {
+        flex: 1;
+        min-width: 0;
+      }
+
+      #btn-start-tutorial,
+      #btn-skip-tutorial {
+        width: 100%;
+      }
+    }
+
+    /* Domain Cards Grid Styling */
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .domain-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.3s ease;
+      text-align: center;
+      user-select: none;
+    }
+
+    .domain-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+      transform: translateY(-4px);
+    }
+
+    .domain-card input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      cursor: pointer;
+    }
+
+    .domain-card input[type="checkbox"]:checked + .domain-content {
+      color: #1e3a8a;
+    }
+
+    .domain-card input[type="checkbox"]:checked {
+      accent-color: #10b981;
+    }
+
+    .domain-card input[type="checkbox"]:checked ~ .domain-badge {
+      background: #10b981;
+      color: white;
+    }
+
+    .domain-card.domain-card-primary {
+      background: linear-gradient(135deg, #f0fdf4 0%, #f0fdf4 100%);
+      border-color: #10b981;
+    }
+
+    .domain-card.domain-card-primary:hover {
+      border-color: #059669;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+    }
+
+    .domain-card.domain-card-primary input[type="checkbox"] {
+      accent-color: #10b981;
+    }
+
+    .domain-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s ease;
+    }
+
+    .domain-icon {
+      font-size: 2.5em;
+      line-height: 1;
+      height: 3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .domain-title {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 0.95em;
+      line-height: 1.3;
+    }
+
+    .domain-desc {
+      font-size: 0.75em;
+      color: #6b7280;
+      line-height: 1.3;
+      max-width: 140px;
+    }
+
+    .domain-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #dbeafe;
+      color: #1e3a8a;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    /* Dark Mode - Domain Cards */
+    .theme-dark .domain-card {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .theme-dark .domain-card:hover {
+      border-color: #60a5fa;
+      box-shadow: 0 8px 24px rgba(96, 165, 250, 0.15);
+    }
+
+    .theme-dark .domain-title {
+      color: #f3f4f6;
+    }
+
+    .theme-dark .domain-desc {
+      color: #d1d5db;
+    }
+
+    .theme-dark .domain-card.domain-card-primary {
+      background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+      border-color: #10b981;
+    }
+
+    .theme-dark .domain-card.domain-card-primary:hover {
+      border-color: #6ee7b7;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    }
+
+    .theme-dark .domain-badge {
+      background: #065f46;
+      color: #a7f3d0;
+    }
+
+    /* Responsive - Domain Cards */
+    @media (max-width: 1024px) {
+      .domains-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .domains-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .domain-card {
+        padding: 16px 12px;
+      }
+
+      .domain-icon {
+        font-size: 2em;
+      }
+
+      .domain-title {
+        font-size: 0.9em;
+      }
+
+      .domain-desc {
+        font-size: 0.7em;
+      }
+
+      .domain-badge {
+        font-size: 0.65em;
+        padding: 3px 6px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .domains-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .domain-card {
+        padding: 12px 8px;
+      }
+
+      .domain-icon {
+        font-size: 1.8em;
+      }
+
+      .domain-title {
+        font-size: 0.85em;
+      }
+
+      .domain-desc {
+        font-size: 0.65em;
+        max-width: 100%;
+      }
+    }
+  </style>
 </head>
-<body>
-    <!-- 3D Math Background -->
-    <div class="math-background">
-        <span class="math-symbol">∫</span>
-        <span class="math-symbol">∂</span>
-        <span class="math-symbol">∑</span>
-        <span class="math-symbol">∞</span>
-        <span class="math-symbol">λ</span>
-        <span class="math-symbol">∀</span>
-        <span class="math-symbol">∃</span>
-        <span class="math-symbol">∈</span>
-        <span class="math-symbol">→</span>
-        <span class="math-symbol">⇒</span>
-        <span class="math-symbol">⇔</span>
-        <span class="math-symbol">√</span>
-        <span class="math-symbol">∆</span>
-        <span class="math-symbol">∇</span>
-        <span class="math-symbol">∮</span>
-    </div>
-    
-    <!-- Particles -->
-    <div class="particles">
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-    </div>
-
-    <div class="app">
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">AXIO</div>
-        <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">◈ Unified Proof Workspace</a>
-            <a href="submissions.html" class="nav-item">⌁ My Proofs</a>
-            <a href="scores.html" class="nav-item">⌗ Scores</a>
-            <a href="settings.html" class="nav-item active">⚙ Settings</a>
-        </nav>
+<body data-page="settings">
+  <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+  <div class="app">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">AXIO</div>
+      <a class="nav-link" href="dashboard.html">◈ Unified Proof Workspace</a>
+      <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link" href="scores.html">⌗ Scores</a>
+      <a class="nav-link" href="math-symbols-tutorial.html">Σ Math Symbols & Tutorial</a>
+      <a class="nav-link active" href="settings.html">⚙ Settings</a>
+      <a class="nav-link" href="learn-latex.html">? LaTeX Guide</a>
+      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
     </aside>
-    
-    <main class="main-area main">
-        <div class="main-content">
-            <div class="topbar">
-                <div class="title">
-                    <h1>AI Proof Tutor</h1>
-                    <p>Settings</p>
-                </div>
-                <div class="actions">
-                    <a class="btn" href="dashboard.html">Back to Workspace</a>
-                </div>
-            </div>
-            <div class="page-header">
-                <h1> Settings & Preferences</h1>
-                <p>Customize your AXIO experience</p>
-            </div>
-            
-            <div id="success-message" class="success-message">
-                ✓ Settings saved successfully!
-            </div>
-            
-            <div class="settings-grid">
-                <!-- Profile Section -->
-                <div class="settings-section">
-                    <h2>Profile Settings</h2>
-                    <form id="profile-form">
-                        <div class="form-group">
-                            <label for="firstname">First Name</label>
-                            <input type="text" id="firstname" name="first_name" placeholder="Enter your first name">
-                        </div>
-                        <div class="form-group">
-                            <label for="lastname">Last Name</label>
-                            <input type="text" id="lastname" name="last_name" placeholder="Enter your last name">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" placeholder="Enter your email address">
-                        </div>
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                        </div>
-                        <button type="submit" class="btn-save"> Save Profile</button>
-                    </form>
-                </div>
-                
-                <!-- Preferences Section -->
-                <div class="settings-section">
-                    <h2> Preferences</h2>
-                    <div class="preference-item">
-                        <div class="preference-label">
-                            Auto-save proofs
-                            <small>Automatically save your work to localStorage</small>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="auto-save" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>Settings</h1>
+          <p>Customize your AXIO experience</p>
         </div>
+        <div class="actions">
+          <button id="btn-save" class="btn success">✓ Save Settings</button>
+        </div>
+      </div>
+
+      <div class="settings-container">
+        <!-- Appearance Settings -->
+        <div class="settings-section">
+          <h2>🎨 Appearance</h2>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Theme</strong>
+              <small>Choose your preferred color scheme</small>
+            </div>
+            <div class="setting-control">
+              <div class="button-group">
+                <button id="theme-light" class="theme-btn active" data-theme="light">☀ Light</button>
+                <button id="theme-dark" class="theme-btn" data-theme="dark">🌙 Dark</button>
+                <button id="theme-auto" class="theme-btn" data-theme="auto">🔄 Auto</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Font Size</strong>
+              <small>Adjust text size for better readability</small>
+            </div>
+            <div class="setting-control">
+              <div class="button-group">
+                <button id="font-small" class="font-btn" data-size="small">A</button>
+                <button id="font-normal" class="font-btn active" data-size="normal">A</button>
+                <button id="font-large" class="font-btn" data-size="large">A</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="settings-section">
+          <h2>🔔 Notifications</h2>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Score Notifications</strong>
+              <small>Get alerts when proofs are scored</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch enabled" id="score-notify-toggle"></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Feedback Notifications</strong>
+              <small>Receive detailed feedback alerts</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch enabled" id="feedback-notify-toggle"></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Sound Notifications</strong>
+              <small>Play sound on new notifications</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch" id="sound-notify-toggle"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proof Settings -->
+        <div class="settings-section">
+          <h2>📝 Proof Settings</h2>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Auto-Save Proofs</strong>
+              <small>Automatically save your work as you type</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch enabled" id="auto-save-toggle"></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Show LaTeX Preview</strong>
+              <small>Display live rendering as you type</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch enabled" id="show-preview-toggle"></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Difficulty Level</strong>
+              <small>Choose problems matching your skill level</small>
+            </div>
+            <div class="setting-control">
+              <select id="difficulty-level">
+                <option value="beginner">🟢 Beginner</option>
+                <option value="intermediate" selected>🟡 Intermediate</option>
+                <option value="advanced">🔴 Advanced</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learning Settings -->
+        <div class="settings-section">
+          <h2>📚 Learning</h2>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Show Helpful Hints</strong>
+              <small>Display guidance while writing proofs</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch enabled" id="show-hints-toggle"></button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Auto-Start Tutorial</strong>
+              <small>Show tutorial on first visit</small>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-switch" id="auto-tutorial-toggle"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Math Domains -->
+        <div class="settings-section">
+          <h2>📐 Mathematical Domains</h2>
+          <p style="color: #6b7280; margin-bottom: 20px; font-size: 0.95em;">
+            Select the mathematical domains you'd like to explore. Our system specializes in Real Analysis and supports proofs across multiple mathematical domains.
+          </p>
+
+          <div class="domains-grid">
+            <!-- Real Analysis - Primary -->
+            <label class="domain-card domain-card-primary">
+              <input type="checkbox" name="domains" value="real-analysis" checked>
+              <div class="domain-content">
+                <div class="domain-icon">ℝ</div>
+                <div class="domain-title">Real Analysis</div>
+                <div class="domain-desc">Limits, continuity, sequences, series</div>
+              </div>
+              <div class="domain-badge">Primary</div>
+            </label>
+
+            <!-- Algebra -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="algebra" checked>
+              <div class="domain-content">
+                <div class="domain-icon">∑</div>
+                <div class="domain-title">Algebra</div>
+                <div class="domain-desc">Equations, polynomials, rings</div>
+              </div>
+            </label>
+
+            <!-- Calculus -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="calculus" checked>
+              <div class="domain-content">
+                <div class="domain-icon">∫</div>
+                <div class="domain-title">Calculus</div>
+                <div class="domain-desc">Derivatives, integrals, optimization</div>
+              </div>
+            </label>
+
+            <!-- Linear Algebra -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="linear" checked>
+              <div class="domain-content">
+                <div class="domain-icon">⟨⟩</div>
+                <div class="domain-title">Linear Algebra</div>
+                <div class="domain-desc">Vectors, matrices, eigenvalues</div>
+              </div>
+            </label>
+
+            <!-- Discrete Math -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="discrete" checked>
+              <div class="domain-content">
+                <div class="domain-icon">∧</div>
+                <div class="domain-title">Discrete Math</div>
+                <div class="domain-desc">Logic, graphs, combinatorics</div>
+              </div>
+            </label>
+
+            <!-- Geometry -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="geometry" checked>
+              <div class="domain-content">
+                <div class="domain-icon">△</div>
+                <div class="domain-title">Geometry</div>
+                <div class="domain-desc">Shapes, angles, proofs</div>
+              </div>
+            </label>
+
+            <!-- Logic & Set Theory -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="logic" checked>
+              <div class="domain-content">
+                <div class="domain-icon">∀</div>
+                <div class="domain-title">Logic & Sets</div>
+                <div class="domain-desc">Quantifiers, set operations</div>
+              </div>
+            </label>
+
+            <!-- Probability & Statistics -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="probability">
+              <div class="domain-content">
+                <div class="domain-icon">π</div>
+                <div class="domain-title">Probability</div>
+                <div class="domain-desc">Distributions, inference</div>
+              </div>
+            </label>
+
+            <!-- Abstract Algebra -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="abstract-algebra">
+              <div class="domain-content">
+                <div class="domain-icon">⊕</div>
+                <div class="domain-title">Abstract Algebra</div>
+                <div class="domain-desc">Groups, fields, rings</div>
+              </div>
+            </label>
+
+            <!-- Topology -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="topology">
+              <div class="domain-content">
+                <div class="domain-icon">◯</div>
+                <div class="domain-title">Topology</div>
+                <div class="domain-desc">Open sets, continuity, compactness</div>
+              </div>
+            </label>
+
+            <!-- Numerical Analysis -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="numerical">
+              <div class="domain-content">
+                <div class="domain-icon">≈</div>
+                <div class="domain-title">Numerical Analysis</div>
+                <div class="domain-desc">Approximation, algorithms</div>
+              </div>
+            </label>
+
+            <!-- Functional Analysis -->
+            <label class="domain-card">
+              <input type="checkbox" name="domains" value="functional">
+              <div class="domain-content">
+                <div class="domain-icon">ℱ</div>
+                <div class="domain-title">Functional Analysis</div>
+                <div class="domain-desc">Spaces, operators, norms</div>
+              </div>
+            </label>
+          </div>
+
+          <div style="margin-top: 20px; padding: 16px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px;">
+            <p style="margin: 0; color: #065f46; font-size: 0.9em;">
+              <strong>💡 Tip:</strong> Select domains to personalize your theorem recommendations. Real Analysis is the primary focus of the AXIO system.
+            </p>
+          </div>
+        </div>
+
+        <!-- About AXIO Section -->
+        <div class="settings-section">
+          <h2>ℹ About AXIO</h2>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>Version</strong>
+              <small>Current AXIO version</small>
+            </div>
+            <div class="setting-control">
+              <span style="color: #6b7280; font-weight: 500;">2.0.0</span>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-label">
+              <strong>What is AXIO?</strong>
+              <small>An intelligent proof verification system for mathematics</small>
+            </div>
+          </div>
+
+          <div class="setting-item" style="flex-direction: column; align-items: flex-start; border-bottom: none;">
+            <div class="setting-label">
+              <strong>Features</strong>
+            </div>
+            <ul style="margin: 12px 0 0 0; padding: 0 0 0 20px; color: #6b7280; font-size: 0.9em;">
+              <li>Natural language proof input in any language</li>
+              <li>Automatic LaTeX conversion and verification</li>
+              <li>Transparent scoring with detailed feedback</li>
+              <li>Support for multiple mathematical domains</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Help & Tutorial Section -->
+        <div class="settings-section">
+          <h2>🎓 Help & Tutorial</h2>
+
+          <div style="padding: 16px 0; border-bottom: 1px solid #f3f4f6;">
+            <p style="margin: 0 0 16px 0; color: #374151; line-height: 1.6;">
+              New to AXIO? Learn how to write and verify mathematical proofs step-by-step. Our interactive tutorial covers everything from LaTeX basics to advanced proof strategies.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button id="btn-start-tutorial" class="btn primary" style="padding: 10px 20px;">
+                ▶ Start Tutorial
+              </button>
+              <button id="btn-skip-tutorial" class="btn-ghost" style="padding: 10px 20px; background: transparent; border: none; color: #1e3a8a; cursor: pointer; font-weight: 500; transition: color 0.2s;">
+                Skip for now
+              </button>
+            </div>
+            <p style="margin: 12px 0 0 0; color: #6b7280; font-size: 0.9em;">
+              Learn the basics from beginner to advanced levels. Tutorial takes about 30 minutes to complete.
+            </p>
+          </div>
+
+          <div style="padding-top: 16px;">
+            <p style="margin: 0 0 12px 0; color: #374151; font-weight: 500;">Have questions?</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <a href="#" id="link-scoring-info" style="color: #1e3a8a; text-decoration: none; font-weight: 500; font-size: 0.95em; transition: color 0.2s;">
+                📊 Scoring System
+              </a>
+              <span style="color: #d1d5db;">|</span>
+              <a href="#" id="link-feedback" style="color: #1e3a8a; text-decoration: none; font-weight: 500; font-size: 0.95em; transition: color 0.2s;">
+                💬 Send Feedback
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
-    </div>
-    
-    <script src="../js/api-client.js"></script>
-    <script src="../js/sidebar.js"></script>
-    <script src="../js/proof-mode-manager.js"></script>
-    <script>
-      // Global functions for data management
-      async function clearAllData() {
-          if (!confirm('Are you sure you want to clear all saved data? This cannot be undone.')) {
-              return;
-          }
+  </div>
 
-          try {
-              const response = await fetch('../../backend/api/submissions.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ action: 'clear_user_data' })
-              });
+  <!-- Load Global Settings First -->
+  <script src="../js/global-settings.js"></script>
+  <script src="../js/toast-notifications.js"></script>
+  <script src="../js/interactive-tutorial.js"></script>
 
-              const data = await response.json();
-              if (!response.ok || !data.success) {
-                  throw new Error(data.error || 'Unable to clear backend data');
-              }
-
-              [
-                  'reana_saved_theorem',
-                  'reana_saved_steps',
-                  'reana_completed_submissions',
-                  'reana_verification_records',
-                  'reana_profile',
-                  'reana_preferences',
-                  'axio.workspace.state',
-                  'axio.proofs',
-                  'axio.settings'
-              ].forEach((key) => localStorage.removeItem(key));
-
-              alert(`✓ Data cleared successfully!\nDeleted submissions: ${data.deleted_submissions || 0}\nDeleted scores: ${data.deleted_scores || 0}`);
-          } catch (error) {
-              alert('✗ Clear data failed: ' + error.message);
-          }
-      }
-      
-      async function exportData() {
-          try {
-              // Fetch data from APIs
-              const [submissionsRes, scoresRes] = await Promise.all([
-                  fetch('../../backend/api/submissions.php'),
-                  fetch('../../backend/api/scores.php')
-              ]);
-              
-              const submissions = await submissionsRes.json();
-              const scores = await scoresRes.json();
-              
-              const exportData = {
-                  exported_at: new Date().toISOString(),
-                  submissions: submissions.submissions || [],
-                  scores: scores.scores || [],
-                  profile: JSON.parse(localStorage.getItem('reana_profile') || '{}')
-              };
-              
-              // Download as JSON
-              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `reana_export_${Date.now()}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-              
-              alert('✓ Data exported successfully!');
-          } catch (error) {
-              alert('✗ Export failed: ' + error.message);
-          }
+  <script>
+    /**
+     * Settings Page Controller
+     * Manages the settings UI and coordinates with global settings
+     */
+    class SettingsPageController {
+      constructor() {
+        this.setupEventListeners();
+        this.loadCurrentSettings();
       }
 
-      function showSuccess(message = '✓ Settings saved successfully!', isError = false) {
-          const msg = document.getElementById('success-message');
-          msg.textContent = message;
-          msg.style.display = 'block';
-          if (isError) {
-              msg.style.background = 'rgba(239, 68, 68, 0.12)';
-              msg.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-          } else {
-              msg.style.background = 'rgba(5, 150, 105, 0.12)';
-              msg.style.borderColor = 'rgba(5, 150, 105, 0.4)';
+      loadCurrentSettings() {
+        if (!globalSettings) return;
+
+        const settings = globalSettings.getAllSettings();
+
+        // Theme buttons
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.theme === settings.theme);
+        });
+
+        // Font size buttons
+        document.querySelectorAll('.font-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.size === settings.fontSize);
+        });
+
+        // Toggles
+        const toggleMapping = {
+          'score-notify-toggle': 'scoreNotifications',
+          'feedback-notify-toggle': 'feedbackNotifications',
+          'sound-notify-toggle': 'soundNotifications',
+          'auto-save-toggle': 'autoSave',
+          'show-preview-toggle': 'showPreview',
+          'show-hints-toggle': 'showHints',
+          'auto-tutorial-toggle': 'autoTutorial'
+        };
+
+        Object.entries(toggleMapping).forEach(([elemId, settingKey]) => {
+          const elem = document.getElementById(elemId);
+          if (elem) {
+            elem.classList.toggle('enabled', settings[settingKey]);
           }
-          setTimeout(() => msg.style.display = 'none', 3000);
+        });
+
+        // Selects
+        const selectMapping = {
+          'default-proof-mode': 'defaultProofMode',
+          'difficulty-level': 'difficultyLevel',
+          'learning-language': 'learningLanguage'
+        };
+
+        Object.entries(selectMapping).forEach(([elemId, settingKey]) => {
+          const elem = document.getElementById(elemId);
+          if (elem) {
+            elem.value = settings[settingKey];
+          }
+        });
+
+        // Domains - Domain Cards Grid
+        const domainCheckboxes = document.querySelectorAll('[name="domains"]');
+        domainCheckboxes.forEach(checkbox => {
+          checkbox.checked = settings.preferredDomains.includes(checkbox.value);
+        });
       }
 
-      // Load saved settings on page load
-      document.addEventListener('DOMContentLoaded', async () => {
-        try {
-          // ✅ Step 1: Try sessionStorage first (currently logged-in user)
-          let firstName = sessionStorage.getItem('first_name');
-          let lastName = sessionStorage.getItem('last_name');
-          let email = sessionStorage.getItem('email');
-          let username = sessionStorage.getItem('username');
+      setupEventListeners() {
+        // Theme buttons
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const theme = e.target.dataset.theme;
+            globalSettings?.updateSetting('theme', theme);
 
-          // ✅ Step 2: If not in session storage, fetch from backend (authoritative source)
-          if (!username) {
-            const response = await fetch('../../backend/api/user-profile.php?action=get', {
-              method: 'GET',
-              credentials: 'include'  // Important: send session cookies
-            });
+            // Update UI
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
 
-            if (!response.ok) {
-              if (response.status === 401) {
-                // Not authenticated - redirect to login
-                window.location.href = 'auth.html?mode=login';
-                return;
-              }
-              throw new Error(`HTTP ${response.status}`);
-            }
+            // Show feedback
+            showSuccess(`Switched to ${theme} theme!`);
+          });
+        });
 
-            const data = await response.json();
-            if (data.success && data.user) {
-              firstName = data.user.first_name;
-              lastName = data.user.last_name;
-              username = data.user.username;
-              email = data.user.email;
+        // Font size buttons
+        document.querySelectorAll('.font-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const size = e.target.dataset.size;
+            globalSettings?.updateSetting('fontSize', size);
 
-              // Save to sessionStorage for future use
-              sessionStorage.setItem('first_name', firstName);
-              sessionStorage.setItem('last_name', lastName);
-              sessionStorage.setItem('username', username);
-              sessionStorage.setItem('email', email || '');
-            }
-          }
+            // Update UI
+            document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
 
-          // ✅ Step 3: Display user info
-          if (firstName) document.getElementById('firstname').value = firstName;
-          if (lastName) document.getElementById('lastname').value = lastName;
-          if (email) document.getElementById('email').value = email;
-          if (username) document.getElementById('username').value = username;
+            // Show feedback
+            showSuccess(`Font size changed to ${size}!`);
+          });
+        });
 
-          // Load preferences
-          const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
-        document.getElementById('auto-save').checked = prefs.autoSave !== false;
-        document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
-        document.getElementById('dark-theme').checked = prefs.darkTheme === true;
-
-        // Apply dark theme on page load
-        if (prefs.darkTheme === true) {
-            document.documentElement.classList.add('theme-dark');
-            document.body.classList.add('theme-dark');
-        }
-
-        if (typeof window.setThemePreference === 'function') {
-            window.setThemePreference(document.getElementById('dark-theme').checked);
-        }
-        
-        // Save profile to backend
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        // Toggle switches
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+          toggle.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            const firstName = document.getElementById('firstname').value.trim();
-            const lastName = document.getElementById('lastname').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const username = document.getElementById('username').value.trim();
-            
-            if (!username) {
-              showSuccess('Username is required', true);
-              return;
-            }
-
-            try {
-              // ✅ Save to backend (authoritative)
-              const response = await fetch('../../backend/api/user-profile.php?action=update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                  username: username,
-                  first_name: firstName,
-                  last_name: lastName,
-                  email: email
-                })
-              });
-
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-              }
-
-              const data = await response.json();
-              if (data.success && data.user) {
-                // ✅ Update sessionStorage with new data
-                sessionStorage.setItem('first_name', data.user.first_name || '');
-                sessionStorage.setItem('last_name', data.user.last_name || '');
-                sessionStorage.setItem('email', data.user.email || '');
-                sessionStorage.setItem('username', data.user.username);
-
-                // Also save to localStorage for backward compatibility
-                localStorage.setItem('reana_profile', JSON.stringify({
-                  username: data.user.username,
-                  first_name: data.user.first_name,
-                  last_name: data.user.last_name
-                }));
-
-                showSuccess('✓ Profile updated successfully!');
-              } else {
-                showSuccess('✗ ' + (data.error || 'Failed to update profile'), true);
-              }
-            } catch (error) {
-              console.error('Error updating profile:', error);
-              showSuccess('✗ Error saving profile: ' + error.message, true);
-            }
+            toggle.classList.toggle('enabled');
+          });
         });
-        
-        // Save preferences on toggle
-        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
-            toggle.addEventListener('change', () => {
-                const prefs = {
-                    autoSave: document.getElementById('auto-save').checked,
-                    showShortcuts: document.getElementById('show-shortcuts').checked,
-                    darkTheme: document.getElementById('dark-theme').checked
-                };
-                localStorage.setItem('reana_preferences', JSON.stringify(prefs));
 
-                // Apply dark theme immediately
-                if (toggle.id === 'dark-theme') {
-                    const isDark = toggle.checked;
-                    document.documentElement.classList.toggle('theme-dark', isDark);
-                    document.body.classList.toggle('theme-dark', isDark);
-                    
-                    // Also call setThemePreference if available
-                    if (typeof window.setThemePreference === 'function') {
-                        window.setThemePreference(isDark);
-                    }
-                }
-
-                showSuccess();
-            });
+        // Save button
+        document.getElementById('btn-save').addEventListener('click', () => {
+          this.saveAllSettings();
         });
-      });
+
+        // Sidebar logout
+        document.getElementById('sidebar-logout').addEventListener('click', (e) => {
+          e.preventDefault();
+          showWarning('Logout functionality coming soon!');
+        });
+
+        // Start tutorial button
+        document.getElementById('btn-start-tutorial').addEventListener('click', () => {
+          if (window.tutorialSystem) {
+            window.tutorialSystem.showTutorial();
+          } else {
+            showInfo('Tutorial system not available. Please refresh the page.');
+          }
+        });
+
+        // Skip tutorial link
+        document.getElementById('btn-skip-tutorial').addEventListener('click', (e) => {
+          e.preventDefault();
+          showInfo('You can start the tutorial anytime from the Help & Tutorial section.');
+        });
+
+        // Scoring info link
+        document.getElementById('link-scoring-info').addEventListener('click', (e) => {
+          e.preventDefault();
+          showInfo('📊 Scoring System:\n\nLogical Correctness: 35%\nCompleteness: 25%\nClarity: 20%\nRigor: 15%\nEfficiency: 5%\n\nGrades: A (90-100), B (80-89), C (70-79), D (60-69), F (0-59)');
+        });
+
+        // Feedback link
+        document.getElementById('link-feedback').addEventListener('click', (e) => {
+          e.preventDefault();
+          showInfo('Thank you for your interest! Feedback form will be available soon. For now, please contact us directly.');
+        });
+
+        // Domain cards - add click handlers
+        document.querySelectorAll('[name="domains"]').forEach(checkbox => {
+          checkbox.addEventListener('change', () => {
+            // Provide visual feedback when domain is selected/deselected
+            const card = checkbox.closest('.domain-card');
+            if (card) {
+              card.style.transition = 'all 0.2s ease';
+            }
+          });
+        });
+      }
+
+      saveAllSettings() {
+        if (!globalSettings) return;
+
+        // Collect all settings from UI
+        const settings = {
+          scoreNotifications: document.getElementById('score-notify-toggle')?.classList.contains('enabled'),
+          feedbackNotifications: document.getElementById('feedback-notify-toggle')?.classList.contains('enabled'),
+          soundNotifications: document.getElementById('sound-notify-toggle')?.classList.contains('enabled'),
+          autoSave: document.getElementById('auto-save-toggle')?.classList.contains('enabled'),
+          showPreview: document.getElementById('show-preview-toggle')?.classList.contains('enabled'),
+          showHints: document.getElementById('show-hints-toggle')?.classList.contains('enabled'),
+          autoTutorial: document.getElementById('auto-tutorial-toggle')?.classList.contains('enabled'),
+          defaultProofMode: document.getElementById('default-proof-mode')?.value,
+          difficultyLevel: document.getElementById('difficulty-level')?.value,
+          learningLanguage: document.getElementById('learning-language')?.value,
+          preferredDomains: Array.from(document.querySelectorAll('[name="domains"]:checked')).map(checkbox => checkbox.value)
+        };
+
+        // Update all settings
+        Object.entries(settings).forEach(([key, value]) => {
+          globalSettings.settings[key] = value;
+        });
+
+        // Save to localStorage
+        globalSettings.saveSettings();
+
+        // Show confirmation
+        showSuccess('✓ All settings saved successfully!');
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new SettingsPageController();
+    });
+  </script>
 </body>
 </html>

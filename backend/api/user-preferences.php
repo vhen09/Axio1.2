@@ -108,6 +108,31 @@ try {
             ]);
             break;
 
+        case 'get_latex_tutorial_status':
+            // Check if user has completed LaTeX tutorial
+            $status = $userPrefs->getOnboardingStatus($user_id);
+            $tutorial_completed = $status && ($status['tutorial_completed'] === 1 || $status['tutorial_completed'] === true);
+            
+            echo json_encode([
+                'success' => true,
+                'tutorial_completed' => $tutorial_completed,
+                'status' => $status
+            ]);
+            break;
+
+        case 'complete_latex_tutorial':
+            // Mark LaTeX tutorial as completed
+            if ($userPrefs->markTutorialCompleted($user_id)) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'LaTeX tutorial marked as completed',
+                    'tutorial_completed' => true
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to mark LaTeX tutorial complete']);
+            }
+            break;
+
         default:
             echo json_encode(['success' => false, 'message' => 'Invalid action']);
     }

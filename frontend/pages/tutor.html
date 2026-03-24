@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../css/enhanced-ui.css">
     <link rel="stylesheet" href="../css/dark-mode.css">
     <link rel="stylesheet" href="../css/proof-modes.css">
+    <script src="../js/global-settings.js"></script>
     <script>
         // Prevent double-redirect by checking if we're actually embedded
         let tutorRedirectDone = sessionStorage.getItem('tutor_redirect_done');
@@ -1660,7 +1661,7 @@ if (removeStepBtn) {
                 // Otherwise keep processed as-is (it contains math delimiters like \(...\) or \[...\]) so MathJax can typeset.
                 const content = String(processed).includes('<') ? processed : processed;
                 const checkmark = s.verified ? '✓' : '✗';
-                return `<div class="cp-step ${cls}" style="padding:12px 14px;border-radius:6px;margin-bottom:10px;background:#ffffff;color:${AXIO_COLORS.text};border:2px solid ${AXIO_COLORS.secondary};width:calc(100% - 28px);box-sizing:border-box;"><div class="cp-step-num" style="font-weight:700;margin-bottom:6px;color:${AXIO_COLORS.primary}">Step ${s.index} ${checkmark}</div><div class="cp-step-body" style="margin-top:6px;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;color:${AXIO_COLORS.text}">${sanitizeHtml(content)}</div></div>`;
+                return `<div class="cp-step ${cls}" style="padding:12px 14px;border-radius:6px;margin-bottom:10px;background:#ffffff;color:${AXIO_COLORS.text};border:2px solid ${AXIO_COLORS.secondary};width:calc(100% - 28px);box-sizing:border-box;"><div class="cp-step-num" style="font-weight:700;margin-bottom:6px;color:${AXIO_COLORS.primary}">Step ${s.index} ${checkmark}</div><div class="cp-step-body" style="margin-top:6px;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;color:${AXIO_COLORS.text};word-spacing:0.15em;letter-spacing:0.02em;line-height:1.6;">${sanitizeHtml(content)}</div></div>`;
             }).join('');
 
             pop.innerHTML = `
@@ -1820,6 +1821,9 @@ if (removeStepBtn) {
                     word-wrap: break-word;
                     overflow-wrap: break-word;
                     color: #1a1a1a;
+                    word-spacing: 0.15em;
+                    letter-spacing: 0.02em;
+                    line-height: 1.6;
                 }
                 .resize-indicator{display:none}
             `;

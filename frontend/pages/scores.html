@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scores & Progress - AXIO</title>
-    <link rel="stylesheet" href="../css/axio-app.css">
-    <link rel="stylesheet" href="../css/enhanced-ui.css">
-    <link rel="stylesheet" href="../css/dark-mode.css">
-    <link rel="stylesheet" href="../css/proof-modes.css">
-    <script src="../js/dark-mode-manager.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AXIO - Scores & Progress</title>
+    <link rel="stylesheet" href="../css/axio-app.css" />
+    <script src="../js/global-settings.js"></script>
     <style>
         .sidebar-header {
             display: none;
@@ -352,67 +349,33 @@
             box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
         }
     </style>
-</head>
-<body>
-    <!-- 3D Math Background -->
-    <div class="math-background">
-        <span class="math-symbol">∫</span>
-        <span class="math-symbol">∂</span>
-        <span class="math-symbol">∑</span>
-        <span class="math-symbol">∞</span>
-        <span class="math-symbol">λ</span>
-        <span class="math-symbol">∀</span>
-        <span class="math-symbol">∃</span>
-        <span class="math-symbol">∈</span>
-        <span class="math-symbol">→</span>
-        <span class="math-symbol">⇒</span>
-        <span class="math-symbol">⇔</span>
-        <span class="math-symbol">√</span>
-        <span class="math-symbol">∆</span>
-        <span class="math-symbol">∇</span>
-        <span class="math-symbol">∮</span>
-    </div>
-    
-    <!-- Particles -->
-    <div class="particles">
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-        <span class="particle"></span>
-    </div>
-
-    <div class="app">
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">AXIO</div>
-        <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">◈ Unified Proof Workspace</a>
-            <a href="submissions.html" class="nav-item">⌁ My Proofs</a>
-            <a href="scores.html" class="nav-item active">⌗ Scores</a>
-            <a href="settings.html" class="nav-item">⚙ Settings</a>
-        </nav>
+<body data-page="scores">
+  <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">AXIO</div>
+      <a class="nav-link" href="dashboard.html">◈ Unified Proof Workspace</a>
+      <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link active" href="scores.html">⌗ Scores</a>
+      <a class="nav-link" href="math-symbols-tutorial.html">Σ Math Symbols & Tutorial</a>
+      <a class="nav-link" href="settings.html">⚙ Settings</a>
+      <a class="nav-link" href="learn-latex.html">? LaTeX Guide</a>
+      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
     </aside>
-    
-    <main class="main-area main">
-        <div class="main-content">
-            <div class="topbar">
-                <div class="title">
-                    <h1>AI Proof Tutor</h1>
-                    <p>Scores</p>
-                </div>
-                <div class="actions">
-                    <a class="btn" href="dashboard.html">Back to Workspace</a>
-                </div>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>Scores & Progress</h1>
+          <p>Your performance metrics and achievements</p>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="window.location.href='dashboard.html'">← Back to Workspace</button>
+        </div>
+      </div>
+
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+</head>
             </div>
             <div class="page-header">
                 <h1> Your Performance Scores</h1>

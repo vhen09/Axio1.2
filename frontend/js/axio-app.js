@@ -163,6 +163,11 @@
   function setJSON(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
   function getPreferenceTheme() {
     try {
+      // Check global-settings system first (axio_settings)
+      const globalSettings = JSON.parse(localStorage.getItem('axio_settings') || '{}');
+      if (globalSettings.theme) return globalSettings.theme;
+      
+      // Fallback to old reana_preferences for backward compatibility
       const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
       if (typeof prefs.darkTheme === 'boolean') return prefs.darkTheme ? 'dark' : 'light';
     } catch (_) {

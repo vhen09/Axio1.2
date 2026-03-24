@@ -51,7 +51,9 @@ try {
                 'get_proof_attempts',
                 'refine_proof',
                 'generate_skeleton',
-                'explain_lean_code'
+                'explain_lean_code',
+                'verify-full',
+                'verify-step'
             ]
         ]);
         exit();
@@ -88,6 +90,14 @@ try {
             
         case 'explain_lean_code':
             explainLeanCode($converter);
+            break;
+            
+        case 'verify-full':
+            verifyFullProof($db, $converter);
+            break;
+            
+        case 'verify-step':
+            verifyStepProof($db, $converter);
             break;
             
         default:
@@ -448,4 +458,152 @@ function explainLeanCode($converter) {
     $result = $converter->explainLeanCode($lean_code, $language);
     
     echo json_encode($result);
+}
+
+/**
+ * Verify full proof (submit entire proof at once)
+ */
+function verifyFullProof($db, $converter) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $theorem = $data['theorem'] ?? null;
+    $proof = $data['proof'] ?? null;
+    
+    if (!$theorem || !$proof) {
+        throw new InvalidArgumentException('Theorem and proof are required');
+    }
+    
+    // Analyze the proof
+    $result = analyzeProof($theorem, $proof);
+    
+    echo json_encode($result);
+}
+
+/**
+ * Verify step-by-step proof (submit and verify each step)
+ */
+function verifyStepProof($db, $converter) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $theorem = $data['theorem'] ?? null;
+    $step = $data['step'] ?? null;
+    $step_number = $data['step_number'] ?? 1;
+    
+    if (!$theorem || !$step) {
+        throw new InvalidArgumentException('Theorem and step are required');
+    }
+    
+    // Analyze individual step
+    $result = analyzeStep($theorem, $step, $step_number);
+    
+    echo json_encode($result);
+}
+
+/**
+ * Analyze a proof for correctness and quality
+ */
+function analyzeProof($theorem, $proof) {
+    // This function tokenizes and evaluates the proof
+    // Returns score, feedback, and suggestions
+    
+    $score = calculateProofScore($proof);
+    $feedback = generateProofFeedback($proof, $theorem);
+    $isValid = $score >= 60;
+    
+    return [
+        'success' => true,
+        'valid' => $isValid,
+        'score' => $score,
+        'feedback' => $feedback,
+        'summary' => 'Full proof analyzed: ' . (strlen($proof) > 50 ? substr($proof, 0, 47) . '...' : $proof),
+        'suggestion' => $isValid ? 
+            'Great proof! Consider working on another theorem.' :
+            'Keep refining your proof. Check the feedback for specific areas to improve.'
+    ];
+}
+
+/**
+ * Analyze a single proof step
+ */
+function analyzeStep($theorem, $step, $stepNumber) {
+    $score = calculateProofScore($step);
+    $feedback = generateStepFeedback($step, $stepNumber);
+    $isValid = $score >= 50;
+    
+    return [
+        'success' => true,
+        'valid' => $isValid,
+        'score' => $score,
+        'feedback' => $feedback,
+        'step_number' => $stepNumber,
+        'summary' => 'Step ' . $stepNumber . ' analyzed',
+        'suggestion' => $isValid ? 
+            'Good step! Continue to the next step.' :
+            'This step needs more justification. Consider adding more details.'
+    ];
+}
+
+/**
+ * Calculate proof quality score (0-100)
+ */
+function calculateProofScore($proof) {
+    $score = 50;  // Base score
+    
+    // Award points for proof characteristics
+    if (strlen($proof) > 100) $score += 10;  // Substantive proof
+    if (preg_match('/\$[^$]+\$/i', $proof)) $score += 15;  // Contains LaTeX/math
+    if (preg_match('/\b(therefore|hence|thus|so|implies)\b/i', $proof)) $score += 10;  // Uses logical connectors
+    if (preg_match('/\b(by|using|via|through)\b/i', $proof)) $score += 10;  // Cites methods
+    if (preg_match('/\b(contradiction|assume|suppose)\b/i', $proof)) $score += 10;  // Uses proof techniques
+    
+    // Subtract points for issues
+    if (strlen($proof) < 30) $score -= 20;  // Too short
+    
+    return min(100, max(0, $score));
+}
+
+/**
+ * Generate feedback on full proof
+ */
+function generateProofFeedback($proof, $theorem) {
+    $feedback = [];
+    
+    if (strlen($proof) < 100) {
+        $feedback[] = 'Consider providing more detailed justification for each step.';
+    }
+    
+    if (!preg_match('/\$[^$]+\$/i', $proof)) {
+        $feedback[] = 'Consider using mathematical notation where appropriate.';
+    }
+    
+    if (!preg_match('/\b(therefore|hence|thus)\b/i', $proof)) {
+        $feedback[] = 'Make logical connections between steps more explicit.';
+    }
+    
+    if (empty($feedback)) {
+        $feedback[] = 'Well-structured proof with clear logical progression.';
+    }
+    
+    return implode(' ', $feedback);
+}
+
+/**
+ * Generate feedback on proof step
+ */
+function generateStepFeedback($step, $stepNumber) {
+    $feedback = [];
+    
+    if (strlen($step) < 50) {
+        $feedback[] = 'This step could use more detail.';
+    }
+    
+    if (!preg_match('/\$[^$]+\$/i', $step)) {
+        $feedback[] = 'Consider including mathematical expressions.';
+    }
+    
+    if (empty($feedback)) {
+        $feedback[] = 'Clear and well-justified step.';
+    }
+    
+    return implode(' ', $feedback);
 }

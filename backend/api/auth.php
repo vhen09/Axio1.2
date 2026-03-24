@@ -68,12 +68,13 @@ class Auth {
             return json_encode(['success' => false, 'message' => 'Password must be at least 6 characters']);
         }
 
-        // CRITICAL FIX: Reject signup in demoMode - expose real DB problem
+        // CRITICAL: Reject signup if database unavailable
         if ($this->demoMode) {
-            error_log("CRITICAL: Signup rejected - DEMO MODE active (DB unavailable)");
+            error_log("CRITICAL: Signup rejected - DATABASE UNAVAILABLE");
+            error_log("Demo mode is ACTIVE - cannot create users");
             return json_encode([
                 'success' => false,
-                'message' => 'Database unavailable. Check RENDER_DATABASE_SECURITY_FIX.md. Test login: testuser/testpass123',
+                'message' => 'Database is currently unavailable. Please try again later.',
                 'demo_mode' => true,
                 'error_code' => 'db_unavailable'
             ]);
@@ -102,6 +103,12 @@ class Auth {
             $newUser = $this->user->findByUsername($username);
             if ($newUser) {
                 error_log("SUCCESS: User created - ID: " . $newUser['id'] . ", Username: '$username'");
+                error_log("New user should complete LaTeX tutorial on next login");
+                
+                // Set session for new user
+                $_SESSION['user_id'] = $newUser['id'];
+                $_SESSION['username'] = $newUser['username'];
+                
                 return json_encode([
                     'success' => true, 
                     'message' => 'User registered successfully.',
@@ -109,7 +116,9 @@ class Auth {
                     'username' => $newUser['username'],
                     'first_name' => $newUser['first_name'] ?? $firstName,
                     'last_name' => $newUser['last_name'] ?? $lastName,
-                    'email' => $newUser['email'] ?? $email
+                    'email' => $newUser['email'] ?? $email,
+                    'is_new_user' => true,
+                    'redirect_to_tutorial' => true
                 ]);
             } else {
                 error_log("ERROR: Create succeeded but user not found in DB");
@@ -289,7 +298,8 @@ try {
         if (!is_array($data)) {
             $data = [];
         }
-        $action = $data['action'] ?? $_POST['action'] ?? '';
+        // Check action from URL query param, POST body, or $_POST
+        $action = $_GET['action'] ?? $data['action'] ?? $_POST['action'] ?? '';
         
         if ($action === 'register' || $action === 'signup' || $action === 'sign_up') {
             $username = $data['username'] ?? $_POST['username'] ?? '';

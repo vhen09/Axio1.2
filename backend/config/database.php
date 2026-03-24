@@ -30,25 +30,32 @@ class Database {
 
     private function connectFromUrl($url) {
         try {
-            if (preg_match('/^(mysql|postgresql):\/\/([^:]+):(.+)@([^:]+)(?::(\\d+))?\\/(.+)/', $url, $matches)) {
-                $type = $matches[1];
-                $this->user = urldecode($matches[2]);
-                $this->pass = urldecode($matches[3]);
-                $this->host = $matches[4];
-                $port = $matches[5] ?? ($type === 'postgresql' ? '5432' : '3306');
-                $this->db = $matches[6];
+            // Parse DATABASE_URL (works for both MySQL and PostgreSQL from Render)
+            $parsed = parse_url($url);
+            
+            if ($parsed && isset($parsed['scheme'])) {
+                $type = $parsed['scheme'];
+                $this->user = urldecode($parsed['user'] ?? 'root');
+                $this->pass = urldecode($parsed['pass'] ?? '');
+                $this->host = $parsed['host'] ?? 'localhost';
+                $port = $parsed['port'] ?? ($type === 'postgresql' ? '5432' : '3306');
+                $this->db = ltrim($parsed['path'] ?? '', '/');
                 
-                if ($type === 'postgresql') {
+                if ($type === 'postgresql' || $type === 'postgres') {
                     $dsn = "pgsql:host={$this->host};port={$port};dbname={$this->db}";
                 } else {
                     $dsn = "mysql:host={$this->host};port={$port};dbname={$this->db};charset=utf8mb4";
                 }
                 
-                error_log("Connecting $type://{$this->host}:{$port}/{$this->db}");
+                error_log("Database: Connecting {$type}://{$this->host}:{$port}/{$this->db}");
                 $this->pdo = new PDO($dsn, $this->user, $this->pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+                error_log("Database: Connection SUCCESS");
+            } else {
+                error_log("Database: Invalid URL format");
+                $this->tryDemoMode();
             }
         } catch (Exception $e) {
-            error_log("Connect failed: " . $e->getMessage());
+            error_log("Database: Connection FAILED - " . $e->getMessage());
             $this->tryDemoMode();
         }
     }
