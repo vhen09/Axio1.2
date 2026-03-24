@@ -958,7 +958,8 @@ $\\lim_{n \\to \\infty} \\frac{1}{n} = 0$
 
     async function saveCompletion() {
       try {
-        const response = await fetch('http://localhost:8080/backend/api/user-preferences.php?action=complete_latex_tutorial', {
+        const apiUrl = `${window.location.protocol}//${window.location.host}/backend/api/user-preferences.php?action=complete_latex_tutorial`;
+        const response = await fetch(apiUrl, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
