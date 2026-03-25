@@ -252,7 +252,7 @@ try {
             // Check if session has user_id
             if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
                 // SECURITY: Verify user still exists and credentials are valid
-                if (!$this->demoMode) {
+                if (!$auth->isDemoMode()) {
                     // Fetch user from database to validate session
                     try {
                         $db = new Database();
