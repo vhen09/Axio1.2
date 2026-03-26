@@ -907,6 +907,7 @@
   <!-- Load Global Settings First -->
   <script src="../js/global-settings.js"></script>
   <script src="../js/toast-notifications.js"></script>
+  <script src="../js/logout-manager.js"></script>
   <script src="../js/interactive-tutorial.js"></script>
 
   <script>
@@ -1021,7 +1022,7 @@
         // Sidebar logout
         document.getElementById('sidebar-logout').addEventListener('click', (e) => {
           e.preventDefault();
-          showWarning('Logout functionality coming soon!');
+          LogoutManager.logout('dashboard.html');
         });
 
         // Start tutorial button

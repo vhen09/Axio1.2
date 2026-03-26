@@ -11,6 +11,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
   <script src="../js/global-settings.js"></script>
   <script src="../js/toast-notifications.js"></script>
+  <script src="../js/logout-manager.js"></script>
   <style>
     :root {
       --symbol-grid: auto-fit(minmax(140px, 1fr));
@@ -719,7 +720,7 @@
 
         document.getElementById('sidebar-logout').addEventListener('click', (e) => {
           e.preventDefault();
-          showWarning('Logout functionality coming soon');
+          LogoutManager.logout('dashboard.html');
         });
       }
 
