@@ -8,6 +8,7 @@ require_once __DIR__ . '/../config/api-safety.php';
 @require_once __DIR__ . '/../config/auto-setup.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 class Auth {
     private $db;
     private $user;
+    private $activityLog;
     private $demoMode = false;
 
     public function __construct() {
@@ -34,6 +36,7 @@ class Auth {
         $this->demoMode = $this->db->isDemoMode();
         if (!$this->demoMode) {
             $this->user = new User($this->db->getConnection());
+            $this->activityLog = new ActivityLog($this->db->getConnection());
         }
     }
 
@@ -112,6 +115,17 @@ class Auth {
                 $_SESSION['user_id'] = $newUser['id'];
                 $_SESSION['username'] = $newUser['username'];
                 
+                // Log signup activity
+                if ($this->activityLog) {
+                    $this->activityLog->log(
+                        $newUser['id'],
+                        'signup',
+                        'user',
+                        $newUser['id'],
+                        ['email' => $email, 'source' => 'registration_form']
+                    );
+                }
+                
                 return json_encode([
                     'success' => true, 
                     'message' => 'User registered successfully.',
@@ -188,6 +202,18 @@ class Auth {
         error_log("LOGIN SUCCESS: User '$username' (ID: {$user['id']}) authenticated");
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
+        
+        // Log login activity
+        if ($this->activityLog) {
+            $this->activityLog->log(
+                $user['id'],
+                'login',
+                'user',
+                $user['id'],
+                ['username' => $username]
+            );
+        }
+        
         return json_encode([
             'success' => true, 
             'message' => 'Login successful.', 
@@ -200,6 +226,19 @@ class Auth {
     }
 
     public function logout() {
+        $userId = $_SESSION['user_id'] ?? null;
+        
+        // Log logout activity
+        if ($userId && $this->activityLog) {
+            $this->activityLog->log(
+                $userId,
+                'logout',
+                'user',
+                $userId,
+                ['action' => 'user_initiated_logout']
+            );
+        }
+        
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
