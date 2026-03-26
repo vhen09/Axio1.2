@@ -16,6 +16,12 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
 
+// Configure session - Use Lax for localhost HTTP compatibility
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', false); // Allow HTTP for localhost
+ini_set('session.cookie_httponly', true);
+ini_set('session.cookie_path', '/');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

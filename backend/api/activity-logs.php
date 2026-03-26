@@ -17,9 +17,19 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
 
+// Configure session for CORS - Use Lax for localhost HTTP compatibility
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', false); // Allow HTTP for localhost
+ini_set('session.cookie_httponly', true);
+ini_set('session.cookie_path', '/');
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    @session_start();
 }
+
+// Debug: Log session info
+error_log("Activity Logs API - Session ID: " . session_id() . ", User ID: " . ($_SESSION['user_id'] ?? 'NOT SET'));
+error_log("Session data: " . print_r($_SESSION, true));
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -48,16 +58,27 @@ try {
         
         if ($action === 'my_activities') {
             // Get current user's activities
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+                error_log("Activity Log Access Denied - No session user_id");
                 http_response_code(401);
-                echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+                echo json_encode([
+                    'success' => false, 
+                    'error' => 'Not authenticated',
+                    'message' => 'Please log in first',
+                    'debug' => [
+                        'session_id' => session_id(),
+                        'session_user_id' => $_SESSION['user_id'] ?? null,
+                        'session_username' => $_SESSION['username'] ?? null
+                    ]
+                ]);
                 exit;
             }
 
             $userId = $_SESSION['user_id'];
-            $limit = $_GET['limit'] ?? 50;
-            $offset = $_GET['offset'] ?? 0;
+            $limit = intval($_GET['limit'] ?? 50);
+            $offset = intval($_GET['offset'] ?? 0);
 
+            error_log("Loading activities for user $userId (limit: $limit, offset: $offset)");
             $activities = $activityLog->getUserActivities($userId, $limit, $offset);
             
             echo json_encode([
@@ -69,15 +90,17 @@ try {
 
         } elseif ($action === 'login_history') {
             // Get login history for current user
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+                error_log("Login History Access Denied - No session user_id");
                 http_response_code(401);
-                echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+                echo json_encode(['success' => false, 'error' => 'Not authenticated', 'message' => 'Please log in first']);
                 exit;
             }
 
             $userId = $_SESSION['user_id'];
-            $limit = $_GET['limit'] ?? 20;
+            $limit = intval($_GET['limit'] ?? 20);
 
+            error_log("Loading login history for user $userId");
             $history = $activityLog->getLoginHistory($userId, $limit);
             
             echo json_encode([
@@ -89,13 +112,15 @@ try {
 
         } elseif ($action === 'user_stats') {
             // Get access statistics for current user
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+                error_log("User Stats Access Denied - No session user_id");
                 http_response_code(401);
-                echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+                echo json_encode(['success' => false, 'error' => 'Not authenticated', 'message' => 'Please log in first']);
                 exit;
             }
 
             $userId = $_SESSION['user_id'];
+            error_log("Loading stats for user $userId");
             $stats = $activityLog->getUserStats($userId);
             
             echo json_encode([
