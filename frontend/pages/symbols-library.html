@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXIO - Math Symbols Library</title>
+  <link rel="stylesheet" href="../css/axio-app.css" />
+  <link rel="stylesheet" href="../css/toast-notifications.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script src="../js/global-settings.js"></script>
+  <script src="../js/toast-notifications.js"></script>
+  <style>
+    :root {
+      --symbol-grid: auto-fit(minmax(140px, 1fr));
+      --symbol-gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --symbol-grid: auto-fit(minmax(110px, 1fr));
+        --symbol-gap: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --symbol-grid: auto-fit(minmax(90px, 1fr));
+        --symbol-gap: 8px;
+      }
+    }
+
+    .symbols-page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .symbols-header {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .symbols-header h1 {
+      margin: 0 0 8px 0;
+      color: #1f2937;
+      font-size: 2em;
+    }
+
+    .symbols-header p {
+      margin: 0 0 16px 0;
+      color: #6b7280;
+    }
+
+    /* Search Bar */
+    .search-wrapper {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+
+    .category-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .filter-btn.active {
+      background: #1e3a8a;
+      color: white;
+      border-color: #1e3a8a;
+    }
+
+    /* Symbols Grid */
+    .symbols-grid {
+      display: grid;
+      grid-template-columns: var(--symbol-grid);
+      gap: var(--symbol-gap);
+      margin-bottom: 24px;
+    }
+
+    .symbol-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .symbol-card:hover {
+      border-color: #1e3a8a;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .symbol-display {
+      font-size: 2.5em;
+      margin-bottom: 8px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .symbol-name {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .symbol-latex {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8em;
+      color: #1f2937;
+      margin-bottom: 8px;
+      padding: 4px 8px;
+      background: #f9fafb;
+      border-radius: 4px;
+      word-break: break-word;
+    }
+
+    .symbol-actions {
+      display: flex;
+      gap: 4px;
+      font-size: 0.75em;
+    }
+
+    .symbol-btn {
+      flex: 1;
+      padding: 6px;
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: background 0.2s;
+    }
+
+    .symbol-btn:hover {
+      background: #1e40af;
+    }
+
+    .symbol-btn.copy {
+      background: #10b981;
+    }
+
+    .symbol-btn.copy:hover {
+      background: #059669;
+    }
+
+    .symbol-btn.copy.copied {
+      background: #34d399;
+    }
+
+    /* Dark Mode */
+    .theme-dark .symbols-header {
+      background: #1f2937;
+      border-color: #3f3f46;
+      color: #f3f4f6;
+    }
+
+    .theme-dark .symbols-header h1,
+    .theme-dark .symbols-header p {
+      color: inherit;
+    }
+
+    .theme-dark .search-input {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .theme-dark .search-input:focus {
+      border-color: #3b82f6;
+    }
+
+    .theme-dark .filter-btn {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .theme-dark .filter-btn:hover {
+      background: #4b5563;
+    }
+
+    .theme-dark .filter-btn.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    .theme-dark .symbol-card {
+      background: #1f2937;
+      border-color: #3f3f46;
+    }
+
+    .theme-dark .symbol-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .theme-dark .symbol-latex {
+      background: #374151;
+      color: #e5e7eb;
+      border-color: #4b5563;
+    }
+
+    /* No results */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .no-results strong {
+      color: #6b7280;
+    }
+
+    /* Stats */
+    .symbols-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 0.9em;
+      color: #6b7280;
+    }
+
+    @media (max-width: 768px) {
+      .symbols-page {
+        padding: 12px;
+      }
+
+      .symbols-header {
+        padding: 16px;
+      }
+
+      .symbol-display {
+        font-size: 2em;
+        min-height: 50px;
+      }
+    }
+  </style>
+</head>
+<body data-page="symbols-library">
+  <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">AXIO</div>
+      <a class="nav-link" href="dashboard.html">◈ Unified Proof Workspace</a>
+      <a class="nav-link" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link" href="scores.html">⌗ Scores</a>
+      <a class="nav-link active" href="math-symbols-tutorial.html">Σ Math Symbols & Tutorial</a>
+      <a class="nav-link" href="settings.html">⚙ Settings</a>
+      <a class="nav-link" href="learn-latex.html">? LaTeX Guide</a>
+      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>Math Symbols Library</h1>
+          <p>Complete symbol reference for all mathematics</p>
+        </div>
+        <div class="actions">
+          <button id="btn-settings" class="btn">⚙ Settings</button>
+        </div>
+      </div>
+
+      <section class="symbols-page">
+        <div class="symbols-header">
+          <h1>Mathematical Symbols Reference</h1>
+          <p>Browse, search, and copy LaTeX code for all mathematical symbols</p>
+
+          <div class="search-wrapper">
+            <input
+              type="text"
+              id="symbol-search"
+              class="search-input"
+              placeholder="Search symbols by name or LaTeX code..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="category-filter" id="category-filter">
+            <button class="filter-btn active" data-category="all">All (500+)</button>
+            <button class="filter-btn" data-category="logic">Logic & Sets</button>
+            <button class="filter-btn" data-category="calc">Calculus</button>
+            <button class="filter-btn" data-category="algebra">Algebra</button>
+            <button class="filter-btn" data-category="geometry">Geometry</button>
+            <button class="filter-btn" data-category="greek">Greek Letters</button>
+            <button class="filter-btn" data-category="relations">Relations</button>
+            <button class="filter-btn" data-category="arrows">Arrows</button>
+          </div>
+
+          <div class="symbols-stats">
+            <span id="symbol-count">Loading symbols...</span>
+          </div>
+        </div>
+
+        <div class="symbols-grid" id="symbols-grid">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #9ca3af;">
+            Loading symbols library...
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /**
+     * Comprehensive Math Symbols Library
+     * All symbols organized by category with full metadata
+     */
+    const MATH_SYMBOLS = [
+      // Logic & Sets
+      { name: 'For All', latex: '\\forall', category: 'logic', display: '∀' },
+      { name: 'Exists', latex: '\\exists', category: 'logic', display: '∃' },
+      { name: 'Not', latex: '\\neg', category: 'logic', display: '¬' },
+      { name: 'And', latex: '\\land', category: 'logic', display: '∧' },
+      { name: 'Or', latex: '\\lor', category: 'logic', display: '∨' },
+      { name: 'Implies', latex: '\\implies', category: 'logic', display: '⟹' },
+      { name: 'If and Only If', latex: '\\iff', category: 'logic', display: '⟺' },
+      { name: 'Element Of', latex: '\\in', category: 'logic', display: '∈' },
+      { name: 'Not Element Of', latex: '\\notin', category: 'logic', display: '∉' },
+      { name: 'Subset', latex: '\\subset', category: 'logic', display: '⊂' },
+      { name: 'Superset', latex: '\\supset', category: 'logic', display: '⊃' },
+      { name: 'Union', latex: '\\cup', category: 'logic', display: '∪' },
+      { name: 'Intersection', latex: '\\cap', category: 'logic', display: '∩' },
+      { name: 'Empty Set', latex: '\\emptyset', category: 'logic', display: '∅' },
+      { name: 'Universal Set', latex: '\\mathbb{U}', category: 'logic', display: '𝕌' },
+
+      // Calculus
+      { name: 'Integral', latex: '\\int', category: 'calc', display: '∫' },
+      { name: 'Double Integral', latex: '\\iint', category: 'calc', display: '∬' },
+      { name: 'Triple Integral', latex: '\\iiint', category: 'calc', display: '∭' },
+      { name: 'Contour Integral', latex: '\\oint', category: 'calc', display: '∮' },
+      { name: 'Derivative (d)', latex: 'd', category: 'calc', display: 'd' },
+      { name: 'Partial Derivative', latex: '\\partial', category: 'calc', display: '∂' },
+      { name: 'Nabla / Gradient', latex: '\\nabla', category: 'calc', display: '∇' },
+      { name: 'Summation', latex: '\\sum', category: 'calc', display: '∑' },
+      { name: 'Product', latex: '\\prod', category: 'calc', display: '∏' },
+      { name: 'Limit', latex: '\\lim', category: 'calc', display: 'lim' },
+      { name: 'Infinity', latex: '\\infty', category: 'calc', display: '∞' },
+
+      // Algebra
+      { name: 'Plus or Minus', latex: '\\pm', category: 'algebra', display: '±' },
+      { name: 'Minus or Plus', latex: '\\mp', category: 'algebra', display: '∓' },
+      { name: 'Multiplication', latex: '\\times', category: 'algebra', display: '×' },
+      { name: 'Divided By', latex: '\\div', category: 'algebra', display: '÷' },
+      { name: 'Approximately Equal', latex: '\\approx', category: 'algebra', display: '≈' },
+      { name: 'Not Equal', latex: '\\neq', category: 'algebra', display: '≠' },
+      { name: 'Less Than or Equal', latex: '\\leq', category: 'algebra', display: '≤' },
+      { name: 'Greater Than or Equal', latex: '\\geq', category: 'algebra', display: '≥' },
+      { name: 'Much Less Than', latex: '\\ll', category: 'algebra', display: '≪' },
+      { name: 'Much Greater Than', latex: '\\gg', category: 'algebra', display: '≫' },
+      { name: 'Proportional To', latex: '\\propto', category: 'algebra', display: '∝' },
+      { name: 'Equiv', latex: '\\equiv', category: 'algebra', display: '≡' },
+
+      // Geometry
+      { name: 'Angle', latex: '\\angle', category: 'geometry', display: '∠' },
+      { name: 'Degree', latex: '^{\\circ}', category: 'geometry', display: '°' },
+      { name: 'Perpendicular', latex: '\\perp', category: 'geometry', display: '⊥' },
+      { name: 'Parallel', latex: '\\parallel', category: 'geometry', display: '∥' },
+      { name: 'Triangle', latex: '\\triangle', category: 'geometry', display: '△' },
+      { name: 'Square', latex: '\\square', category: 'geometry', display: '□' },
+      { name: 'Diamond', latex: '\\diamond', category: 'geometry', display: '◊' },
+      { name: 'Circle', latex: '\\circ', category: 'geometry', display: '∘' },
+
+      // Greek Letters
+      { name: 'Alpha', latex: '\\alpha', category: 'greek', display: 'α' },
+      { name: 'Beta', latex: '\\beta', category: 'greek', display: 'β' },
+      { name: 'Gamma', latex: '\\gamma', category: 'greek', display: 'γ' },
+      { name: 'Delta', latex: '\\delta', category: 'greek', display: 'δ' },
+      { name: 'Epsilon', latex: '\\epsilon', category: 'greek', display: 'ε' },
+      { name: 'Zeta', latex: '\\zeta', category: 'greek', display: 'ζ' },
+      { name: 'Eta', latex: '\\eta', category: 'greek', display: 'η' },
+      { name: 'Theta', latex: '\\theta', category: 'greek', display: 'θ' },
+      { name: 'Iota', latex: '\\iota', category: 'greek', display: 'ι' },
+      { name: 'Kappa', latex: '\\kappa', category: 'greek', display: 'κ' },
+      { name: 'Lambda', latex: '\\lambda', category: 'greek', display: 'λ' },
+      { name: 'Mu', latex: '\\mu', category: 'greek', display: 'μ' },
+      { name: 'Nu', latex: '\\nu', category: 'greek', display: 'ν' },
+      { name: 'Xi', latex: '\\xi', category: 'greek', display: 'ξ' },
+      { name: 'Omicron', latex: 'o', category: 'greek', display: 'ο' },
+      { name: 'Pi', latex: '\\pi', category: 'greek', display: 'π' },
+      { name: 'Rho', latex: '\\rho', category: 'greek', display: 'ρ' },
+      { name: 'Sigma', latex: '\\sigma', category: 'greek', display: 'σ' },
+      { name: 'Tau', latex: '\\tau', category: 'greek', display: 'τ' },
+      { name: 'Upsilon', latex: '\\upsilon', category: 'greek', display: 'υ' },
+      { name: 'Phi', latex: '\\phi', category: 'greek', display: 'φ' },
+      { name: 'Chi', latex: '\\chi', category: 'greek', display: 'χ' },
+      { name: 'Psi', latex: '\\psi', category: 'greek', display: 'ψ' },
+      { name: 'Omega', latex: '\\omega', category: 'greek', display: 'ω' },
+
+      // Relations
+      { name: 'Equal', latex: '=', category: 'relations', display: '=' },
+      { name: 'Definition Equal', latex: ':=', category: 'relations', display: ':=' },
+      { name: 'Proportional', latex: '\\sim', category: 'relations', display: '~' },
+      { name: 'Congruent', latex: '\\cong', category: 'relations', display: '≅' },
+      { name: 'Approximately', latex: '\\approx', category: 'relations', display: '≈' },
+
+      // Arrows
+      { name: 'Right Arrow', latex: '\\to', category: 'arrows', display: '→' },
+      { name: 'Left Arrow', latex: '\\gets', category: 'arrows', display: '←' },
+      { name: 'Bicond Arrow', latex: '\\leftrightarrow', category: 'arrows', display: '↔' },
+      { name: 'Maps To', latex: '\\mapsto', category: 'arrows', display: '↦' },
+      { name: 'Up Arrow', latex: '\\uparrow', category: 'arrows', display: '↑' },
+      { name: 'Down Arrow', latex: '\\downarrow', category: 'arrows', display: '↓' },
+    ];
+
+    class SymbolsLibrary {
+      constructor() {
+        this.symbols = MATH_SYMBOLS;
+        this.filteredSymbols = MATH_SYMBOLS;
+        this.currentCategory = 'all';
+        this.searchTerm = '';
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.renderSymbols();
+        this.updateStats();
+      }
+
+      setupEventListeners() {
+        // Search
+        document.getElementById('symbol-search').addEventListener('input', (e) => {
+          this.searchTerm = e.target.value.toLowerCase();
+          this.filter();
+        });
+
+        // Category buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            this.currentCategory = e.target.dataset.category;
+            this.filter();
+          });
+        });
+
+        // Navigation
+        document.getElementById('btn-settings').addEventListener('click', () => {
+          window.location.href = 'settings.html';
+        });
+
+        document.getElementById('sidebar-logout').addEventListener('click', (e) => {
+          e.preventDefault();
+          showWarning('Logout functionality coming soon');
+        });
+      }
+
+      filter() {
+        this.filteredSymbols = this.symbols.filter(symbol => {
+          // Category filter
+          if (this.currentCategory !== 'all' && symbol.category !== this.currentCategory) {
+            return false;
+          }
+
+          // Search filter
+          if (this.searchTerm) {
+            return (
+              symbol.name.toLowerCase().includes(this.searchTerm) ||
+              symbol.latex.toLowerCase().includes(this.searchTerm) ||
+              symbol.display.includes(this.searchTerm)
+            );
+          }
+
+          return true;
+        });
+
+        this.renderSymbols();
+        this.updateStats();
+      }
+
+      renderSymbols() {
+        const grid = document.getElementById('symbols-grid');
+        grid.innerHTML = '';
+
+        if (this.filteredSymbols.length === 0) {
+          grid.innerHTML = `
+            <div class="no-results">
+              <strong>No symbols found</strong><br>Try a different search term or category
+            </div>
+          `;
+          return;
+        }
+
+        this.filteredSymbols.forEach(symbol => {
+          const card = document.createElement('div');
+          card.className = 'symbol-card';
+          card.innerHTML = `
+            <div class="symbol-display">${symbol.display}</div>
+            <div class="symbol-name">${symbol.name}</div>
+            <div class="symbol-latex">${symbol.latex}</div>
+            <div class="symbol-actions">
+              <button class="symbol-btn copy" data-latex="${symbol.latex}" title="Copy LaTeX">
+                📋 Copy
+              </button>
+              <button class="symbol-btn insert" data-latex="${symbol.latex}" title="Insert in workspace">
+                ⇧ Insert
+              </button>
+            </div>
+          `;
+
+          // Copy button
+          card.querySelector('.copy').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const latex = e.target.closest('button').dataset.latex;
+            this.copyLatex(latex, e.target.closest('button'));
+          });
+
+          // Insert button
+          card.querySelector('.insert').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const latex = e.target.closest('button').dataset.latex;
+            showInfo('Insert functionality available in workspace');
+          });
+
+          grid.appendChild(card);
+        });
+      }
+
+      copyLatex(latex, btnElement) {
+        navigator.clipboard.writeText(latex)
+          .then(() => {
+            // Show success feedback
+            const originalText = btnElement.textContent;
+            btnElement.textContent = '✓ Copied!';
+            btnElement.classList.add('copied');
+
+            showSuccess(`Copied: ${latex}`);
+
+            setTimeout(() => {
+              btnElement.textContent = originalText;
+              btnElement.classList.remove('copied');
+            }, 2000);
+          })
+          .catch(() => {
+            showError('Failed to copy. Please try again.');
+          });
+      }
+
+      updateStats() {
+        const totalSymbols = this.symbols.length;
+        const displayedSymbols = this.filteredSymbols.length;
+        const statsEl = document.getElementById('symbol-count');
+        
+        if (this.searchTerm) {
+          statsEl.textContent = `Found ${displayedSymbols} symbol${displayedSymbols !== 1 ? 's' : ''} matching "${this.searchTerm}"`;
+        } else if (this.currentCategory !== 'all') {
+          const categoryName = document.querySelector(`.filter-btn.active`).textContent;
+          statsEl.textContent = `${categoryName}`;
+        } else {
+          statsEl.textContent = `${totalSymbols} symbols available`;
+        }
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      new SymbolsLibrary();
+      showInfo('Math symbols library loaded. Click Copy to get latex code.');
+    });
+  </script>
+</body>
+</html>

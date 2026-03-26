@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX & Math Tutorial - AXIO</title>
+    <link rel="stylesheet" href="../css/axio-app.css">
+  <link rel="stylesheet" href="../css/enhanced-ui.css">
+  <link rel="stylesheet" href="../css/dark-mode.css">
+  <link rel="stylesheet" href="../css/proof-modes.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script src="../js/global-settings.js"></script>
+    <style>
+        .sidebar-nav { display: flex; flex-direction: column; }
+        .sidebar .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            color: #e6fffb; text-decoration: none;
+            padding: 10px 12px; border-radius: 12px; margin-bottom: 8px;
+        }
+        .sidebar .nav-item.active { background: rgba(255, 255, 255, 0.16); border-left: 4px solid #86efac; }
+        .sidebar .nav-item:hover { background: rgba(255, 255, 255, 0.12); }
+
+        .tutorial-container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        
+        .tutorial-header {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            color: white;
+            padding: 40px 32px;
+            border-radius: 14px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .tutorial-header h1 { margin: 0 0 8px 0; font-size: 2.5em; }
+        .tutorial-header p { margin: 0; opacity: 0.95; font-size: 1.1em; }
+
+        .tutorial-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tutorial-nav button {
+            padding: 10px 20px;
+            border: 2px solid #0f766e;
+            background: white;
+            color: #0f766e;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tutorial-nav button:hover {
+            background: #0f766e;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tutorial-nav button.active {
+            background: #0f766e;
+            color: white;
+        }
+
+        .category-section {
+            background: white;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 28px;
+            display: none;
+        }
+
+        .category-section.active { display: block; }
+
+        .category-section h2 {
+            color: #1e3a8a;
+            margin: 0 0 24px 0;
+            font-size: 1.8em;
+            border-bottom: 3px solid #0f766e;
+            padding-bottom: 12px;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .symbol-card {
+            background: #f9fafb;
+            border: 1px solid rgba(30, 58, 138, 0.16);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .symbol-card:hover {
+            border-color: #0f766e;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .symbol-name {
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .symbol-preview {
+            background: white;
+            border: 1px solid rgba(30, 58, 138, 0.12);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 12px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+        }
+
+        .symbol-code {
+            background: #f3f4f6;
+            border: 1px solid rgba(30, 58, 138, 0.12);
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #1e3a8a;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .symbol-explanation {
+            color: #4b5563;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .symbol-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-copy {
+            padding: 8px 14px;
+            background: #14b8a6;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #0f766e;
+            transform: scale(1.05);
+        }
+
+        .btn-copy.copied {
+            background: #059669;
+        }
+
+        .example-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #f3e8ff 100%);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .example-title {
+            color: #1e3a8a;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .example-latex {
+            background: white;
+            border-left: 4px solid #0f766e;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-family: monospace;
+            color: #1e3a8a;
+            font-size: 0.95em;
+        }
+
+        .example-preview {
+            background: white;
+            border: 1px solid rgba(30, 58, 138, 0.12);
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 24px;
+            display: block;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(30, 58, 138, 0.2);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        }
+
+        .quick-tips {
+            background: #eff6ff;
+            border-left: 4px solid #0f766e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .quick-tips h3 {
+            margin: 0 0 12px 0;
+            color: #1e3a8a;
+        }
+
+        .quick-tips ul { margin: 0; padding-left: 20px; }
+        .quick-tips li { margin-bottom: 8px; color: #4b5563; }
+
+        /* Dark Mode */
+        .theme-dark .category-section,
+        .theme-dark .symbol-card,
+        .theme-dark .example-section,
+        .theme-dark .symbol-preview {
+            background: #0b1220 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #e2e8f0 !important;
+        }
+
+        .theme-dark .symbol-name,
+        .theme-dark .example-title,
+        .theme-dark .category-section h2 {
+            color: #c7d2fe !important;
+        }
+
+        .theme-dark .symbol-explanation,
+        .theme-dark .quick-tips li {
+            color: #cbd5e1 !important;
+        }
+
+        .theme-dark .symbol-code {
+            background: #1f2937 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #7dd3fc !important;
+        }
+
+        .theme-dark .example-latex {
+            background: #1f2937 !important;
+            border-left-color: #14b8a6 !important;
+            color: #7dd3fc !important;
+        }
+
+        .theme-dark .quick-tips {
+            background: rgba(15, 118, 110, 0.15) !important;
+            border-left-color: #14b8a6 !important;
+        }
+
+        .theme-dark .search-box input {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #e2e8f0 !important;
+        }
+
+        .theme-dark .search-box input:focus {
+            border-color: #14b8a6 !important;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15) !important;
+        }
+
+        .theme-dark .tutorial-nav button {
+            background: #111827 !important;
+            border-color: #0f766e !important;
+            color: #14b8a6 !important;
+        }
+
+        .theme-dark .tutorial-nav button:hover,
+        .theme-dark .tutorial-nav button.active {
+            background: #0f766e !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="math-background">
+        <span class="math-symbol">∫</span>
+        <span class="math-symbol">∂</span>
+        <span class="math-symbol">∑</span>
+        <span class="math-symbol">∞</span>
+        <span class="math-symbol">λ</span>
+        <span class="math-symbol">∀</span>
+        <span class="math-symbol">∃</span>
+        <span class="math-symbol">∈</span>
+        <span class="math-symbol">→</span>
+        <span class="math-symbol">⇒</span>
+        <span class="math-symbol">⇔</span>
+        <span class="math-symbol">√</span>
+        <span class="math-symbol">∆</span>
+        <span class="math-symbol">∇</span>
+        <span class="math-symbol">∮</span>
+    </div>
+    
+    <div class="particles">
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+    </div>
+
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <a href="landing.html" style="text-decoration: none;">
+                <div class="logo" style="cursor: pointer;">AXIO</div>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">◈ Unified Proof Workspace</a>
+                <a href="submissions.html" class="nav-item">⌁ My Proofs</a>
+                <a href="scores.html" class="nav-item">⌗ Scores</a>
+                <a href="tutorial.html" class="nav-item active">📚 Tutorial</a>
+                <a href="settings.html" class="nav-item">⚙ Settings</a>
+            </nav>
+        </aside>
+
+        <main class="main-area main">
+            <div class="tutorial-container">
+                <div class="tutorial-header">
+                    <h1>📚 LaTeX & Math Tutorial</h1>
+                    <p>Learn mathematical notation and LaTeX syntax with live previews</p>
+                </div>
+
+                <div class="quick-tips">
+                    <h3>💡 Getting Started</h3>
+                    <ul>
+                        <li><strong>Copy LaTeX Code:</strong> Click the copy button to use the code in the AI Tutor</li>
+                        <li><strong>Live Preview:</strong> See how LaTeX renders in real-time</li>
+                        <li><strong>Learn by Example:</strong> Each symbol includes usage examples</li>
+                        <li><strong>Search:</strong> Use the search box to find specific symbols quickly</li>
+                    </ul>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="symbol-search" placeholder="🔍 Search symbols (e.g., integral, sum, limit)...">
+                </div>
+
+                <div class="tutorial-nav">
+                    <button class="category-btn active" data-category="basic">Basic Operators</button>
+                    <button class="category-btn" data-category="relations">Relations</button>
+                    <button class="category-btn" data-category="logic">Logic & Sets</button>
+                    <button class="category-btn" data-category="calculus">Calculus</button>
+                    <button class="category-btn" data-category="greek">Greek Letters</button>
+                    <button class="category-btn" data-category="advanced">Advanced</button>
+                </div>
+
+                <!-- Basic Operators -->
+                <div id="basic" class="category-section active">
+                    <h2>Basic Operators</h2>
+                    <div class="symbol-grid" id="basic-grid"></div>
+                </div>
+
+                <!-- Relations -->
+                <div id="relations" class="category-section">
+                    <h2>Relations & Comparisons</h2>
+                    <div class="symbol-grid" id="relations-grid"></div>
+                </div>
+
+                <!-- Logic & Sets -->
+                <div id="logic" class="category-section">
+                    <h2>Logic & Set Theory</h2>
+                    <div class="symbol-grid" id="logic-grid"></div>
+                </div>
+
+                <!-- Calculus -->
+                <div id="calculus" class="category-section">
+                    <h2>Calculus & Analysis</h2>
+                    <div class="symbol-grid" id="calculus-grid"></div>
+                </div>
+
+                <!-- Greek Letters -->
+                <div id="greek" class="category-section">
+                    <h2>Greek Letters</h2>
+                    <div class="symbol-grid" id="greek-grid"></div>
+                </div>
+
+                <!-- Advanced -->
+                <div id="advanced" class="category-section">
+                    <h2>Advanced Structures</h2>
+                    <div class="symbol-grid" id="advanced-grid"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/tutorial.js"></script>
+</body>
+</html>

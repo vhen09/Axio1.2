@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Demo - No Database Required</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button:hover { background: #5568d3; }
+        .result-box {
+            background: white;
+            border: 2px solid #e1e4e8;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 15px;
+            min-height: 100px;
+        }
+        .theorem-card {
+            background: white;
+            border: 1px solid #e1e4e8;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            border: 2px solid #e1e4e8;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="header">
+            <h1>🚀 Lean4 AI Web App - Quick Demo</h1>
+            <p>Testing System Features (No Database Required)</p>
+        </div>
+
+        <div class="section">
+            <h2>📚 Sample Theorems (Hardcoded Demo Data)</h2>
+            <div id="theoremList"></div>
+        </div>
+
+        <div class="section">
+            <h2>🤖 Test Natural Language to Lean Conversion</h2>
+            <p class="info">This will call the DeepSeek API to convert natural language proof to Lean code.</p>
+            
+            <label><strong>Select Theorem:</strong></label>
+            <select id="theoremSelect" style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 2px solid #e1e4e8;">
+                <option value="archimedean">Archimedean Property</option>
+                <option value="squeeze">Squeeze Theorem</option>
+                <option value="monotone">Monotone Convergence Theorem</option>
+            </select>
+
+            <label><strong>Natural Language Proof (Any Language):</strong></label>
+            <textarea id="proofInput" placeholder="Enter your proof in natural language (English, Tagalog, etc.)...">Let n be a natural number greater than x using the unboundedness of natural numbers. Then n-1 ≤ x < n by choice of n.</textarea>
+
+            <button class="button" onclick="testConversion()">🔄 Convert to Lean</button>
+            
+            <div class="result-box" id="conversionResult">
+                <em>Result will appear here...</em>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Test AI Proof Tutor</h2>
+            <p class="info">Get step-by-step guidance from AI tutor.</p>
+            
+            <label><strong>Question:</strong></label>
+            <textarea id="tutorQuestion" placeholder="Ask the AI tutor for help...">How do I prove the Squeeze Theorem? What are the key steps?</textarea>
+
+            <button class="button" onclick="testTutor()">🎓 Get Tutoring</button>
+            
+            <div class="result-box" id="tutorResult">
+                <em>Result will appear here...</em>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 System Status</h2>
+            <div id="systemStatus">
+                <p><span class="success">✅ PHP Server:</span> Running on port 8080</p>
+                <p><span class="error">❌ Database:</span> Not connected (using demo data)</p>
+                <p><span class="info">⚠️ DeepSeek API:</span> Will be tested when you click buttons above</p>
+                <p><span class="error">❌ Lean Verification:</span> Currently mocked (returns dummy results)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample theorem data (hardcoded)
+        const sampleTheorems = [
+            {
+                name: "Archimedean Property",
+                statement: "For any real number x, there exists a natural number n such that n > x",
+                category: "Real Numbers",
+                difficulty: "Intermediate"
+            },
+            {
+                name: "Squeeze Theorem",
+                statement: "If f(x) ≤ g(x) ≤ h(x) and lim f(x) = lim h(x) = L, then lim g(x) = L",
+                category: "Sequences & Limits",
+                difficulty: "Intermediate"
+            },
+            {
+                name: "Monotone Convergence Theorem",
+                statement: "A monotone bounded sequence converges",
+                category: "Sequences & Limits",
+                difficulty: "Advanced"
+            }
+        ];
+
+        // Display sample theorems
+        function displayTheorems() {
+            const container = document.getElementById('theoremList');
+            container.innerHTML = sampleTheorems.map(thm => `
+                <div class="theorem-card">
+                    <h3>${thm.name}</h3>
+                    <p><strong>Statement:</strong> ${thm.statement}</p>
+                    <p><strong>Category:</strong> ${thm.category} | <strong>Difficulty:</strong> ${thm.difficulty}</p>
+                </div>
+            `).join('');
+        }
+
+        // Test Natural Language to Lean conversion
+        async function testConversion() {
+            const theorem = document.getElementById('theoremSelect').value;
+            const proof = document.getElementById('proofInput').value;
+            const resultDiv = document.getElementById('conversionResult');
+
+            resultDiv.innerHTML = '<p class="info">⏳ Calling DeepSeek API...</p>';
+
+            try {
+                const response = await fetch('/backend/api/proof.php?action=convert_to_lean', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        theorem_statement: getTheoremStatement(theorem),
+                        natural_language_proof: proof
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Conversion Successful!</p>
+                        <h4>Generated Lean Code:</h4>
+                        <div class="code-block">${escapeHtml(data.lean_code || 'No code returned')}</div>
+                        ${data.explanation ? `<p><strong>Explanation:</strong> ${data.explanation}</p>` : ''}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Error: ${data.error || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>
+                    <p><em>Make sure DeepSeek API key is configured in backend/config/deepseek.php</em></p>`;
+            }
+        }
+
+        // Test AI Tutor
+        async function testTutor() {
+            const question = document.getElementById('tutorQuestion').value;
+            const resultDiv = document.getElementById('tutorResult');
+
+            resultDiv.innerHTML = '<p class="info">⏳ Calling AI Tutor...</p>';
+
+            try {
+                const response = await fetch('/backend/api/tutor.php?action=get_assistance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        theorem: "General Question",
+                        question: question
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Response Received!</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; white-space: pre-wrap;">
+                            ${escapeHtml(data.response || data.guidance || 'No response')}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ Error: ${data.error || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>
+                    <p><em>Make sure DeepSeek API key is configured in backend/config/deepseek.php</em></p>`;
+            }
+        }
+
+        function getTheoremStatement(key) {
+            const statements = {
+                'archimedean': 'For any real number x, there exists a natural number n such that n > x',
+                'squeeze': 'If f(x) ≤ g(x) ≤ h(x) and lim f(x) = lim h(x) = L, then lim g(x) = L',
+                'monotone': 'A monotone bounded sequence converges'
+            };
+            return statements[key] || statements['archimedean'];
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on page load
+        displayTheorems();
+    </script>
+</body>
+</html>

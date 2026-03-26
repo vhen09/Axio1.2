@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axio - Mathematical Proof Assistant</title>
+    <script>
+        console.log('Index.html: Checking authentication...');
+        
+        // Check if user is authenticated
+        fetch('backend/api/auth.php?action=check_session', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(r => r.json())
+        .then(data => {
+            console.log('Index auth check response:', data);
+            
+            if (data.authenticated) {
+                // User is logged in, check what stage they're at
+                const skillCheckDone = sessionStorage.getItem('latex_skill_done');
+                const tutorialDone = sessionStorage.getItem('tutorial_completed');
+                
+                console.log('Skill check done:', skillCheckDone);
+                console.log('Tutorial done:', tutorialDone);
+                
+                if (!skillCheckDone) {
+                    console.log('Redirecting to latex skill check');
+                    window.location.replace('pages/latex-skill-check.html');
+                } else if (!tutorialDone) {
+                    console.log('Redirecting to tutorial');
+                    window.location.replace('pages/tutorial.html');
+                } else {
+                    console.log('Redirecting to dashboard');
+                    window.location.replace('pages/dashboard.html');
+                }
+            } else {
+                // Not logged in, go to landing page
+                console.log('Not authenticated, redirecting to landing');
+                window.location.replace('pages/landing.html');
+            }
+        })
+        .catch(err => {
+            console.error('Index auth check failed:', err);
+            // Error checking auth, go to landing page
+            window.location.replace('pages/landing.html');
+        });
+    </script>
+</head>
+<body>
+    <p>Loading Axio...</p>
+</body>
+</html>

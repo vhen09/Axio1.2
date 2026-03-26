@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: axio-app
+    runtime: php
+    plan: free
+    startCommand: cd backend && php -S 0.0.0.0:8080
+    buildCommand: |
+      echo "Building AXIO app..."
+      composer install --no-dev --optimize-autoloader 2>&1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEEPSEEK_API_KEY
+        scope: build

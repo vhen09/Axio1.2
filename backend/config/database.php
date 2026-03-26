@@ -77,16 +77,22 @@ class Database {
 
     private function connectWithCredentials() {
         try {
+            // Check if PostgreSQL extension is available and host is accessible
+            if (!extension_loaded('pdo_pgsql')) {
+                error_log("Database: PostgreSQL extension not available, using SQLite");
+                $this->tryDemoMode();
+                return;
+            }
+            
             // Default to PostgreSQL (changed from MySQL)
-            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db}";
+            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db};connect_timeout=5";
             $this->pdo = new PDO(
                 $dsn,
                 $this->user,
                 $this->pass,
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_TIMEOUT => 5
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                 ]
             );
             error_log("Database: PostgreSQL connected successfully");

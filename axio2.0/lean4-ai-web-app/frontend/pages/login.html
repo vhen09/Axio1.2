@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - AXIO</title>
+  <link rel="stylesheet" href="../css/axio-app.css" />
+  <style>
+    .auth-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .auth-card {
+      width: min(420px, 94vw);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .auth-card h1 {
+      margin: 0 0 6px;
+      color: #0f766e;
+      font-size: 1.45rem;
+    }
+    .auth-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .auth-form { display: grid; gap: 10px; }
+    .auth-msg {
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 0.92rem;
+      color: #334155;
+    }
+    .auth-msg.err { color: #dc2626; }
+    .auth-msg.ok { color: #059669; }
+    .auth-actions { display: flex; gap: 8px; }
+    .auth-secondary { margin-top: 10px; display: flex; gap: 8px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h1>AXIO Login</h1>
+      <p>Login to access your proofs, scores, and analytics data.</p>
+
+      <form id="login-form" class="auth-form">
+        <input id="username" class="field" type="text" placeholder="Username" required />
+        <input id="password" class="field" type="password" placeholder="Password" required />
+        <input id="confirm-password" class="field hidden" type="password" placeholder="Confirm Password" />
+        <div class="auth-actions">
+          <button id="btn-submit" class="btn primary" type="submit">Login</button>
+          <button id="btn-signup-toggle" class="btn" type="button">Sign Up</button>
+        </div>
+        <div class="auth-secondary">
+          <button id="btn-back-login" class="btn hidden" type="button">Back to Login</button>
+        </div>
+      </form>
+
+      <div id="auth-msg" class="auth-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    const msgEl = document.getElementById('auth-msg');
+    const submitBtn = document.getElementById('btn-submit');
+    const signupToggleBtn = document.getElementById('btn-signup-toggle');
+    const backLoginBtn = document.getElementById('btn-back-login');
+    const confirmPasswordEl = document.getElementById('confirm-password');
+    let isSignupMode = false;
+
+    function setMsg(text, type = '') {
+      msgEl.textContent = text;
+      msgEl.className = 'auth-msg' + (type ? ' ' + type : '');
+    }
+
+    async function authRequest(payload) {
+      const endpoint = new URL('../../backend/api/auth.php', window.location.href).toString();
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Request failed.');
+      }
+      return data;
+    }
+
+    function setMode(signupMode) {
+      isSignupMode = signupMode;
+      submitBtn.textContent = signupMode ? 'Create Account' : 'Login';
+      signupToggleBtn.classList.toggle('hidden', signupMode);
+      backLoginBtn.classList.toggle('hidden', !signupMode);
+      confirmPasswordEl.classList.toggle('hidden', !signupMode);
+      confirmPasswordEl.required = signupMode;
+      setMsg(signupMode ? 'Create your new account.' : 'Login to continue.');
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setMsg(isSignupMode ? 'Creating account...' : 'Signing in...');
+
+      try {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = confirmPasswordEl.value;
+
+        if (isSignupMode) {
+          if (password !== confirmPassword) {
+            setMsg('Password and Confirm Password do not match.', 'err');
+            return;
+          }
+
+          const registerData = await authRequest({ action: 'signup', username, password });
+          if (!registerData.success) {
+            setMsg(registerData.message || 'Sign up failed.', 'err');
+            return;
+          }
+
+          setMsg('Sign up successful! You can now login.', 'ok');
+          setMode(false);
+          confirmPasswordEl.value = '';
+          return;
+        }
+
+        const data = await authRequest({ action: 'login', username, password });
+        if (!data.success) {
+          setMsg(data.message || 'Login failed.', 'err');
+          return;
+        }
+        setMsg('Login successful. Redirecting...', 'ok');
+        window.location.href = 'tutorial.html';
+      } catch (error) {
+        setMsg(error.message || 'Request failed.', 'err');
+      }
+    });
+
+    signupToggleBtn.addEventListener('click', () => {
+      setMode(true);
+    });
+
+    backLoginBtn.addEventListener('click', () => {
+      setMode(false);
+    });
+
+    (async function checkExistingAuth() {
+      try {
+        const response = await fetch('../../backend/api/auth.php');
+        const data = await response.json();
+        if (data.success && data.authenticated) {
+          window.location.href = 'dashboard.html';
+        }
+      } catch (_) {
+      }
+    })();
+
+    const queryMode = new URLSearchParams(window.location.search).get('mode');
+    setMode(queryMode === 'signup');
+  </script>
+</body>
+</html>

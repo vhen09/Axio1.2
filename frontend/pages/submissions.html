@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AXIO - My Proofs</title>
+    <link rel="stylesheet" href="../css/axio-app.css" />
+    <script src="../js/global-settings.js"></script>
+    <style>
+        .sidebar-header { display: none; }
+        .sidebar-nav { display: flex; flex-direction: column; }
+        .sidebar .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            color: #e6fffb; text-decoration: none;
+            padding: 10px 12px; border-radius: 12px; margin-bottom: 8px;
+        }
+        .sidebar .nav-item.active { background: rgba(255, 255, 255, 0.16); border-left: 4px solid #86efac; }
+        .sidebar .nav-item:hover { background: rgba(255, 255, 255, 0.12); }
+        .main-area { padding: 22px; }
+        .main-content { max-width: 1200px; margin: 0 auto; }
+        
+        .page-header {
+            background: linear-gradient(180deg, #ffffff, #f9fafb);
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            border-radius: 12px; padding: 25px; margin-bottom: 30px;
+        }
+        .page-header h1 { color: #1E3A8A; margin: 0 0 10px 0; }
+        .page-header p { color: #4b5563; margin: 0; }
+        
+        .stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; margin-bottom: 30px;
+        }
+        .mini-stat {
+            background: #ffffff !important; border: 1px solid rgba(30, 58, 138, 0.2);
+            border-radius: 10px; padding: 15px; text-align: center; color: #111827 !important;
+        }
+        .mini-stat .number { font-size: 2em; color: #1A2332 !important; font-weight: bold; }
+        .mini-stat .label { color: #4A5568 !important; font-size: 0.9em; margin-top: 5px; }
+        
+        .filter-bar {
+            display: flex; gap: 10px; margin-bottom: 20px;
+            flex-wrap: wrap; align-items: center;
+        }
+        .filter-btn {
+            padding: 8px 16px; background: rgba(30, 58, 138, 0.08);
+            border: 1px solid rgba(30, 58, 138, 0.2); border-radius: 6px;
+            color: #1E3A8A; cursor: pointer; transition: all 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #059669; color: #ffffff; border-color: #059669;
+        }
+        
+        .submissions-list { display: flex; flex-direction: column; gap: 20px; }
+        
+        .submission-card {
+            background: linear-gradient(180deg, #ffffff, #f9fafb);
+            border: 2px solid rgba(30, 58, 138, 0.15);
+            border-radius: 12px; padding: 0;
+            transition: all 0.3s ease; overflow: hidden;
+        }
+        .submission-card.completed {
+            border-color: rgba(22, 163, 74, 0.4);
+            background: linear-gradient(180deg, #f0fdf4, #f9fafb);
+        }
+        .submission-card:hover {
+            border-color: rgba(5, 150, 105, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(17, 24, 39, 0.15);
+        }
+        
+        .submission-header {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 15px; padding: 16px 20px;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+            background: linear-gradient(90deg, rgba(30, 58, 138, 0.02), rgba(30, 58, 138, 0.01));
+            flex-wrap: wrap;
+        }
+        .submission-card.completed .submission-header {
+            border-bottom-color: rgba(22, 163, 74, 0.15);
+            background: linear-gradient(90deg, rgba(22, 163, 74, 0.03), rgba(22, 163, 74, 0.01));
+        }
+        .submission-title-container { flex: 1; min-width: 0; }
+        .submission-title {
+            color: #1E3A8A; font-size: 1.15em; font-weight: 700;
+            margin: 0; word-break: break-word;
+        }
+        .submission-card.completed .submission-title { color: #059669; }
+        
+        .submission-body { padding: 20px; }
+        
+        .section-header {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 2px solid rgba(30, 58, 138, 0.1);
+        }
+        .section-header.theorem { border-bottom-color: rgba(30, 58, 138, 0.15); }
+        .section-header.steps { border-bottom-color: rgba(22, 163, 74, 0.15); }
+        .section-icon { font-size: 1.2em; }
+        .section-title {
+            font-size: 1em; font-weight: 700; color: #1E3A8A; margin: 0;
+        }
+        .submission-card.completed .section-title { color: #059669; }
+        
+        .submission-theorem {
+            background: rgba(30, 58, 138, 0.05); border-left: 4px solid #1E3A8A;
+            padding: 14px 18px; border-radius: 8px; margin-bottom: 20px;
+            font-weight: 500; color: #1E3A8A; line-height: 1.6;
+            word-break: break-word; font-size: 15px;
+        }
+        .submission-card.completed .submission-theorem {
+            background: rgba(22, 163, 74, 0.08); border-left-color: #059669; color: #047857;
+        }
+        
+        .submission-steps { display: flex; flex-direction: column; gap: 12px; }
+        .proof-step {
+            background: #f8fafc; border-left: 4px solid #8fb5a0;
+            padding: 14px 18px; border-radius: 8px; color: #374151;
+            line-height: 1.7; word-break: break-word; font-size: 14px;
+        }
+        .proof-step-number {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 24px; height: 24px; background: #059669;
+            color: white; border-radius: 50%; font-size: 12px;
+            font-weight: 700; margin-right: 10px; flex-shrink: 0;
+        }
+        .verified-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            margin-left: 10px; padding: 2px 8px;
+            background: #dcfce7; color: #15803d;
+            border-radius: 12px; font-size: 0.75em; font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            background: linear-gradient(180deg, #ffffff, #f9fafb);
+            border: 1px solid rgba(30, 58, 138, 0.2); border-radius: 12px;
+        }
+        .empty-state h2 { color: #1E3A8A; margin-bottom: 10px; }
+        .empty-state p { color: #4b5563; margin-bottom: 25px; }
+        .btn-primary {
+            display: inline-block; padding: 12px 30px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #1a3277 100%);
+            color: #ffffff; text-decoration: none; border-radius: 8px;
+            font-weight: bold; transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(17, 24, 39, 0.18); }
+        
+        .submission-meta {
+            display: flex; gap: 20px; flex-wrap: wrap;
+            padding: 16px 20px; border-top: 1px solid rgba(30, 58, 138, 0.1);
+            background: linear-gradient(90deg, rgba(30, 58, 138, 0.01), transparent);
+            font-size: 0.9em;
+        }
+        .submission-card.completed .submission-meta {
+            border-top-color: rgba(22, 163, 74, 0.15);
+            background: linear-gradient(90deg, rgba(22, 163, 74, 0.02), transparent);
+        }
+        
+        .submission-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .action-btn {
+            border: 1px solid rgba(30, 58, 138, 0.2); background: #ffffff;
+            border-radius: 6px; padding: 8px 14px; cursor: pointer;
+            color: #1E3A8A; font-weight: 600; font-size: 0.9em; transition: all 0.2s;
+        }
+        .action-btn:hover { background: #e0e7ff; border-color: rgba(30, 58, 138, 0.4); }
+        .action-btn.delete { color: #dc2626; border-color: rgba(220, 38, 38, 0.28); }
+        .action-btn.delete:hover { background: #fee2e2; border-color: rgba(220, 38, 38, 0.6); }
+        
+        .meta-item { display: flex; align-items: center; gap: 8px; color: #374151; font-size: 0.9rem; }
+        .meta-item .icon { font-size: 1.1em; }
+        
+        .score-badge {
+            display: inline-block; padding: 6px 15px; border-radius: 20px;
+            font-weight: bold; font-size: 0.95em;
+        }
+        .score-excellent { background: #059669; color: white; }
+        .score-good { background: #1E3A8A; color: white; }
+        .score-fair { background: #FBBF24; color: #111827; }
+        .score-poor { background: #d1d5db; color: #111827; }
+
+        .theme-dark .page-header, .theme-dark .mini-stat, .theme-dark .submission-card,
+        .theme-dark .empty-state, .theme-dark .action-btn, .theme-dark .filter-btn {
+            background: #0b1220 !important; color: #e2e8f0 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+        }
+        .theme-dark .page-header h1, .theme-dark .submission-title, .theme-dark .mini-stat .number,
+        .theme-dark .btn-primary, .theme-dark .score-badge { color: #c7d2fe !important; }
+        .theme-dark .page-header p, .theme-dark .mini-stat .label, .theme-dark .meta-item,
+        .theme-dark .empty-state p, .theme-dark .empty-state h2, .theme-dark .section-title {
+            color: #e2e8f0 !important;
+        }
+        .theme-dark .submission-theorem {
+            background: rgba(30, 58, 138, 0.12); color: #c7d2fe !important;
+        }
+        .theme-dark .submission-card.completed .submission-theorem {
+            background: rgba(5, 150, 105, 0.12); color: #6ee7b7 !important;
+        }
+        .theme-dark .proof-step { background: #1e293b; color: #e2e8f0; }
+        .theme-dark .submission-meta { border-top-color: rgba(148, 163, 184, 0.22) !important; }
+    </style>
+</head>
+<body data-page="submissions">
+  <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">AXIO</div>
+      <a class="nav-link" href="dashboard.html">◈ Unified Proof Workspace</a>
+      <a class="nav-link active" href="submissions.html">⌁ My Proofs</a>
+      <a class="nav-link" href="scores.html">⌗ Scores</a>
+      <a class="nav-link" href="math-symbols-tutorial.html">Σ Math Symbols & Tutorial</a>
+      <a class="nav-link" href="settings.html">⚙ Settings</a>
+      <a class="nav-link" href="learn-latex.html">? LaTeX Guide</a>
+      <a class="nav-link" href="#" id="sidebar-logout">⇦ Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>My Proofs</h1>
+          <p>Unified history of proof drafts and submissions</p>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="window.location.href='dashboard.html'">← Back to Workspace</button>
+        </div>
+      </div>
+
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="card">
+            <h2>My Proofs & Submissions</h2>
+            <p style="color: #666; margin-bottom: 20px;">Unified history of proof drafts, verifications, and completed submissions</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #1a1d29;" id="total-count">0</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Total Proofs</div>
+                </div>
+                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center;">
+                    <div style="font-size: 2em; font-weight: bold; color: #059669;" id="verified-count">0</div>
+                    <div class="label">Verified</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="number" id="pending-count">0</div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="number" id="avg-score">0</div>
+                    <div class="label">Avg Score</div>
+                </div>
+            </div>
+            
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterSubmissions('all', this)">All</button>
+                <button class="filter-btn" onclick="filterSubmissions('verified', this)">Verified</button>
+                <button class="filter-btn" onclick="filterSubmissions('pending', this)">Pending</button>
+                <button class="filter-btn" onclick="filterSubmissions('excellent', this)">Excellent (90+)</button>
+            </div>
+            
+            <div id="submissions-container" class="submissions-list">
+                <div class="empty-state">
+                    <div class="icon">📝</div>
+                    <h2>No Submissions Yet</h2>
+                    <p>Start proving theorems with the AI Proof Assistant</p>
+                    <a href="dashboard.html" class="btn-primary">Start Now →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+    
+    <script src="../js/api-client.js"></script>
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/proof-mode-manager.js"></script>
+    <script>
+        let allSubmissions = [];
+        let analyticsSummary = null;
+        let viewMode = 'natural';
+
+        function getSubmissionStatus(sub) {
+            const rawStatus = String(sub.verification_status || '').toLowerCase();
+            if (sub.record_type === 'complete_proof' || sub.is_completed === true) return 'complete_proof';
+            if (rawStatus === 'verified' || rawStatus === 'success') return 'verified_proof';
+            if (rawStatus === 'incorrect' || rawStatus === 'failed' || rawStatus === 'error') return 'incorrect_proof';
+            if (rawStatus === 'needs_work') return 'needs_work';
+            if (sub.is_verified === true) return 'verified_proof';
+            return 'pending_review';
+        }
+
+        function isStatusVerified(sub) {
+            const status = getSubmissionStatus(sub);
+            return status === 'verified_proof' || status === 'complete_proof';
+        }
+
+        function isSubmissionVerified(sub) {
+            if (isStatusVerified(sub)) return true;
+            if (typeof sub.is_verified === 'boolean') return sub.is_verified;
+            if (typeof sub.verification_status === 'string') return sub.verification_status.toLowerCase() === 'success';
+            const score = sub.score ? parseInt(sub.score) : 0;
+            return score > 70;
+        }
+
+        function isSubmissionCompleted(sub) {
+            if (typeof sub.is_completed === 'boolean') return sub.is_completed;
+            return isSubmissionVerified(sub);
+        }
+
+        function latexToNatural(text) {
+            const source = String(text || '').trim();
+            if (!source) return '';
+            let output = source;
+            output = output.replace(/\$\$([\s\S]*?)\$\$/g, ' $1 ');
+            output = output.replace(/\$([^$]+)\$/g, ' $1 ');
+            output = output.replace(/\\\(([\s\S]*?)\\\)/g, ' $1 ');
+            output = output.replace(/\\\[([\s\S]*?)\\\]/g, ' $1 ');
+            output = output.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1 over $2');
+            output = output.replace(/\\sqrt\{([^{}]+)\}/g, 'square root of $1');
+            output = output.replace(/\\sqrt\[([^{}]+)\]\{([^{}]+)\}/g, '$1 root of $2');
+            output = output.replace(/\\lim_\{([^{}]+)\}/g, 'limit as $1');
+            output = output.replace(/\\sum_\{([^{}]+)\}\^\{([^{}]+)\}/g, 'sum from $1 to $2');
+            output = output.replace(/\\int_\{([^{}]+)\}\^\{([^{}]+)\}/g, 'integral from $1 to $2');
+            const commandMap = {
+                '\\to': 'approaches', '\\rightarrow': 'implies', '\\Rightarrow': 'implies',
+                '\\infty': 'infinity', '\\forall': 'for all', '\\exists': 'there exists',
+                '\\in': 'in', '\\notin': 'not in', '\\subseteq': 'is subset of',
+                '\\subset': 'is a proper subset of', '\\cup': 'union', '\\cap': 'intersection',
+                '\\emptyset': 'empty set', '\\mathbb{R}': 'the real numbers',
+                '\\mathbb{N}': 'the natural numbers', '\\mathbb{Z}': 'the integers',
+                '\\Leftrightarrow': 'if and only if', '\\land': 'and', '\\lor': 'or',
+                '\\neg': 'not', '\\leq': 'less than or equal to', '\\geq': 'greater than or equal to',
+                '\\neq': 'not equal to', '\\cdot': 'times', '\\times': 'times',
+                '\\approx': 'approximately equal to', '\\partial': 'partial',
+                '\\epsilon': 'epsilon', '\\varepsilon': 'epsilon', '\\delta': 'delta',
+                '\\theta': 'theta', '\\lambda': 'lambda', '\\pi': 'pi'
+            };
+            Object.entries(commandMap).forEach(([latex, natural]) => {
+                output = output.split(latex).join(` ${natural} `);
+            });
+            output = output.replace(/[{}]/g, '')
+                .replace(/\^\{([^}]+)\}/g, ' raised to the power of $1')
+                .replace(/\^([A-Za-z0-9]+)/g, ' raised to the power of $1')
+                .replace(/_\{([^}]+)\}/g, ' sub $1')
+                .replace(/_([A-Za-z0-9]+)/g, ' sub $1')
+                .replace(/\\[a-zA-Z]+/g, '').replace(/\\/g, '')
+                .replace(/\s+/g, ' ').trim();
+            return output || source;
+        }
+
+        function formatDuration(seconds) {
+            const value = Number(seconds || 0);
+            if (!value || value <= 0) return 'N/A';
+            if (value < 60) return `${value}s`;
+            const mins = Math.floor(value / 60);
+            const secs = value % 60;
+            return `${mins}m ${secs}s`;
+        }
+
+        function formatDateText(value) {
+            if (!value) return 'N/A';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return 'N/A';
+            return date.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(text) {
+            return String(text || '').replace(/&/g, '&amp;').replace(/</g, '<').replace(/>/g, '>');
+        }
+
+        async function loadSubmissions() {
+            try {
+                const analyticsRes = await fetch('../../backend/api/analytics.php');
+                const analytics = await analyticsRes.json();
+                if (analytics.success) analyticsSummary = analytics.summary || null;
+            } catch (error) { analyticsSummary = null; }
+
+            try {
+                const response = await fetch('../../backend/api/submissions.php');
+                const data = await response.json();
+                if (data.success && data.submissions) {
+                    const backendSubmissions = data.submissions.sort((a, b) => {
+                        const da = new Date(a.created_at || a.submitted_at || 0).getTime();
+                        const db = new Date(b.created_at || b.submitted_at || 0).getTime();
+                        return db - da;
+                    });
+                    const localDraft = getLocalDraftSubmission();
+                    allSubmissions = localDraft ? [localDraft, ...backendSubmissions] : backendSubmissions;
+                    updateStats();
+                    displaySubmissions(allSubmissions);
+                    return;
+                }
+            } catch (error) { console.error('Error loading submissions:', error); }
+
+            const localDraft = getLocalDraftSubmission();
+            allSubmissions = localDraft ? [localDraft] : [];
+            updateStats();
+            displaySubmissions(allSubmissions);
+        }
+
+        function getLocalDraftSubmission() {
+            try {
+                const raw = localStorage.getItem('axio.workspace.state');
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                const theorem = String(parsed?.theorem || '').trim();
+                const steps = Array.isArray(parsed?.steps) ? parsed.steps : [];
+                const hasContent = theorem.length > 0 || steps.some((step) => String(step?.text || '').trim().length > 0);
+                if (!hasContent) return null;
+                return {
+                    id: 'local-draft', is_local_draft: true, theorem_text: theorem || 'Untitled Draft',
+                    steps, proof_text: steps.map((step, idx) => `Step ${idx + 1}: ${String(step?.text || '').trim()}`).join('\n'),
+                    score: null, is_completed: Boolean(parsed?.proofCompleted), is_verified: Boolean(parsed?.proofCompleted),
+                    verification_status: parsed?.proofCompleted ? 'success' : 'pending',
+                    started_at: parsed?.proofStartedAt || null, last_edited_at: parsed?.lastEditedAt || null,
+                    completed_at: parsed?.completedAt || null, total_steps: steps.length,
+                    verified_steps: steps.filter((step) => step?.status === 'correct').length,
+                    created_at: parsed?.lastEditedAt || new Date().toISOString()
+                };
+            } catch (error) { return null; }
+        }
+
+        async function deleteSubmission(submissionId) {
+            if (String(submissionId) === 'local-draft') {
+                if (!confirm('Delete current local draft?')) return;
+                localStorage.removeItem('axio.workspace.state');
+                allSubmissions = allSubmissions.filter((item) => String(item.id) !== 'local-draft');
+                updateStats();
+                displaySubmissions(allSubmissions);
+                return;
+            }
+            if (!confirm('Delete this proof from backend?')) return;
+            try {
+                const response = await fetch('../../backend/api/submissions.php', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_submission', submission_id: submissionId })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || 'Delete failed');
+                allSubmissions = allSubmissions.filter((item) => Number(item.id) !== Number(submissionId));
+                updateStats();
+                displaySubmissions(allSubmissions);
+            } catch (error) { alert('✗ Failed to delete proof: ' + error.message); }
+        }
+
+        function openSubmission(submission) {
+            const apiSteps = Array.isArray(submission.steps) ? submission.steps : [];
+            const stepLines = apiSteps.length
+                ? apiSteps.map((step) => String(step?.text || '').trim()).filter(Boolean)
+                : String(submission.proof_text || submission.input_text || '').split('\n')
+                    .map(line => line.replace(/^Step\s+\d+\s*:\s*/i, '').trim()).filter(Boolean);
+            const steps = (stepLines.length ? stepLines : ['']).map((text) => ({
+                id: `id-${Math.random().toString(36).slice(2, 10)}`, text,
+                feedback: '', status: submission.is_completed ? 'correct' : ''
+            }));
+            const workspaceState = {
+                theorem: String(submission.theorem_text || '').trim(),
+                theoremFontSize: 16, stepFontSize: 15, steps,
+                selectedStepId: steps[0]?.id || null,
+                proofStartedAt: submission.started_at || new Date().toISOString(),
+                lastEditedAt: submission.last_edited_at || submission.created_at || new Date().toISOString(),
+                completedAt: submission.completed_at || null,
+                proofCompleted: Boolean(submission.is_completed), previewMode: 'latex'
+            };
+            localStorage.setItem('axio.workspace.state', JSON.stringify(workspaceState));
+            window.location.href = 'dashboard.html';
+        }
+
+        function generateMethodSpecificConclusion(theorem, lines) {
+            const allText = (String(theorem) + ' ' + lines.join(' ')).toLowerCase();
+            if (allText.includes('intermediate value') || allText.includes('ivt')) {
+                return `By the Intermediate Value Theorem, having established that the function is continuous and changes sign over the given interval, we have proven that the statement holds as required.`;
+            } else if (allText.includes('continuity') || allText.includes('continuous')) {
+                return `By the properties of Continuity, having verified the function's behavior at critical points, we have demonstrated that the statement holds as required.`;
+            } else if (allText.includes('limit') || allText.includes('convergence') || allText.includes('converges')) {
+                return `By the properties of Limit Behavior, through sequential analysis and convergence verification, we have established that the statement holds as required.`;
+            } else if (allText.includes('derivative') || allText.includes('differentiable')) {
+                return `Using Differentiability and calculus principles, we have shown that the statement holds as required.`;
+            } else if (allText.includes('induction') || allText.includes('mathematical induction')) {
+                return `By Mathematical Induction, having verified the base case and the inductive step, we conclude that the statement holds as required.`;
+            } else if (allText.includes('cauchy') || allText.includes('subsequence') || allText.includes('subsequences')) {
+                return `Through analysis of Sequence Properties, particularly Cauchy sequences and convergence criteria, we have verified that the statement holds as required.`;
+            } else {
+                return `Through careful logical analysis and systematic verification of the proof steps, we have established that the statement holds as required.`;
+            }
+        }
+
+        function downloadProofPdf(submission) {
+            const theorem = String(submission.theorem_text || 'Untitled Proof').trim();
+            const apiSteps = Array.isArray(submission.steps) ? submission.steps : [];
+            const lines = apiSteps.length
+                ? apiSteps.map((step) => String(step?.text || '').trim()).filter(Boolean)
+                : String(submission.proof_text || '').split('\n').map((line) => line.replace(/^Step\s+\d+\s*:\s*/i, '').trim()).filter(Boolean);
+            if (!lines.length) { alert('No proof steps available for PDF export.'); return; }
+            const theoremNatural = latexToNatural(theorem);
+            const naturalLines = lines.map((step) => latexToNatural(step));
+            const stepsHtml = naturalLines.map((step, index) => `<li><strong>Step ${index + 1}:</strong> ${escapeHtml(step)}</li>`).join('');
+            const detailedConclusion = generateMethodSpecificConclusion(theorem, lines);            const win = window.open('', '_blank');
+            if (!win) { alert('Please allow popups to generate PDF.'); return; }
+            win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(theorem)} - Proof PDF</title><style>body{font-family:Inter,Segoe UI,Arial,sans-serif;padding:24px;color:#111827;line-height:1.55}h1{margin:0 0 6px;color:#1e3a8a}h2{color:#1e3a8a;margin:18px 0 8px}.meta{color:#4b5563;font-size:13px;margin-bottom:10px}ul{padding-left:20px}li{margin:6px 0}.conclusion{margin-top:24px;padding:14px;border-left:4px solid #1e3a8a;background-color:#f0f4ff;border-radius:4px}</style></head><body><h1>Proof Export</h1><div class="meta">Generated:${new Date().toLocaleString()}</div><h2>Theorem</h2><p>${escapeHtml(theoremNatural||theorem)}</p><h2>Verified Proof Steps</h2><ul>${stepsHtml}</ul><h2>Conclusion</h2><div class="conclusion"><p>${detailedConclusion}</p><p style="margin-top:12px;font-style:italic;font-size:14px;">This completes the proof of the theorem: <em>${escapeHtml(theoremNatural||theorem)}</em></p></div></body></html>`);
+            win.document.close(); win.focus(); win.print();
+        }
+
+        function updateStats() {
+            if (analyticsSummary) {
+                document.getElementById('total-count').textContent = analyticsSummary.total_proofs ?? allSubmissions.length;
+                document.getElementById('verified-count').textContent = analyticsSummary.verified_count ?? allSubmissions.filter(s => isSubmissionVerified(s)).length;
+                document.getElementById('pending-count').textContent = analyticsSummary.pending_count ?? 0;
+                document.getElementById('avg-score').textContent = analyticsSummary.avg_score ?? 0;
+                return;
+            }
+            document.getElementById('total-count').textContent = allSubmissions.length;
+            const verified = allSubmissions.filter(s => isSubmissionVerified(s)).length;
+            document.getElementById('verified-count').textContent = verified;
+            document.getElementById('pending-count').textContent = allSubmissions.length - verified;
+            const scores = allSubmissions.filter(s => s.score).map(s => parseInt(s.score));
+            const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+            document.getElementById('avg-score').textContent = avg;
+        }
+
+        function getProofSteps(submission) {
+            const apiSteps = Array.isArray(submission.steps) ? submission.steps : [];
+            if (apiSteps.length) {
+                return apiSteps.map((step, idx) => ({
+                    number: idx + 1, text: String(step?.text || '').trim(),
+                    verified: step?.status === 'correct' || step?.verified === true
+                }));
+            }
+            const proofText = String(submission.proof_text || submission.input_text || '');
+            return proofText.split('\n').map(line => line.replace(/^Step\s+\d+\s*:\s*/i, '').trim())
+                .filter(Boolean).map((text, idx) => ({
+                    number: idx + 1, text: text,
+                    verified: submission.is_completed === true || submission.is_verified === true
+                }));
+        }
+
+        function displaySubmissions(submissions) {
+            const container = document.getElementById('submissions-container');
+            if (submissions.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="icon"></div><h2>No Submissions Yet</h2><p>Start proving theorems with the AI Proof Assistant</p><a href="dashboard.html" class="btn-primary">Start Now →</a></div>`;
+                return;
+            }
+            
+            container.innerHTML = submissions.map(sub => {
+                const score = sub.score ? parseInt(sub.score) : 0;
+                const scoreClass = score >= 90 ? 'score-excellent' : score >= 75 ? 'score-good' : score >= 60 ? 'score-fair' : 'score-poor';
+                const completed = isSubmissionCompleted(sub);
+                const statusLabel = completed ? '✓ Completed' : 'In Progress';
+                const startedText = formatDateText(sub.started_at || sub.created_at);
+                const editedText = formatDateText(sub.last_edited_at || sub.created_at);
+                const titleText = String(sub.theorem_text || '').trim() || `Proof #${sub.id || 'N/A'}`;
+                const theoremRaw = String(sub.theorem_text || '').trim();
+                const theoremDisplay = viewMode === 'natural' ? latexToNatural(theoremRaw) : theoremRaw;
+                const proofSteps = getProofSteps(sub);
+                const stepsHtml = proofSteps.map(step => {
+                    const stepText = viewMode === 'natural' ? latexToNatural(step.text) : step.text;
+                    return `<div class="proof-step"><span class="proof-step-number">${step.number}</span><span class="proof-step-content">${escapeHtml(stepText)}</span>${step.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}</div>`;
+                }).join('');
+
+                return `<div class="submission-card ${completed ? 'completed' : ''}">
+                    <div class="submission-header">
+                        <div class="submission-title-container"><h3 class="submission-title">${escapeHtml(titleText)}</h3></div>
+                        <div class="submission-actions">
+                            <button class="action-btn" data-continue-id="${sub.id}">${completed ? 'View' : 'Continue'}</button>
+                            ${completed ? `<button class="action-btn" data-pdf-id="${sub.id}">PDF</button>` : ''}
+                            <button class="action-btn delete" data-delete-id="${sub.id}">Delete</button>
+                        </div>
+                    </div>
+                    <div class="submission-body">
+                        <div class="section-header theorem"><span class="section-icon"></span><h4 class="section-title">Theorem Statement</h4></div>
+                        <div class="submission-theorem">${escapeHtml(theoremDisplay) || 'No theorem statement'}</div>
+                        ${proofSteps.length > 0 ? `<div class="section-header steps"><span class="section-icon"></span><h4 class="section-title">Proof Steps (${proofSteps.length})</h4></div><div class="submission-steps">${stepsHtml}</div>` : ''}
+                    </div>
+                    <div class="submission-meta">
+                        <div class="meta-item"><span class="icon"></span><span>Status: <strong>${statusLabel}</strong></span></div>
+                        <div class="meta-item"><span class="icon"></span><span>Started: ${startedText}</span></div>
+                        <div class="meta-item"><span class="icon"></span><span>Edited: ${editedText}</span></div>
+                        <div class="meta-item"><span class="icon"></span><span>Time: ${formatDuration(sub.completion_seconds)}</span></div>
+                        <div class="meta-item"><span class="icon"></span><span>Score: <span class="score-badge ${scoreClass}">${score ? `${score}%` : 'N/A'}</span></span></div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            container.querySelectorAll('[data-continue-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-continue-id');
+                    const target = allSubmissions.find(item => String(item.id) === String(id));
+                    if (target) openSubmission(target);
+                });
+            });
+            container.querySelectorAll('[data-pdf-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-pdf-id');
+                    const target = allSubmissions.find(item => String(item.id) === String(id));
+                    if (target) downloadProofPdf(target);
+                });
+            });
+            container.querySelectorAll('[data-delete-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-delete-id');
+                    deleteSubmission(id);
+                });
+            });
+        }
+
+        // Prevent multiple simultaneous loads
+        let isLoadingSubmissions = false;
+        
+        async function loadSubmissionsWithDebounce() {
+          if (isLoadingSubmissions) return;
+          isLoadingSubmissions = true;
+          try {
+            await loadSubmissions();
+          } finally {
+            isLoadingSubmissions = false;
+          }
+        }
+
+        function filterSubmissions(type, clickedButton) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (clickedButton) clickedButton.classList.add('active');
+            let filtered = [];
+            switch(type) {
+                case 'verified': filtered = allSubmissions.filter(s => isSubmissionVerified(s)); break;
+                case 'pending': filtered = allSubmissions.filter(s => !isSubmissionVerified(s)); break;
+                case 'excellent': filtered = allSubmissions.filter(s => s.score && parseInt(s.score) >= 90); break;
+                default: filtered = allSubmissions;
+            }
+            displaySubmissions(filtered);
+        }
+
+        // Load submissions once on startup, then only on visibility change
+        let lastLoadTime = 0;
+        document.addEventListener('visibilitychange', () => { 
+          if (!document.hidden) {
+            const now = Date.now();
+            if (now - lastLoadTime > 3000) { // Only reload if more than 3 seconds have passed
+              lastLoadTime = now;
+              loadSubmissionsWithDebounce();
+            }
+          }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+          lastLoadTime = Date.now();
+          loadSubmissionsWithDebounce();
+        });
+    </script>
+</body>
+</html>

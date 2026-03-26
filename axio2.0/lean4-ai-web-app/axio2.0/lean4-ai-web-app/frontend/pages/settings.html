@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings -AXIO</title>
+    <link rel="stylesheet" href="../css/axio-app.css">
+    <style>
+        .sidebar-header {
+            display: none;
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e6fffb;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        .sidebar .nav-item.active {
+            background: rgba(255, 255, 255, 0.16);
+            border-left: 4px solid #86efac;
+        }
+        .sidebar .nav-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .main-area {
+            padding: 22px;
+        }
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .page-header {
+            background: #ffffff;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+        }
+        .page-header h1 {
+            color: #1E3A8A;
+            margin: 0 0 10px 0;
+        }
+        .page-header p {
+            color: #111827;
+            margin: 0;
+        }
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+        .settings-section {
+            background: #ffffff;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
+        }
+        .settings-section h2 {
+            color: #1E3A8A;
+            margin: 0 0 20px 0;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #111827;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(30, 58, 138, 0.24);
+            border-radius: 6px;
+            color: #111827;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1E3A8A;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.16);
+        }
+        .btn-save {
+            padding: 12px 30px;
+            background: #059669;
+            color: #ffffff;
+            border: 1px solid #059669;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            background: #047857;
+            border-color: #047857;
+            box-shadow: 0 6px 20px rgba(17, 24, 39, 0.14);
+        }
+        .btn-danger {
+            padding: 12px 30px;
+            background: #FBBF24;
+            color: #111827;
+            border: 1px solid #FBBF24;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 24, 39, 0.14);
+        }
+        .shortcuts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .shortcuts-table th, .shortcuts-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.16);
+            vertical-align: middle;
+        }
+        .shortcuts-table th {
+            color: #1E3A8A;
+            font-weight: bold;
+        }
+        .shortcuts-table td {
+            color: #111827;
+        }
+        .shortcut-key {
+            background: #F3F4F6;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #1E3A8A;
+            font-size: 0.95rem;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #F3F4F6;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid rgba(30, 58, 138, 0.24);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #059669;
+            border-color: #059669;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.16);
+        }
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+        .preference-label {
+            color: #111827;
+            line-height: 1.5;
+        }
+        .preference-label small {
+            display: block;
+            color: #111827;
+            margin-top: 5px;
+            opacity: 0.75;
+        }
+        .success-message {
+            background: rgba(5, 150, 105, 0.12);
+            border: 1px solid rgba(5, 150, 105, 0.4);
+            color: #111827;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .theme-dark .page-header,
+        .theme-dark .settings-section {
+            background: #0b1220 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45) !important;
+        }
+        .theme-dark .page-header h1,
+        .theme-dark .settings-section h2,
+        .theme-dark .shortcut-key,
+        .theme-dark .shortcuts-table th {
+            color: #c7d2fe !important;
+        }
+        .theme-dark .page-header p,
+        .theme-dark .form-group label,
+        .theme-dark .preference-label,
+        .theme-dark .preference-label small,
+        .theme-dark .shortcuts-table td,
+        .theme-dark .success-message {
+            color: #e2e8f0 !important;
+        }
+        .theme-dark .form-group input,
+        .theme-dark .form-group select {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+        }
+        .theme-dark .form-group input:focus,
+        .theme-dark .form-group select:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22) !important;
+        }
+        .theme-dark .shortcut-key {
+            background: #1f2937 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+        }
+        .theme-dark .shortcuts-table th,
+        .theme-dark .shortcuts-table td,
+        .theme-dark .preference-item {
+            border-color: rgba(148, 163, 184, 0.22) !important;
+        }
+        .theme-dark .slider {
+            background-color: #334155 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+        }
+        .theme-dark .slider:before {
+            background-color: #e2e8f0 !important;
+        }
+        .theme-dark .btn-save,
+        .theme-dark .btn-danger {
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Math Background -->
+    <div class="math-background">
+        <span class="math-symbol">∫</span>
+        <span class="math-symbol">∂</span>
+        <span class="math-symbol">∑</span>
+        <span class="math-symbol">∞</span>
+        <span class="math-symbol">λ</span>
+        <span class="math-symbol">∀</span>
+        <span class="math-symbol">∃</span>
+        <span class="math-symbol">∈</span>
+        <span class="math-symbol">→</span>
+        <span class="math-symbol">⇒</span>
+        <span class="math-symbol">⇔</span>
+        <span class="math-symbol">√</span>
+        <span class="math-symbol">∆</span>
+        <span class="math-symbol">∇</span>
+        <span class="math-symbol">∮</span>
+    </div>
+    
+    <!-- Particles -->
+    <div class="particles">
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+        <span class="particle"></span>
+    </div>
+
+    <div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">AXIO</div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">◈ Unified Proof Workspace</a>
+            <a href="submissions.html" class="nav-item">⌁ My Proofs</a>
+            <a href="scores.html" class="nav-item">⌗ Scores</a>
+            <a href="settings.html" class="nav-item active">⚙ Settings</a>
+        </nav>
+    </aside>
+    
+    <main class="main-area main">
+        <div class="main-content">
+            <div class="topbar">
+                <div class="title">
+                    <h1>AI Proof Tutor</h1>
+                    <p>Settings</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="dashboard.html">Back to Workspace</a>
+                </div>
+            </div>
+            <div class="page-header">
+                <h1> Settings & Preferences</h1>
+                <p>Customize your AXIO experience</p>
+            </div>
+            
+            <div id="success-message" class="success-message">
+                ✓ Settings saved successfully!
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Profile Section -->
+                <div class="settings-section">
+                    <h2>Profile Settings</h2>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">New Password (leave blank to keep current)</label>
+                            <input type="password" id="password" name="password" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn-save"> Save Profile</button>
+                    </form>
+                </div>
+                
+                <!-- Preferences Section -->
+                <div class="settings-section">
+                    <h2> Preferences</h2>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Auto-save proofs
+                            <small>Automatically save your work to localStorage</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-save" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Show keyboard shortcuts
+                            <small>Display keyboard shortcut hints in AI Tutor</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-shortcuts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="preference-item">
+                        <div class="preference-label">
+                            Dark theme
+                            <small>Enable dark mode appearance</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dark-theme">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+    
+    <script src="../js/sidebar.js"></script>
+    <script>
+        // Load saved settings
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load profile from localStorage
+            const savedProfile = JSON.parse(localStorage.getItem('reana_profile') || '{}');
+            if (savedProfile.username) document.getElementById('username').value = savedProfile.username;
+            if (savedProfile.email) document.getElementById('email').value = savedProfile.email;
+            
+            // Load preferences
+            const prefs = JSON.parse(localStorage.getItem('reana_preferences') || '{}');
+            document.getElementById('auto-save').checked = prefs.autoSave !== false;
+            document.getElementById('show-shortcuts').checked = prefs.showShortcuts !== false;
+            document.getElementById('dark-theme').checked = prefs.darkTheme === true;
+
+            if (typeof window.setThemePreference === 'function') {
+                window.setThemePreference(document.getElementById('dark-theme').checked);
+            }
+        });
+        
+        // Save profile
+        document.getElementById('profile-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const profile = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value
+            };
+            localStorage.setItem('reana_profile', JSON.stringify(profile));
+            showSuccess();
+        });
+        
+        // Save preferences on toggle
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                const prefs = {
+                    autoSave: document.getElementById('auto-save').checked,
+                    showShortcuts: document.getElementById('show-shortcuts').checked,
+                    darkTheme: document.getElementById('dark-theme').checked
+                };
+                localStorage.setItem('reana_preferences', JSON.stringify(prefs));
+
+                if (toggle.id === 'dark-theme' && typeof window.setThemePreference === 'function') {
+                    window.setThemePreference(prefs.darkTheme);
+                }
+
+                showSuccess();
+            });
+        });
+        
+        function showSuccess() {
+            const msg = document.getElementById('success-message');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+        
+        async function clearAllData() {
+            if (!confirm('Are you sure you want to clear all saved data? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('../../backend/api/submissions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'clear_user_data' })
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Unable to clear backend data');
+                }
+
+                [
+                    'reana_saved_theorem',
+                    'reana_saved_steps',
+                    'reana_completed_submissions',
+                    'reana_verification_records',
+                    'reana_profile',
+                    'reana_preferences',
+                    'axio.workspace.state',
+                    'axio.proofs',
+                    'axio.settings'
+                ].forEach((key) => localStorage.removeItem(key));
+
+                alert(`✓ Data cleared successfully!\nDeleted submissions: ${data.deleted_submissions || 0}\nDeleted scores: ${data.deleted_scores || 0}`);
+            } catch (error) {
+                alert('✗ Clear data failed: ' + error.message);
+            }
+        }
+        
+        async function exportData() {
+            try {
+                // Fetch data from APIs
+                const [submissionsRes, scoresRes] = await Promise.all([
+                    fetch('../../backend/api/submissions.php'),
+                    fetch('../../backend/api/scores.php')
+                ]);
+                
+                const submissions = await submissionsRes.json();
+                const scores = await scoresRes.json();
+                
+                const exportData = {
+                    exported_at: new Date().toISOString(),
+                    submissions: submissions.submissions || [],
+                    scores: scores.scores || [],
+                    profile: JSON.parse(localStorage.getItem('reana_profile') || '{}')
+                };
+                
+                // Download as JSON
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reana_export_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('✓ Data exported successfully!');
+            } catch (error) {
+                alert('✗ Export failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

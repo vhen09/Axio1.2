@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axio - Authentication</title>
+  <link rel="stylesheet" href="../css/axio-app.css" />
+  <script src="../js/global-settings.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .auth-header h1 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      font-weight: 700;
+    }
+
+    .auth-header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .auth-content {
+      padding: 32px 24px;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper input {
+      padding-right: 45px !important;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      color: #64748b;
+    }
+
+    .password-toggle:hover {
+      color: #059669;
+      background: rgba(5, 150, 105, 0.08);
+    }
+
+    .password-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .password-toggle svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .form-group.hidden {
+      display: none;
+    }
+
+    .form-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #059669;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #047857;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #1e3a8a;
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .auth-toggle {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .auth-toggle button {
+      background: none;
+      border: none;
+      color: #059669;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-left: 4px;
+    }
+
+    .auth-toggle button:hover {
+      color: #047857;
+    }
+
+    .auth-toggle-link {
+      background: none;
+      border: none;
+      color: #059669;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-left: 4px;
+      padding: 0;
+      display: inline;
+    }
+
+    .auth-toggle-link:hover {
+      color: #047857;
+    }
+
+    .auth-message {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      min-height: 20px;
+      display: none;
+    }
+
+    .auth-message.show {
+      display: block;
+    }
+
+    .auth-message.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .auth-message.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      color: #059669;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .forgot-password {
+      text-align: center;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .forgot-password.show {
+      display: block;
+    }
+
+    .forgot-password a {
+      color: #059669;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    /* Floating Math Particles */
+    .particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.18;
+      font-weight: 700;
+      will-change: transform;
+    }
+
+    .particle:nth-child(1) { animation: float 15s infinite ease-in-out; top: 10%; left: 5%; animation-delay: 0s; color: #1e3a8a; font-size: 4rem; }
+    .particle:nth-child(2) { animation: float 18s infinite ease-in-out; top: 20%; right: 10%; animation-delay: 2s; color: #059669; font-size: 3.5rem; }
+    .particle:nth-child(3) { animation: float 20s infinite ease-in-out; bottom: 15%; left: 8%; animation-delay: 4s; color: #0f766e; font-size: 3.8rem; }
+    .particle:nth-child(4) { animation: float 17s infinite ease-in-out; top: 30%; left: 15%; animation-delay: 1s; color: #1e3a8a; font-size: 3.2rem; }
+    .particle:nth-child(5) { animation: float 19s infinite ease-in-out; bottom: 20%; right: 15%; animation-delay: 3s; color: #059669; font-size: 3.6rem; }
+    .particle:nth-child(6) { animation: float 16s infinite ease-in-out; top: 50%; right: 5%; animation-delay: 5s; color: #0f766e; font-size: 3.4rem; }
+    .particle:nth-child(7) { animation: float 21s infinite ease-in-out; top: 15%; right: 25%; animation-delay: 1.5s; color: #1e3a8a; font-size: 3.3rem; }
+    .particle:nth-child(8) { animation: float 18s infinite ease-in-out; bottom: 25%; left: 25%; animation-delay: 4.5s; color: #059669; font-size: 3.7rem; }
+    .particle:nth-child(9) { animation: float 19s infinite ease-in-out; top: 60%; left: 30%; animation-delay: 2.5s; color: #0f766e; font-size: 3.5rem; }
+    .particle:nth-child(10) { animation: float 17s infinite ease-in-out; bottom: 10%; right: 20%; animation-delay: 3.5s; color: #1e3a8a; font-size: 3.6rem; }
+    .particle:nth-child(11) { animation: float 16s infinite ease-in-out; top: 5%; right: 35%; animation-delay: 0.5s; color: #059669; font-size: 3.3rem; }
+    .particle:nth-child(12) { animation: float 18s infinite ease-in-out; top: 45%; left: 5%; animation-delay: 2.5s; color: #0f766e; font-size: 3.8rem; }
+    .particle:nth-child(13) { animation: float 20s infinite ease-in-out; bottom: 5%; left: 40%; animation-delay: 1s; color: #1e3a8a; font-size: 3.4rem; }
+    .particle:nth-child(14) { animation: float 17s infinite ease-in-out; top: 70%; right: 8%; animation-delay: 3s; color: #059669; font-size: 3.5rem; }
+    .particle:nth-child(15) { animation: float 19s infinite ease-in-out; top: 35%; right: 40%; animation-delay: 4.5s; color: #0f766e; font-size: 3.7rem; }
+    .particle:nth-child(16) { animation: float 21s infinite ease-in-out; bottom: 30%; right: 30%; animation-delay: 1.5s; color: #1e3a8a; font-size: 3.6rem; }
+    .particle:nth-child(17) { animation: float 18s infinite ease-in-out; top: 25%; left: 45%; animation-delay: 2s; color: #059669; font-size: 3.3rem; }
+    .particle:nth-child(18) { animation: float 19s infinite ease-in-out; bottom: 40%; left: 50%; animation-delay: 5s; color: #0f766e; font-size: 3.8rem; }
+    .particle:nth-child(19) { animation: float 16s infinite ease-in-out; top: 55%; right: 50%; animation-delay: 3.5s; color: #1e3a8a; font-size: 3.4rem; }
+    .particle:nth-child(20) { animation: float 20s infinite ease-in-out; bottom: 35%; right: 3%; animation-delay: 2.5s; color: #059669; font-size: 3.5rem; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.18; }
+      25% { transform: translate(30px, -50px) rotate(90deg); opacity: 0.25; }
+      50% { transform: translate(-20px, 60px) rotate(180deg); opacity: 0.18; }
+      75% { transform: translate(50px, 30px) rotate(270deg); opacity: 0.22; }
+    }
+
+    @media (max-width: 500px) {
+      .particles-container {
+        display: none;
+      }
+      .auth-container {
+        border-radius: 12px;
+      }
+
+      .auth-content {
+        padding: 24px 20px;
+      }
+
+      .auth-header {
+        padding: 24px 20px;
+      }
+
+      .auth-header h1 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating Math Particles Background -->
+  <div class="particles-container">
+    <div class="particle">π</div>
+    <div class="particle">∫</div>
+    <div class="particle">∑</div>
+    <div class="particle">√</div>
+    <div class="particle">∞</div>
+    <div class="particle">∇</div>
+    <div class="particle">±</div>
+    <div class="particle">≈</div>
+    <div class="particle">⊕</div>
+    <div class="particle">∆</div>
+    <div class="particle">∂</div>
+    <div class="particle">∈</div>
+    <div class="particle">∀</div>
+    <div class="particle">∃</div>
+    <div class="particle">∪</div>
+    <div class="particle">∩</div>
+    <div class="particle">⊂</div>
+    <div class="particle">⊃</div>
+    <div class="particle">μ</div>
+    <div class="particle">λ</div>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 id="auth-title">Create Account</h1>
+      <p id="auth-subtitle">Join Axio to start your learning journey</p>
+    </div>
+
+    <div class="auth-content">
+      <form id="auth-form" class="auth-form">
+        <!-- First Name (signup only) -->
+        <div class="form-group hidden" id="firstname-group">
+          <label>First Name *</label>
+          <input id="firstname" type="text" placeholder="John" />
+        </div>
+
+        <!-- Last Name (signup only) -->
+        <div class="form-group hidden" id="lastname-group">
+          <label>Last Name *</label>
+          <input id="lastname" type="text" placeholder="Doe" />
+        </div>
+
+        <!-- Email (signup only) -->
+        <div class="form-group hidden" id="email-group">
+          <label>Email *</label>
+          <input id="email" type="email" placeholder="john@example.com" />
+        </div>
+
+        <!-- Username (login + signup) -->
+        <div class="form-group" id="username-group">
+          <label id="username-label">Username</label>
+          <input id="username" type="text" placeholder="Enter your username" required />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input id="password" type="password" placeholder="Enter password (min. 6 characters)" required />
+            <button type="button" class="password-toggle" id="toggle-password-btn" onclick="togglePasswordVisibility()" title="Show/hide password">
+              <svg id="password-icon" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Password (signup only) -->
+        <div class="form-group hidden" id="confirm-password-group">
+          <label>Confirm Password</label>
+          <div class="password-wrapper">
+            <input id="confirm-password" type="password" placeholder="Confirm password" />
+            <button type="button" class="password-toggle" onclick="toggleConfirmPasswordVisibility()" title="Show/hide password">
+              <svg id="confirm-password-icon" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="auth-message" id="auth-message"></div>
+
+        <!-- Forgot Password (login only) -->
+        <div id="forgot-password-div" class="forgot-password">
+          <a href="#" id="forgot-password-link">Forgot password?</a>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">Sign Up</button>
+        </div>
+      </form>
+
+      <!-- Toggle -->
+      <div class="auth-toggle">
+        <span id="toggle-text">Already have an account?</span>
+        <a href="#" class="auth-toggle-link" id="toggle-btn" onclick="toggleMode(event)">Log In</a>
+      </div>
+
+      <a href="landing.html" class="back-link">← Back to home</a>
+    </div>
+  </div>
+
+  <script src="../js/auth-handler.js"></script>
+  <script>
+    let currentMode = 'signup';
+    const messageEl = document.getElementById('auth-message');
+
+    function validateUsername(username) {
+      const regex = /^[a-zA-Z0-9._-]{3,20}$/;
+      return regex.test(username);
+    }
+
+    async function checkUsernameAvailability(username) {
+      try {
+        const response = await fetch('../../backend/api/auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'check_username',
+            username: username
+          })
+        });
+        const data = await response.json();
+        return data.available === true;
+      } catch (err) {
+        console.error('Username check error:', err);
+        return null;
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const icon = document.getElementById('password-icon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      } else {
+        passwordInput.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }
+    }
+
+    function toggleConfirmPasswordVisibility() {
+      const confirmInput = document.getElementById('confirm-password');
+      const icon = document.getElementById('confirm-password-icon');
+      
+      if (confirmInput.type === 'password') {
+        confirmInput.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      } else {
+        confirmInput.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }
+    }
+
+    function toggleMode(e) {
+      e.preventDefault();
+      if (currentMode === 'signup') {
+        switchToLogin();
+      } else {
+        switchToSignup();
+      }
+    }
+
+    function switchToSignup() {
+      currentMode = 'signup';
+      document.getElementById('auth-title').textContent = 'Create Account';
+      document.getElementById('auth-subtitle').textContent = 'Join Axio to start your learning journey';
+      document.getElementById('submit-btn').textContent = 'Sign Up';
+      document.getElementById('firstname-group').classList.remove('hidden');
+      document.getElementById('lastname-group').classList.remove('hidden');
+      document.getElementById('email-group').classList.remove('hidden');
+      document.getElementById('confirm-password-group').classList.remove('hidden');
+      document.getElementById('forgot-password-div').classList.remove('show');
+      document.getElementById('toggle-text').textContent = 'Already have an account?';
+      document.getElementById('toggle-btn').textContent = 'Log In';
+      document.getElementById('username-label').textContent = 'Username';
+    }
+
+    function switchToLogin() {
+      currentMode = 'login';
+      document.getElementById('auth-title').textContent = 'Welcome Back';
+      document.getElementById('auth-subtitle').textContent = 'Log in to continue your learning';
+      document.getElementById('submit-btn').textContent = 'Log In';
+      document.getElementById('firstname-group').classList.add('hidden');
+      document.getElementById('lastname-group').classList.add('hidden');
+      document.getElementById('email-group').classList.add('hidden');
+      document.getElementById('confirm-password-group').classList.add('hidden');
+      document.getElementById('forgot-password-div').classList.add('show');
+      document.getElementById('toggle-text').textContent = "Don't have an account?";
+      document.getElementById('toggle-btn').textContent = 'Sign Up';
+      document.getElementById('username-label').textContent = 'Username';
+      messageEl.classList.remove('show');
+    }
+
+    function showMessage(text, type = 'error') {
+      messageEl.textContent = text;
+      messageEl.className = `auth-message show ${type}`;
+      setTimeout(() => {
+        messageEl.classList.remove('show');
+      }, 5000);
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+
+      if (currentMode === 'signup') {
+        handleSignup();
+      } else {
+        handleLogin();
+      }
+    }
+
+    async function handleSignup() {
+      const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value?.trim();
+      const firstName = document.getElementById('firstname').value?.trim();
+      const lastName = document.getElementById('lastname').value?.trim();
+      const email = document.getElementById('email').value?.trim();
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      // Validation with clear error messages
+      if (!firstName) {
+        showMessage('Please enter your first name', 'error');
+        return;
+      }
+      if (!lastName) {
+        showMessage('Please enter your last name', 'error');
+        return;
+      }
+      if (!email) {
+        showMessage('Please enter your email', 'error');
+        return;
+      }
+      if (!email.includes('@')) {
+        showMessage('Please enter a valid email address', 'error');
+        return;
+      }
+      if (!username) {
+        showMessage('Please enter your username', 'error');
+        return;
+      }
+      
+      // Show what the validation expects
+      if (!validateUsername(username)) {
+        showMessage('Username must be 3-20 characters (letters a-z, numbers 0-9, dots, underscores, hyphens only)', 'error');
+        console.log('Username validation failed for:', username);
+        console.log('Username length:', username.length);
+        return;
+      }
+      
+      if (password.length < 6) {
+        showMessage('Password must be at least 6 characters', 'error');
+        return;
+      }
+      if (password !== confirmPassword) {
+        showMessage('Passwords do not match', 'error');
+        return;
+      }
+
+      showMessage('Creating account...', 'success');
+      console.log('Signup: Creating account for', username);
+
+      try {
+        await AuthHandler.handleSignup(username, password, firstName, lastName, email);
+      } catch (err) {
+        console.error('Signup error:', err);
+        showMessage(err.message || 'Sign up failed', 'error');
+      }
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username) {
+        showMessage('Please enter your username');
+        return;
+      }
+      if (!password) {
+        showMessage('Please enter your password');
+        return;
+      }
+
+      showMessage('Logging in...', 'success');
+      console.log('Login: Authenticating user', username);
+
+      try {
+        await AuthHandler.handleLogin(username, password);
+      } catch (err) {
+        console.error('Login error:', err);
+        showMessage(err.message || 'Login failed', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check URL parameter to determine which mode to show
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode');
+      
+      if (mode === 'login') {
+        switchToLogin();
+      } else {
+        switchToSignup();
+      }
+      
+      document.getElementById('auth-form').addEventListener('submit', handleAuth);
+      
+      document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        showForgotPasswordModal();
+      });
+    });
+
+    function showForgotPasswordModal() {
+      // Create modal if it doesn't exist
+      let modal = document.getElementById('forgot-password-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'forgot-password-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+          <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin: 0 0 20px 0; color: #1E3A8A; font-size: 1.3em;">Reset Password</h2>
+            <form id="reset-form" style="display: grid; gap: 14px;">
+              <div class="form-group">
+                <label style="display: block; color: #111827; margin-bottom: 8px; font-weight: bold;">Username</label>
+                <input id="reset-username" type="text" placeholder="Enter your username" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease;" />
+              </div>
+              <div class="form-group">
+                <label style="display: block; color: #111827; margin-bottom: 8px; font-weight: bold;">New Password</label>
+                <input id="reset-password" type="password" placeholder="Enter new password (min. 6 chars)" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease;" />
+              </div>
+              <div class="form-group">
+                <label style="display: block; color: #111827; margin-bottom: 8px; font-weight: bold;">Confirm Password</label>
+                <input id="reset-confirm-password" type="password" placeholder="Confirm password" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease;" />
+              </div>
+              <div id="reset-message" style="display: none; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-align: center;"></div>
+              <div style="display: grid; gap: 10px; grid-template-columns: 1fr 1fr; margin-top: 10px;">
+                <button type="button" id="cancel-reset-btn" style="padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; background: white; color: #111827;">Cancel</button>
+                <button type="submit" style="padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; background: #059669; color: white;">Reset</button>
+              </div>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        
+        document.getElementById('reset-form').addEventListener('submit', handleResetPassword);
+        document.getElementById('cancel-reset-btn').addEventListener('click', closeForgotPasswordModal);
+      }
+      
+      modal.style.display = 'flex';
+      document.getElementById('reset-username').focus();
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById('forgot-password-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('reset-form').reset();
+        document.getElementById('reset-message').style.display = 'none';
+      }
+    }
+
+    async function handleResetPassword(e) {
+      e.preventDefault();
+
+      const resetUsername = document.getElementById('reset-username').value.trim();
+      const resetPassword = document.getElementById('reset-password').value;
+      const confirmPassword = document.getElementById('reset-confirm-password').value;
+      const resetMessage = document.getElementById('reset-message');
+
+      if (!resetUsername) {
+        showResetMessage('Please enter your username', 'error');
+        return;
+      }
+
+      if (resetPassword.length < 6) {
+        showResetMessage('Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      if (resetPassword !== confirmPassword) {
+        showResetMessage('Passwords do not match', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('../../backend/api/auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'reset_password',
+            username: resetUsername,
+            newPassword: resetPassword
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showResetMessage('Password reset successful! Please log in.', 'success');
+          setTimeout(() => {
+            closeForgotPasswordModal();
+          }, 2000);
+        } else {
+          showResetMessage(data.message || 'Password reset failed', 'error');
+        }
+      } catch (err) {
+        console.error('Reset password error:', err);
+        showResetMessage('An error occurred. Please try again.', 'error');
+      }
+    }
+
+    function showResetMessage(text, type = 'error') {
+      const messageEl = document.getElementById('reset-message');
+      messageEl.textContent = text;
+      messageEl.style.display = 'block';
+      messageEl.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
+      messageEl.style.color = type === 'success' ? '#065f46' : '#991b1b';
+    }
+  </script>
+
+  <style>
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-content button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</body>
+</html>
