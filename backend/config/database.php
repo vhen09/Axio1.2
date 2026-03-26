@@ -116,6 +116,27 @@ class Database {
     }
     
     /**
+     * Get the correct NOW/CURRENT_TIMESTAMP function for the current database type
+     * PostgreSQL: CURRENT_TIMESTAMP
+     * SQLite: CURRENT_TIMESTAMP
+     * MySQL: CURRENT_TIMESTAMP (or NOW())
+     * @return string The current timestamp SQL function
+     */
+    public function getCurrentTimestampFunction() {
+        if (!$this->pdo) {
+            return 'CURRENT_TIMESTAMP';
+        }
+        
+        try {
+            $dbType = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            // All three databases support CURRENT_TIMESTAMP
+            return 'CURRENT_TIMESTAMP';
+        } catch (Exception $e) {
+            return 'CURRENT_TIMESTAMP';
+        }
+    }
+    
+    /**
      * Initialize database schema (creates tables if they don't exist)
      */
     public function initializeSchema() {

@@ -79,7 +79,7 @@ class User {
             error_log("Username available - hashing password...");
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             
-            $query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+            $query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
             error_log("Executing: INSERT INTO users (username, password, first_name, last_name, email, created_at)");
             
             $stmt = $this->connection->prepare($query);

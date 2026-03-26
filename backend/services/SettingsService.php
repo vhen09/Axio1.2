@@ -115,10 +115,10 @@ class SettingsService {
             // Update or insert
             $stmt = $this->db->prepare("
                 INSERT INTO user_settings (user_id, $settingKey, updated_at)
-                VALUES (?, ?, NOW())
+                VALUES (?, ?, CURRENT_TIMESTAMP)
                 ON DUPLICATE KEY UPDATE
                     $settingKey = VALUES($settingKey),
-                    updated_at = NOW()
+                    updated_at = CURRENT_TIMESTAMP
             ");
             $stmt->execute([$userId, $dbValue]);
 
@@ -178,19 +178,19 @@ class SettingsService {
                 INSERT INTO user_settings (user_id, " . implode(', ', array_map(function($k) { 
                     return str_replace(' = ?', '', $k); 
                 }, $updates)) . ", updated_at)
-                VALUES (?, " . implode(', ', array_fill(0, count($updates), '?')) . ", NOW())
+                VALUES (?, " . implode(', ', array_fill(0, count($updates), '?')) . ", CURRENT_TIMESTAMP)
                 ON DUPLICATE KEY UPDATE
                     " . implode(', ') . ",
-                    updated_at = NOW()
+                    updated_at = CURRENT_TIMESTAMP
             ";
 
             // Rebuild query properly
             $sql = "
                 INSERT INTO user_settings (user_id, " . implode(', ', preg_replace('/\s*=\s*\?/', '', $updates)) . ", updated_at)
-                VALUES (?, " . implode(', ', array_fill(0, count($updates), '?')) . ", NOW())
+                VALUES (?, " . implode(', ', array_fill(0, count($updates), '?')) . ", CURRENT_TIMESTAMP)
                 ON DUPLICATE KEY UPDATE
                     " . implode(', ', $updates) . ",
-                    updated_at = NOW()
+                    updated_at = CURRENT_TIMESTAMP
             ";
 
             $stmt = $this->db->prepare($sql);
