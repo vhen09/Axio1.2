@@ -46,8 +46,8 @@ try {
     $action = $_GET['action'] ?? $_POST['action'] ?? '';
     $method = $_SERVER['REQUEST_METHOD'];
 
-    // Require authentication
-    if (!isset($_SESSION['user_id'])) {
+    // Allow get_defaults without authentication
+    if ($action !== 'get_defaults' && !isset($_SESSION['user_id'])) {
         http_response_code(401);
         echo json_encode([
             'success' => false,
@@ -56,7 +56,7 @@ try {
         exit();
     }
 
-    $userId = (int)$_SESSION['user_id'];
+    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 
     // Parse request body for POST
     $data = [];
@@ -86,6 +86,28 @@ try {
             echo json_encode([
                 'success' => true,
                 'defaults' => $settingsService->getDefaults()
+            ]);
+            break;
+
+        /**
+         * GET /api/settings.php?action=get_by_category
+         * Get settings grouped by category (requires auth)
+         */
+        case 'get_by_category':
+            if (!$userId) {
+                http_response_code(401);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Not authenticated'
+                ]);
+                break;
+            }
+            $result = $settingsService->getSettingsByCategory($userId);
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'categories' => $result,
+                'last_updated' => date('Y-m-d H:i:s')
             ]);
             break;
 
