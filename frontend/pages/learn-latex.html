@@ -913,6 +913,71 @@ $\\lim_{n \\to \\infty} \\frac{1}{n} = 0$
       renderPreview();
     }
 
+    // Convert LaTeX to Natural Language Interpretation
+    function latexToNaturalLanguage(latex) {
+      let text = latex;
+      
+      // Common LaTeX to natural language mappings
+      const replacements = [
+        [/\\frac\{([^}]+)\}\{([^}]+)\}/g, 'fraction $1 over $2'],
+        [/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '$1-th root of $2'],
+        [/\\sqrt\{([^}]+)\}/g, 'square root of $1'],
+        [/\\geq/g, '≥ (greater than or equal)'],
+        [/\\leq/g, '≤ (less than or equal)'],
+        [/\\neq/g, '≠ (not equal)'],
+        [/\\approx/g, '≈ (approximately equal)'],
+        [/\\times/g, '× (multiply)'],
+        [/\\cdot/g, '· (multiply)'],
+        [/\^([{]?[^}]*[}]?)/g, 'to the power $1'],
+        [/_([{]?[^}]*[}]?)/g, 'subscript $1'],
+        [/\\sum/g, 'sum'],
+        [/\\prod/g, 'product'],
+        [/\\int/g, 'integral'],
+        [/\\pi/g, 'π (pi)'],
+        [/\\alpha/g, 'α (alpha)'],
+        [/\\beta/g, 'β (beta)'],
+        [/\\gamma/g, 'γ (gamma)'],
+        [/\\theta/g, 'θ (theta)'],
+        [/\\lambda/g, 'λ (lambda)'],
+        [/\\Delta/g, 'Δ (Delta)'],
+        [/\\infty/g, '∞ (infinity)'],
+        [/\\forall/g, '∀ (for all)'],
+        [/\\exists/g, '∃ (there exists)'],
+      ];
+      
+      for (let [pattern, replacement] of replacements) {
+        text = text.replace(pattern, replacement);
+      }
+      
+      // Remove dollar signs and extra braces
+      text = text.replace(/[\${}]/g, '');
+      text = text.replace(/\\\\/g, ' ');
+      
+      return text.trim();
+    }
+
+    // Extract and interpret math expressions from LaTeX code
+    function extractMathExpressions(code) {
+      const expressions = [];
+      
+      // Match $...$ (inline) and $$...$$ (display)
+      const inlineRegex = /\$([^$]+)\$/g;
+      let match;
+      
+      while ((match = inlineRegex.exec(code)) !== null) {
+        const latex = match[1].trim();
+        if (latex && !expressions.includes(latex)) {
+          const natural = latexToNaturalLanguage(latex);
+          expressions.push({
+            latex: latex,
+            natural: natural
+          });
+        }
+      }
+      
+      return expressions;
+    }
+
     function renderPreview() {
       const code = document.getElementById('editor').value;
       const preview = document.getElementById('preview');
@@ -923,12 +988,37 @@ $\\lim_{n \\to \\infty} \\frac{1}{n} = 0$
         return;
       }
 
+      // Extract math expressions
+      const expressions = extractMathExpressions(code);
+      
+      // Build preview with natural language + rendered output
+      let previewHTML = '';
+      
+      if (expressions.length > 0) {
+        previewHTML += '<div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 12px; margin-bottom: 15px; border-radius: 4px;">';
+        previewHTML += '<div style="font-weight: 600; color: #0369a1; margin-bottom: 8px; font-size: 0.9rem;">📝 What This Means:</div>';
+        previewHTML += '<ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #0c4a6e;">';
+        
+        expressions.forEach(expr => {
+          previewHTML += `<li>${expr.natural}</li>`;
+        });
+        
+        previewHTML += '</ul></div>';
+      }
+      
+      // Add the rendered equation section
+      previewHTML += '<div style="border-top: 1px solid #e5e7eb; padding-top: 12px;">';
+      previewHTML += '<div style="font-weight: 600; color: #64748b; margin-bottom: 8px; font-size: 0.9rem;">📐 Rendered Output:</div>';
+      
       let wrapped = code;
       if (!wrapped.includes('$') && !wrapped.includes('\\begin')) {
         wrapped = '$$' + wrapped + '$$';
       }
-
-      preview.innerHTML = wrapped;
+      
+      previewHTML += '<div style="font-size: 1.1rem; line-height: 1.8;">' + wrapped + '</div>';
+      previewHTML += '</div>';
+      
+      preview.innerHTML = previewHTML;
       preview.classList.remove('error');
 
       if (window.MathJax) {
