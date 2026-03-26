@@ -175,13 +175,8 @@ const AuthHandler = {
    */
   async handleLogout() {
     try {
-      await fetch(`${this.apiBase}/auth.php?action=logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-
-      sessionStorage.clear();
-      window.location.href = '/frontend/pages/auth.html';
+      // Use unified logout manager
+      await LogoutManager.logout('/frontend/pages/welcome.html');
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -1492,31 +1492,15 @@
     }
 
     async function performLogout() {
+      // Use unified logout manager
       try {
-        await fetch('../../backend/api/auth.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'logout' })
-        });
+        await LogoutManager.logout('welcome.html');
       } catch (error) {
+        console.error('Logout performed but with errors:', error);
+        // Still redirect even if there are errors
+        LogoutManager._clearClientStorage();
+        window.location.href = 'welcome.html';
       }
-      // Clear all client-side session data
-      localStorage.removeItem('axio.workspace.state');
-      localStorage.removeItem('reana_profile');
-      localStorage.removeItem('reana_preferences');
-      localStorage.removeItem('reana_proofs');
-      localStorage.removeItem('reana_submissions');
-      
-      // Remove session tracking variables but keep logout flag
-      sessionStorage.removeItem('current_user_id');
-      sessionStorage.removeItem('new_user');
-      sessionStorage.removeItem('latex_skill_done');
-      sessionStorage.removeItem('tutorial_completed');
-      
-      // Flag landing.html to show login instead of redirecting (MUST be last)
-      sessionStorage.setItem('just_logged_out', 'true');
-      
-      window.location.href = 'welcome.html';
     }
 
     function setVerifyPopupVisibility(isOpen) {

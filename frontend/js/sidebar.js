@@ -131,23 +131,14 @@ function injectLogoutNav() {
     logoutLink.textContent = ' Logout';
     logoutLink.addEventListener('click', async (event) => {
         event.preventDefault();
+        // Use unified logout manager
         try {
-            await fetch('../../backend/api/auth.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'logout' })
-            });
-        } catch (_) {
+            await LogoutManager.logout('welcome.html');
+        } catch (error) {
+            console.error('Sidebar logout error:', error);
+            LogoutManager._clearClientStorage();
+            window.location.href = 'welcome.html';
         }
-
-        [
-            'axio.workspace.state',
-            'axio.proofs',
-            'reana_profile',
-            'reana_preferences'
-        ].forEach((key) => localStorage.removeItem(key));
-
-        window.location.href = 'welcome.html';
     });
 
     nav.appendChild(logoutLink);
