@@ -1,6 +1,9 @@
 <?php
 // This file handles user authentication, including login and registration processes.
 
+// CRITICAL: Use API safety handler to prevent HTML errors
+require_once __DIR__ . '/../config/api-safety.php';
+
 // Auto-initialize database fallback on every request
 @require_once __DIR__ . '/../config/auto-setup.php';
 require_once __DIR__ . '/../config/database.php';
@@ -330,6 +333,7 @@ try {
 } catch (Exception $e) {
     // Database configuration error - return clear error message
     error_log('CRITICAL AUTH ERROR: ' . $e->getMessage());
+    ob_clean(); // Clear any buffered output to prevent HTML
     http_response_code(500);
     echo json_encode([
         'success' => false, 

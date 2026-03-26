@@ -29,7 +29,22 @@ const AuthHandler = {
         })
       });
 
-      const result = await response.json();
+      // Check HTTP status first
+      if (!response.ok) {
+        console.error(`❌ Server error: ${response.status} ${response.statusText}`);
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      // Parse JSON with error handling
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error('❌ Server returned invalid JSON:', parseError);
+        const responseText = await response.text();
+        console.error('Response was:', responseText.substring(0, 200));
+        throw new Error('Server error: Invalid response format. Please try again.');
+      }
 
       if (result.success) {
         console.log('✅ Signup successful', result);
@@ -74,7 +89,22 @@ const AuthHandler = {
         body: JSON.stringify({ username, password })
       });
 
-      const result = await response.json();
+      // Check HTTP status first
+      if (!response.ok) {
+        console.error(`❌ Server error: ${response.status} ${response.statusText}`);
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      // Parse JSON with error handling
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error('❌ Server returned invalid JSON:', parseError);
+        const responseText = await response.text();
+        console.error('Response was:', responseText.substring(0, 200));
+        throw new Error('Server error: Invalid response format. Please try again.');
+      }
 
       if (result.success) {
         console.log('✅ Login successful', result);
