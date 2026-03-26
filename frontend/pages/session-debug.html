@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Debug - AXIO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        h1 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #81c784;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #1e1e1e;
+            border-left: 3px solid #4fc3f7;
+            border-radius: 2px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: monospace;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 3px solid #4fc3f7;
+        }
+        .success {
+            background: #1b5e20;
+            border-left-color: #81c784;
+        }
+        .error {
+            background: #5e0000;
+            border-left-color: #f44336;
+        }
+        .info {
+            background: #00305e;
+            border-left-color: #4fc3f7;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border-left: 3px solid #ce9178;
+            margin: 10px 0;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Session Debug Console</h1>
+        
+        <div class="section">
+            <h2>Quick Actions</h2>
+            <div class="button-group">
+                <button onclick="testLogin()">Test Login</button>
+                <button onclick="testActivityApi()">Test Activity Logs API</button>
+                <button onclick="checkBrowserCookies()">Check Browser Cookies</button>
+                <button onclick="testSessionPersistence()">Test Session Persistence</button>
+                <button onclick="clearAllData()">Clear All Data</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Current State</h2>
+            <div id="currentState"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔐 Browser Cookies</h2>
+            <div id="cookies"></div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Test Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = `${window.location.protocol}//${window.location.host}/backend/api`;
+        
+        // Update current state on page load
+        window.addEventListener('load', updateCurrentState);
+
+        function updateCurrentState() {
+            const state = {
+                'Local Storage User ID': localStorage.getItem('user_id') || 'NOT SET',
+                'Session Storage User ID': sessionStorage.getItem('user_id') || 'NOT SET',
+                'Session Storage Username': sessionStorage.getItem('username') || 'NOT SET',
+                'API Base URL': API_BASE
+            };
+
+            const stateDiv = document.getElementById('currentState');
+            stateDiv.innerHTML = '<pre>' + JSON.stringify(state, null, 2) + '</pre>';
+            
+            // Also show cookies
+            displayCookies();
+        }
+
+        function displayCookies() {
+            const cookies = document.cookie.split('; ');
+            const cookieDiv = document.getElementById('cookies');
+            let html = '<pre>';
+            
+            if (document.cookie === '') {
+                html += 'No cookies found\n';
+            } else {
+                cookies.forEach(cookie => {
+                    html += cookie + '\n';
+                });
+            }
+            
+            html += '</pre>';
+            html += '<p>Note: HttpOnly cookies won\'t show here (PHPSESSID should be HttpOnly)</p>';
+            cookieDiv.innerHTML = html;
+        }
+
+        async function testLogin() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">⏳ Testing login...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/auth.php?action=login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'testuser',
+                        password: 'testpass123'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionStorage.setItem('user_id', data.user_id);
+                    sessionStorage.setItem('username', data.username);
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="status success">✅ Login Successful</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <p>Session storage updated. Now try "Test Activity Logs API"</p>
+                    `;
+                    updateCurrentState();
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">❌ Login Failed: ${data.message}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testActivityApi() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">⏳ Testing activity logs API...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/activity-logs.php?action=my_activities`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">❌ Session Not Recognized (401)</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <p>Debug info shows what the server saw. Check if session_id matches browser cookies.</p>
+                    `;
+                } else if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <div class="status success">✅ API Access Successful</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">❌ API Error: ${data.error}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkBrowserCookies() {
+            displayCookies();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="status info">🍪 Browser Cookie Information</div>
+                <p>Cookies are displayed above. If PHPSESSID is not visible, it may be HttpOnly (which is correct for security).</p>
+                <p>Open Developer Tools (F12) → Application → Cookies to see all cookies including HttpOnly ones.</p>
+            `;
+        }
+
+        async function testSessionPersistence() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">⏳ Testing session persistence...</div>';
+
+            try {
+                // Call a simple endpoint that saves to session
+                const response1 = await fetch(`${API_BASE}/auth.php?action=check_session`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data1 = await response1.json();
+
+                // Call another endpoint to see if session persists
+                const response2 = await fetch(`${API_BASE}/activity-logs.php?action=my_activities`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data2 = await response2.json();
+
+                let html = '<div class="status info">Session Persistence Test Results</div>';
+                html += '<p>First call (auth.php):</p>';
+                html += '<pre>' + JSON.stringify(data1, null, 2) + '</pre>';
+                html += '<p>Second call (activity-logs.php):</p>';
+                html += '<pre>' + JSON.stringify(data2, null, 2) + '</pre>';
+                
+                if (data2.success || (data2.success === false && data2.debug?.session_id)) {
+                    html += '<div class="status info">Session may be persisting - check session IDs above</div>';
+                }
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function clearAllData() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.cookie.split(";").forEach(c => {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+            });
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status success">✅ All local storage and session data cleared</div>';
+            updateCurrentState();
+        }
+    </script>
+</body>
+</html>

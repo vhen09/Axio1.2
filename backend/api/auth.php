@@ -26,6 +26,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Debug: Log session initialization
+error_log("=== Auth API Called ===");
+error_log("Session ID: " . session_id());
+error_log("Session User ID: " . ($_SESSION['user_id'] ?? "NOT SET"));
+error_log("Request Action: " . ($_GET['action'] ?? $_POST['action'] ?? "NOT SET"));
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();

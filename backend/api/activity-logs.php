@@ -28,8 +28,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Debug: Log session info
-error_log("Activity Logs API - Session ID: " . session_id() . ", User ID: " . ($_SESSION['user_id'] ?? 'NOT SET'));
-error_log("Session data: " . print_r($_SESSION, true));
+$sessionId = session_id();
+$userId = $_SESSION['user_id'] ?? null;
+$username = $_SESSION['username'] ?? null;
+
+error_log("=== Activity Logs API Called ===");
+error_log("Session ID: " . $sessionId);
+error_log("Session User ID: " . ($userId ?? "NOT SET"));
+error_log("Session Username: " . ($username ?? "NOT SET"));
+error_log("Session Data Keys: " . implode(", ", array_keys($_SESSION)));
+error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+error_log("Request Action: " . ($_GET['action'] ?? $_POST['action'] ?? "NOT SET"));
+error_log("Cookies: " . print_r($_COOKIE, true));
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
