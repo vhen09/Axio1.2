@@ -298,9 +298,9 @@ lean4-ai-web-app/
 ```apache
 <VirtualHost *:80>
     ServerName reana.local
-    DocumentRoot "C:/Project/axio2.0/lean4-ai-web-app"
+    DocumentRoot "C:/Project/v11"
     
-    <Directory "C:/Project/axio2.0/lean4-ai-web-app">
+    <Directory "C:/Project/v11">
         AllowOverride All
         Require all granted
     </Directory>

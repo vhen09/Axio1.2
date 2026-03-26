@@ -75,7 +75,7 @@ window.AXIO_CONFIG = {
   // ===== FRONTEND PATHS =====
   FRONTEND_PATHS: {
     VANILLA: '/frontend/pages/',
-    REACT: '/axio2.0/lean4-ai-web-app/frontend/',
+    REACT: '/frontend-react/',
     HYBRID_ROUTER: '/'
   },
   

@@ -108,7 +108,7 @@ Both frontends use the **same backend**, ensuring perfect data synchronization a
 │                 │                     OR           │
 │  ┌──────────────▼────────────────────┐              │
 │  │  Frontend 2: React/TypeScript      │              │
-│  │  /axio2.0/lean4-ai-web-app/       │              │
+│  │  /frontend-react/                 │              │
 │  │  - 12 React components             │              │
 │  │  - TypeScript support              │              │
 │  │  - Tailwind CSS                    │              │
@@ -271,7 +271,7 @@ git push origin main
 ### Issue: React frontend not built/deployed
 **Solution**: 
 ```bash
-cd axio2.0/lean4-ai-web-app
+cd frontend-react
 npm install && npm run build
 ```
 

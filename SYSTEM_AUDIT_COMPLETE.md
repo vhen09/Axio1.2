@@ -31,7 +31,7 @@
 ├─────────────────────────────────────────────────────────────┤
 │ Frontend Layer (DUAL - Switch via Feature Flag)             │
 │ ├─ Vanilla JS: /frontend/pages/                             │
-│ └─ React: /axio2.0/lean4-ai-web-app/frontend/             │
+│ └─ React: /frontend-react/                               │
 ├─────────────────────────────────────────────────────────────┤
 │ Backend API Layer: /backend/api/                            │
 │ ├─ Services: /backend/services/                             │
@@ -152,7 +152,7 @@
 ## FRONTEND - REACT (ARCHIVED)
 
 ### Location
-`/axio2.0/lean4-ai-web-app/frontend/`
+`/frontend-react/`
 
 ### TSX Components
 

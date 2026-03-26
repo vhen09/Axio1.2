@@ -90,7 +90,7 @@ Route to appropriate frontend
 - **4 Configs**: database, auto-setup, deepseek, feature flags
 
 ### React Frontend (12 components)
-- Located at: `/axio2.0/lean4-ai-web-app/frontend/`
+- Located at: `/frontend-react/`
 - Ready for immediate use
 - All same APIs as vanilla JS version
 - No build needed (can import TSX directly when React is chosen)

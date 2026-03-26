@@ -53,7 +53,7 @@
    - `http://localhost:8080/` → Load default (user's saved preference)
 
 3. **Via URL Direct Access** (Dev)
-   - React direct: `http://localhost:8080/axio2.0/lean4-ai-web-app/frontend/`
+   - React direct: `http://localhost:8080/frontend-react/`
    - Vanilla direct: `http://localhost:8080/frontend/pages/`
 
 ---
@@ -95,7 +95,7 @@ window.AXIO_CONFIG = {
   // Frontend paths
   FRONTEND_PATHS: {
     VANILLA: '/frontend/pages/',
-    REACT: '/axio2.0/lean4-ai-web-app/frontend/'
+    REACT: '/frontend-react/'
   },
   
   // Get feature status
@@ -161,7 +161,7 @@ if (!in_array($frontend, ['vanilla', 'react'])) {
 // Route to appropriate frontend
 if ($frontend === 'react') {
   // Serve React frontend
-  header('Location: /axio2.0/lean4-ai-web-app/frontend/index.html', true, 302);
+  header('Location: /frontend-react/index.html', true, 302);
 } else {
   // Serve Vanilla JS frontend (default)
   header('Location: /frontend/pages/welcome.html', true, 302);
@@ -396,12 +396,12 @@ Add before closing `</body>`:
 ### Phase 3: React Frontend Integration (4 hours)
 
 #### Step 3.1: Add Frontend Switcher to React
-**File**: `/axio2.0/lean4-ai-web-app/frontend/SettingsPage.tsx`
+**File**: `/frontend-react/SettingsPage.tsx`
 
 Add state and UI for frontend switching (similar to vanilla JS version).
 
 #### Step 3.2: Update React index to Support Routing
-**File**: `/axio2.0/lean4-ai-web-app/frontend/index.html`
+**File**: `/frontend-react/index.html`
 
 Add startup script to detect if redirected from hybrid router.
 
@@ -453,7 +453,7 @@ Landing → Auth → Default Frontend (Vanilla JS)
 Login → Load user's saved preference from DB
         ↓
         If vanilla JS preferred → /frontend/pages/
-        If React preferred → /axio2.0/lean4-ai-web-app/frontend/
+        If React preferred → /frontend-react/
 ```
 
 ### Switching Preference

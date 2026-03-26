@@ -121,7 +121,7 @@ At the end of `settings.html` (before `</body>`), add:
 ```
 
 #### Step 2.3: Update React Settings Page
-**File**: `/axio2.0/lean4-ai-web-app/frontend/SettingsPage.tsx`
+**File**: `/frontend-react/SettingsPage.tsx`
 
 Add similar UI for switching (can mirror the vanilla JS version).
 
@@ -244,7 +244,7 @@ http://localhost:8080/?frontend=react
 
 # Direct access
 http://localhost:8080/frontend/pages/
-http://localhost:8080/axio2.0/lean4-ai-web-app/frontend/
+http://localhost:8080/frontend-react/
 ```
 
 ### View feature flags
@@ -295,12 +295,9 @@ Solution:
 **Problem**: Cannot access React frontend
 ```
 Solution:
-1. Verify /axio2.0/lean4-ai-web-app/frontend/ exists
+1. Verify /frontend-react/ exists
 2. Check if React build is complete
-3. If not built yet, run React build:
-   cd axio2.0/lean4-ai-web-app/
-   npm install
-   npm run build
+3. If not built yet, React files are already in place - no build needed for TSX referencing
 ```
 
 ### Feature flags not loading

@@ -77,7 +77,7 @@ function getFrontendUrl($frontend) {
   $frontend = validateFrontend($frontend);
   
   if ($frontend === 'react') {
-    return '/axio2.0/lean4-ai-web-app/frontend/';
+    return '/frontend-react/index.html';
   } else {
     return '/frontend/pages/welcome.html';
   }
