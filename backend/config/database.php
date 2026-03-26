@@ -1,9 +1,11 @@
 <?php
 class Database {
     private $host = 'localhost';
-    private $db = 'lean4_ai_app';
-    private $user = 'root';
-    private $pass = '';
+    private $port = '5432';
+    private $db = 'lean4_ai_db';
+    private $user = 'lean4_user';
+    private $pass = 'lean4_password_123';
+    private $dbType = 'postgresql'; // PostgreSQL is now default
     private $pdo = null;
     private $demoMode = false;
 
@@ -13,9 +15,11 @@ class Database {
             $this->connectFromUrl(getenv('DATABASE_URL'));
         } elseif (getenv('DB_HOST')) {
             $this->host = getenv('DB_HOST');
-            $this->db = getenv('DB_NAME') ?? 'lean4_ai_app';
-            $this->user = getenv('DB_USER') ?? 'root';
-            $this->pass = getenv('DB_PASS') ?? '';
+            $this->port = getenv('DB_PORT') ?? '5432';
+            $this->db = getenv('DB_NAME') ?? 'lean4_ai_db';
+            $this->user = getenv('DB_USER') ?? 'lean4_user';
+            $this->pass = getenv('DB_PASS') ?? 'lean4_password_123';
+            $this->dbType = getenv('DB_TYPE') ?? 'postgresql';
             $this->connectWithCredentials();
         } else {
             $this->connectWithCredentials();
@@ -73,10 +77,23 @@ class Database {
 
     private function connectWithCredentials() {
         try {
-            $this->pdo = new PDO("mysql:host={$this->host};dbname={$this->db}", $this->user, $this->pass);
+            // Default to PostgreSQL (changed from MySQL)
+            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db}";
+            $this->pdo = new PDO(
+                $dsn,
+                $this->user,
+                $this->pass,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_TIMEOUT => 5
+                ]
+            );
+            error_log("Database: PostgreSQL connected successfully");
         } catch (Exception $e) {
-            $this->demoMode = true;
-            error_log("Local DB fail: " . $e->getMessage());
+            error_log("Database: PostgreSQL connection failed - " . $e->getMessage());
+            error_log("Database: Attempting to use SQLite fallback");
+            $this->tryDemoMode();
         }
     }
 

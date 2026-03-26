@@ -29,3 +29,13 @@ tmp/
 # Python caches (if any tools used)
 __pycache__/
 *.pyc
+
+# Large binary files / installers
+*.exe
+*.msi
+postgresql_*.exe
+edb_*.exe
+database/*.exe
+axio2.0/**/*.exe
+lean4-ai-web-app/**/*.exe
+data/
