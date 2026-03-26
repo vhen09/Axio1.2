@@ -114,6 +114,120 @@ class Database {
     public function isConnected() {
         return $this->pdo !== null && !$this->demoMode;
     }
+    
+    /**
+     * Initialize database schema (creates tables if they don't exist)
+     */
+    public function initializeSchema() {
+        if (!$this->pdo || $this->demoMode) {
+            return false;
+        }
+        
+        try {
+            $dbType = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            error_log("Initializing schema for $dbType");
+            
+            if ($dbType === 'pgsql') {
+                // PostgreSQL schema
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS users (
+                        id SERIAL PRIMARY KEY,
+                        username VARCHAR(255) UNIQUE NOT NULL,
+                        password VARCHAR(255) NOT NULL,
+                        first_name VARCHAR(100),
+                        last_name VARCHAR(100),
+                        email VARCHAR(255),
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS user_preferences (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                        latex_skill_level VARCHAR(50) DEFAULT 'beginner',
+                        tutorial_completed BOOLEAN DEFAULT FALSE,
+                        tutorial_skipped BOOLEAN DEFAULT FALSE,
+                        onboarding_complete BOOLEAN DEFAULT FALSE
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS submissions (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                        theorem_id INTEGER,
+                        input_text TEXT,
+                        lean_code TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS scores (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                        submission_id INTEGER,
+                        score INTEGER,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+                
+            } else if ($dbType === 'sqlite') {
+                // SQLite schema
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
+                        first_name TEXT,
+                        last_name TEXT,
+                        email TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS user_preferences (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER UNIQUE,
+                        latex_skill_level TEXT DEFAULT 'beginner',
+                        tutorial_completed BOOLEAN DEFAULT 0,
+                        tutorial_skipped BOOLEAN DEFAULT 0,
+                        onboarding_complete BOOLEAN DEFAULT 0
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS submissions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER,
+                        theorem_id INTEGER,
+                        input_text TEXT,
+                        lean_code TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+                
+                $this->pdo->exec("
+                    CREATE TABLE IF NOT EXISTS scores (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER,
+                        submission_id INTEGER,
+                        score INTEGER,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                ");
+            }
+            
+            error_log("✓ Schema initialization complete");
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("✗ Schema initialization failed: " . $e->getMessage());
+            return false;
+        }
+    }
 
     public function query($sql, $params = []) {
         if (!$this->pdo) return false;
