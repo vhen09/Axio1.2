@@ -265,13 +265,48 @@
       cursor: pointer;
     }
 
-    .domain-card input[type="checkbox"]:checked + .domain-content {
-      color: var(--color-accent);
+    /* SELECTED STATE - STRONG VISUAL FEEDBACK */
+    .domain-card input[type="checkbox"]:checked {
+      accent-color: var(--color-success);
     }
 
-    .domain-card input[type="checkbox"]:checked ~ .domain-badge {
-      background: var(--color-success);
-      color: white;
+    .domain-card input[type="checkbox"]:checked ~ .checkmark {
+      display: flex;
+      background-color: var(--color-success);
+      border-color: var(--color-success);
+    }
+
+    .domain-card input[type="checkbox"]:checked {
+      /* This makes the parent card highlight */
+    }
+
+    /* Parent card highlights when checkbox is checked */
+    .domain-card input[type="checkbox"]:checked + .domain-content + .domain-badge + .card-highlight {
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    /* Overall card styling when selected */
+    .domain-card:has(input[type="checkbox"]:checked) {
+      border: 2px solid var(--color-success) !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%) !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), 0 8px 24px rgba(16, 185, 129, 0.2) !important;
+      transform: scale(1.02);
+    }
+
+    .domain-card:has(input[type="checkbox"]:checked) .domain-title {
+      color: var(--color-success) !important;
+      font-weight: 700;
+    }
+
+    .domain-card:has(input[type="checkbox"]:checked) .domain-badge {
+      background: var(--color-success) !important;
+      color: white !important;
+      opacity: 1 !important;
+    }
+
+    .domain-card:has(input[type="checkbox"]:checked) .checkmark {
+      display: flex !important;
     }
 
     .domain-card.domain-card-primary {
@@ -282,6 +317,29 @@
     .domain-card.domain-card-primary:hover {
       border-color: var(--color-success);
       box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+    }
+
+    /* CHECKMARK INDICATOR */
+    .checkmark {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 28px;
+      height: 28px;
+      background-color: transparent;
+      border: 2px solid transparent;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .checkmark::before {
+      content: "✓";
     }
 
     .domain-content {
@@ -321,18 +379,25 @@
       right: 8px;
       background: var(--color-accent);
       color: white;
-      padding: 4px 8px;
+      padding: 6px 10px;
       border-radius: 4px;
       font-size: 0.7em;
-      font-weight: 600;
-      transition: all 0.2s ease;
+      font-weight: 700;
+      transition: all 0.3s ease;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
       opacity: 0;
-      transition: opacity 0.2s ease;
+      visibility: hidden;
+      transform: scale(0.7);
+      white-space: nowrap;
     }
 
     .domain-card input[type="checkbox"]:checked ~ .domain-badge {
       opacity: 1;
+      visibility: visible;
+      background: var(--color-success);
+      transform: scale(1);
+      animation: badgePulse 0.3s ease-out;
     }
 
     /* DIFFICULTY LEVEL SELECTOR - UNIFORM */
@@ -558,6 +623,64 @@
         font-size: 0.85em;
       }
     }
+
+    /* CARD SELECTION ANIMATIONS */
+    @keyframes cardSelect {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.06);
+      }
+      100% {
+        transform: scale(1.02);
+      }
+    }
+
+    @keyframes cardDeselect {
+      0% {
+        transform: scale(1.02);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+    }
+
+    /* Checkmark Animation */
+    @keyframes checkmarkPulse {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .checkmark {
+      animation: checkmarkPulse 0.3s ease-out;
+    }
+
+    @keyframes badgePulse {
+      0% {
+        transform: scale(0) rotate(-20deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.15);
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body data-page="settings">
@@ -731,122 +854,145 @@
             <!-- Real Analysis - Primary -->
             <label class="domain-card domain-card-primary">
               <input type="checkbox" name="domains" value="real-analysis" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">ℝ</div>
                 <div class="domain-title">Real Analysis</div>
                 <div class="domain-desc">Limits, continuity, sequences, series</div>
               </div>
-              <div class="domain-badge">Primary</div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Algebra -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="algebra" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">∑</div>
                 <div class="domain-title">Algebra</div>
                 <div class="domain-desc">Equations, polynomials, rings</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Calculus -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="calculus" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">∫</div>
                 <div class="domain-title">Calculus</div>
                 <div class="domain-desc">Derivatives, integrals, optimization</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Linear Algebra -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="linear" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">⟨⟩</div>
                 <div class="domain-title">Linear Algebra</div>
                 <div class="domain-desc">Vectors, matrices, eigenvalues</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Discrete Math -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="discrete" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">∧</div>
                 <div class="domain-title">Discrete Math</div>
                 <div class="domain-desc">Logic, graphs, combinatorics</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Geometry -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="geometry" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">△</div>
                 <div class="domain-title">Geometry</div>
                 <div class="domain-desc">Shapes, angles, proofs</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Logic & Set Theory -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="logic" checked>
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">∀</div>
                 <div class="domain-title">Logic & Sets</div>
                 <div class="domain-desc">Quantifiers, set operations</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Probability & Statistics -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="probability">
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">π</div>
                 <div class="domain-title">Probability</div>
                 <div class="domain-desc">Distributions, inference</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Abstract Algebra -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="abstract-algebra">
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">⊕</div>
                 <div class="domain-title">Abstract Algebra</div>
                 <div class="domain-desc">Groups, fields, rings</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Topology -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="topology">
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">◯</div>
                 <div class="domain-title">Topology</div>
                 <div class="domain-desc">Open sets, continuity, compactness</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Numerical Analysis -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="numerical">
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">≈</div>
                 <div class="domain-title">Numerical Analysis</div>
                 <div class="domain-desc">Approximation, algorithms</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
 
             <!-- Functional Analysis -->
             <label class="domain-card">
               <input type="checkbox" name="domains" value="functional">
+              <div class="checkmark"></div>
               <div class="domain-content">
                 <div class="domain-icon">ℱ</div>
                 <div class="domain-title">Functional Analysis</div>
                 <div class="domain-desc">Spaces, operators, norms</div>
               </div>
+              <div class="domain-badge">✓ Selected</div>
             </label>
           </div>
 
@@ -1076,18 +1222,46 @@
         // Domain cards - filter theorems when selected
         document.querySelectorAll('[name="domains"]').forEach(checkbox => {
           checkbox.addEventListener('change', (e) => {
+            const card = checkbox.closest('.domain-card');
+            const domainTitle = card.querySelector('.domain-title');
+            
+            // Smooth visual feedback
+            if (e.target.checked) {
+              card.style.animation = 'none';
+              setTimeout(() => {
+                card.style.animation = 'cardSelect 0.4s ease-out';
+              }, 10);
+            } else {
+              card.style.animation = 'cardDeselect 0.3s ease-out';
+            }
+
+            // Update domain title styling
+            if (e.target.checked) {
+              domainTitle.style.color = 'var(--color-success)';
+            } else {
+              domainTitle.style.color = 'var(--color-text-primary-light)';
+            }
+
+            // Update badge text
+            const badge = card.querySelector('.domain-badge');
+            if (badge) {
+              badge.textContent = e.target.checked ? '✓ Selected' : 'Not Selected';
+            }
+
             // Filter theorems based on selected domains
             this.filterTheoremsByDomains();
 
-            // Visual feedback
-            const card = checkbox.closest('.domain-card');
-            if (card) {
-              card.style.transform = e.target.checked ? 'scale(1.05)' : 'scale(1)';
-              setTimeout(() => {
-                card.style.transform = 'scale(1)';
-              }, 200);
-            }
+            // Show feedback with count
+            const selectedDomains = Array.from(document.querySelectorAll('[name="domains"]:checked')).length;
+            showSuccess(`✓ Updated (${selectedDomains} domains selected)`);
           });
+
+          // Initialize badge text
+          const card = checkbox.closest('.domain-card');
+          const badge = card.querySelector('.domain-badge');
+          if (badge) {
+            badge.textContent = checkbox.checked ? '✓ Selected' : 'Not Selected';
+          }
         });
 
         // Save button
